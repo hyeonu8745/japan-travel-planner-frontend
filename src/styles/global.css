@@ -3680,3 +3680,14 @@ dialog::backdrop {
     white-space: nowrap;
   }
 }
+/* React: 요청 입력창의 시작 버튼 (디자인의 .prompt a와 같은 모양) */
+.prompt .prompt-start {
+  background: var(--r);
+  color: white;
+  border: 0;
+  padding: 14px 17px;
+  border-radius: 2px;
+  font-weight: 700;
+  white-space: nowrap;
+  min-height: 44px;
+}

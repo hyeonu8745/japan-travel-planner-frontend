@@ -37,7 +37,7 @@ export default function PublicHeader() {
             <Link className="login-link" to="/auth">
               로그인
             </Link>
-            <Link className="btn" to="/auth">
+            <Link className="btn" to="/auth" state={{ from: "/trips/new" }}>
               무료로 시작하기
             </Link>
           </>
