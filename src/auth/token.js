@@ -1,9 +1,9 @@
 const TOKEN_KEY = "tabimate.accessToken";
 const USER_KEY = "tabimate.user";
 
-export function saveAuth({ accessToken, userId, nickname }) {
+export function saveAuth({ accessToken, userId, nickname, email }) {
   localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(USER_KEY, JSON.stringify({ userId, nickname }));
+  localStorage.setItem(USER_KEY, JSON.stringify({ userId, nickname, email }));
 }
 
 export function getToken() {

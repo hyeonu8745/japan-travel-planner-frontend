@@ -87,7 +87,7 @@ function LoginForm({ onSuccess }) {
     setLoading(true);
     try {
       const result = await login({ email, password });
-      saveAuth(result);
+      saveAuth({ ...result, email: email.trim().toLowerCase() });
       onSuccess();
     } catch (err) {
       setError(err.message);
@@ -150,7 +150,7 @@ function SignupForm({ onSuccess }) {
         email: form.email,
         password: form.password,
       });
-      saveAuth(result);
+      saveAuth({ ...result, email: form.email.trim().toLowerCase() });
       onSuccess();
     } catch (err) {
       setError(err.message);
