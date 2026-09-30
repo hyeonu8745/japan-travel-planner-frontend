@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { getChatHistory, sendChatMessage } from "../../api/chat";
-import { TRIP_PROMPT_KEY } from "../../utils/storageKeys";
+import { tripPromptKey } from "../../utils/storageKeys";
 
 const MAX_LENGTH = 1000;
 
@@ -67,10 +67,10 @@ export default function ChatPanel({ tripId, initialReady, onTurn }) {
         if (cancelled) return;
         setMessages(history);
 
-        const prompt = sessionStorage.getItem(TRIP_PROMPT_KEY);
+        const prompt = sessionStorage.getItem(tripPromptKey(tripId)); // ← 이 여행 전용 키
         if (prompt && history.length === 0 && !autoSentRef.current) {
           autoSentRef.current = true;
-          sessionStorage.removeItem(TRIP_PROMPT_KEY);
+          sessionStorage.removeItem(tripPromptKey(tripId)); // ← 이 여행 전용 키
           send(prompt);
         }
       })

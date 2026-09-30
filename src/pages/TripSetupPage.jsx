@@ -2,12 +2,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { createTrip } from "../api/trips";
 import Brand from "../components/Brand";
 import TripConditionsForm from "../components/TripConditionsForm";
+import { TRIP_PROMPT_KEY, tripPromptKey } from "../utils/storageKeys";
 
 export default function TripSetupPage() {
   const navigate = useNavigate();
 
   const handleSubmit = async (payload) => {
     const trip = await createTrip(payload);
+
+    // 메인에서 입력한 요청을 방금 만든 여행에 묶어서 옮김
+    const prompt = sessionStorage.getItem(TRIP_PROMPT_KEY);
+    if (prompt) {
+      sessionStorage.setItem(tripPromptKey(trip.id), prompt);
+      sessionStorage.removeItem(TRIP_PROMPT_KEY);
+    }
+
     navigate(`/trips/${trip.id}/planner`);
   };
 
