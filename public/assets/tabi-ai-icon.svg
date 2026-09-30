@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Tabi AI">
+  <rect width="64" height="64" fill="#dff5fc"/>
+  <path d="M32 10c-9.4 0-17 7.6-17 17 0 12.8 17 27 17 27s17-14.2 17-27c0-9.4-7.6-17-17-17Z" fill="#20afe3"/>
+  <circle cx="32" cy="27" r="8" fill="#fff"/>
+  <path d="M32 17v20M22 27h20M25 20l14 14M39 20 25 34" stroke="#20afe3" stroke-width="2.5"/>
+</svg>
