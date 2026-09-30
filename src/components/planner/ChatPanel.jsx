@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { getChatHistory, sendChatMessage } from "../../api/chat";
-import { tripPromptKey } from "../../utils/storageKeys";
 
 const MAX_LENGTH = 1000;
 
@@ -16,7 +15,12 @@ const QUICK_READY = ["네, 일정 만들어주세요", "조금 더 이야기할�
  * - 대화 이력 불러오기, 메시지 전송, 메인에서 입력한 요청 자동 전송
  * - onTurn(reply): 한 번 주고받을 때마다 부모에게 알림 (정리본·상태 갱신용)
  */
-export default function ChatPanel({ tripId, initialReady, onTurn }) {
+export default function ChatPanel({
+  tripId,
+  initialPrompt,
+  initialReady,
+  onTurn,
+}) {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -67,11 +71,9 @@ export default function ChatPanel({ tripId, initialReady, onTurn }) {
         if (cancelled) return;
         setMessages(history);
 
-        const prompt = sessionStorage.getItem(tripPromptKey(tripId)); // ← 이 여행 전용 키
-        if (prompt && history.length === 0 && !autoSentRef.current) {
+        if (initialPrompt && history.length === 0 && !autoSentRef.current) {
           autoSentRef.current = true;
-          sessionStorage.removeItem(tripPromptKey(tripId)); // ← 이 여행 전용 키
-          send(prompt);
+          send(initialPrompt);
         }
       })
       .catch((err) => !cancelled && setError(err.message));

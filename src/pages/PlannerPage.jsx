@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { getPreferences } from "../api/chat";
 import { getTrip } from "../api/trips";
 import { getUser } from "../auth/token";
@@ -45,10 +45,23 @@ function formatTime(value) {
 
 export default function PlannerPage() {
   const { tripId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const user = getUser();
   const [trip, setTrip] = useState(null);
   const [preference, setPreference] = useState(null);
   const [error, setError] = useState("");
+
+  // 조건 입력에서 넘어온 첫 요청을 처음 한 번만 꺼내 둠
+  const [initialPrompt] = useState(() => location.state?.initialPrompt);
+
+  // 쪽지는 바로 버림 (새로고침·뒤로 가기로 다시 전송되지 않게)
+  useEffect(() => {
+    if (location.state?.initialPrompt) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     Promise.all([getTrip(tripId), getPreferences(tripId)])
@@ -177,6 +190,7 @@ export default function PlannerPage() {
 
         <ChatPanel
           tripId={tripId}
+          initialPrompt={initialPrompt}
           initialReady={trip.status === "READY_TO_GENERATE"}
           onTurn={handleTurn}
         />

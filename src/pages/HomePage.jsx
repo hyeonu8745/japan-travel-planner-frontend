@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { isLoggedIn } from "../auth/token";
 import Footer from "../components/Footer";
 import PublicHeader from "../components/PublicHeader";
-import { TRIP_PROMPT_KEY } from "../utils/storageKeys";
 
 const SUGGESTIONS = ["부모님과 편안한 도쿄 여행", "우에노·야나카 골목 위주로"];
 
@@ -15,13 +14,11 @@ export default function HomePage() {
 
   const handleStart = (e) => {
     e.preventDefault();
-    if (prompt.trim()) {
-      sessionStorage.setItem(TRIP_PROMPT_KEY, prompt.trim());
-    }
+    const request = prompt.trim() || undefined;
     if (isLoggedIn()) {
-      navigate("/trips/new");
+      navigate("/trips/new", { state: { prompt: request } });
     } else {
-      navigate("/auth", { state: { from: "/trips/new" } });
+      navigate("/auth", { state: { from: "/trips/new", prompt: request } });
     }
   };
 

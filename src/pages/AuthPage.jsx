@@ -18,6 +18,7 @@ export default function AuthPage() {
 
   // 로그인 후 원래 가려던 페이지가 있으면 그곳으로
   const redirectTo = location.state?.from ?? "/trips";
+  const carriedPrompt = location.state?.prompt; // ← 추가: 메인에서 들고 온 요청
 
   return (
     <div className="auth-page">
@@ -58,11 +59,21 @@ export default function AuthPage() {
 
           {mode === "login" ? (
             <LoginForm
-              onSuccess={() => navigate(redirectTo, { replace: true })}
+              onSuccess={() =>
+                navigate(redirectTo, {
+                  replace: true,
+                  state: { prompt: carriedPrompt },
+                })
+              }
             />
           ) : (
             <SignupForm
-              onSuccess={() => navigate("/trips/new", { replace: true })}
+              onSuccess={() =>
+                navigate("/trips/new", {
+                  replace: true,
+                  state: { prompt: carriedPrompt },
+                })
+              }
             />
           )}
 
