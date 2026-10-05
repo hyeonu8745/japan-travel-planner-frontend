@@ -1,0 +1,132 @@
+/* Authentication pages */
+.login-link {
+  color: #526074; text-decoration: none; font-weight: 600;
+}
+
+.auth-brand {
+  color: #fff; max-width: 1120px; margin: auto;
+}
+
+.auth-art:after {
+  content: ""; position: absolute; width: 420px; height: 420px; border: 80px solid #27a9dc30; border-radius: 50%; right: -220px; bottom: -120px;
+}
+
+.auth-art>small {
+  color: #77d8f7; font-weight: 800; letter-spacing: .15em;
+}
+
+.auth-art p {
+  color: #bdc8d5;
+}
+
+.auth-tabs button.active {
+  color: var(--i); font-weight: 700; border-color: var(--r);
+}
+
+.auth-card>div>p {
+  color: var(--m); font-size: .85rem;
+}
+
+.auth-card label {
+  display: grid; gap: 7px; margin: 14px 0; font-size: .75rem; font-weight: 700;
+}
+
+.auth-card input:focus {
+  border-color: var(--r); box-shadow: 0 0 0 3px #27a9dc18;
+}
+
+.auth-note {
+  text-align: center; color: #9aa2ab!important; font-size: .62rem!important; margin-top: 20px;
+}
+
+.auth-tabs button {
+  flex: 1; padding: 13px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--m); border-radius: 2px!important;
+}
+
+.auth-card input {
+  width: 100%; padding: 12px; border: 1px solid #cfd5da; outline: none; background: #fff; border-radius: 2px!important;
+}
+
+.auth-page>.auth-brand {
+  width: min(1120px,100%); max-width: 1120px; height: 46px; margin: 0 auto 14px; background-color: transparent; background-size: 174px auto; background-position: left center; border: 0; padding: 0;
+}
+
+.auth-shell {
+  max-width: 1120px; margin: 25px auto 0; background: #fff; overflow: hidden; display: grid; grid-template-columns: 1fr 1fr; border-radius: 2px!important; min-height: 620px; margin-top: 0;
+}
+
+.auth-art {
+  color: #fff; position: relative; overflow: hidden; background: linear-gradient(135deg,#061528,#173d63); padding: 54px 58px;
+}
+
+.auth-art h1 {
+  line-height: 1.15; font-size: 3rem; margin: 20px 0;
+}
+
+.auth-card {
+  padding: 52px 70px;
+}
+
+.auth-tabs {
+  display: flex; border-bottom: 1px solid var(--l); margin-bottom: 28px;
+}
+
+.auth-card h2 {
+  font-size: 1.8rem; margin-bottom: 5px; margin-top: 0;
+}
+
+.auth-page {
+  min-height: 100vh; padding: 22px 28px; background: #fff;
+}
+
+.passport {
+  position: absolute; width: 250px; height: 155px; padding: 24px; box-shadow: 15px 15px 0 #ffffff16; display: flex; flex-direction: column; justify-content: space-between; border-radius: 2px!important; left: 58px; bottom: 42px; background: #e8f7fc; border: 1px solid #8fd8ef;
+}
+
+.passport>b {
+  font-size: 0; display: block; background: url('/assets/tabimate-logo-ice-v3.png') left center/contain no-repeat; background-image: url('/assets/tabimate-logo-japan-v4.png'); width: 205px; height: 50px;
+}
+
+.passport span {
+  font-size: .6rem; letter-spacing: .12em; color: #0a2748;
+}
+
+.passport small {
+  font-size: .6rem; letter-spacing: .12em; color: #0a2748;
+}
+
+.auth-page>.brand {
+  background-color: #fff; padding: 4px; border: 1px solid #fff; background-size: 168px auto;
+}
+
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap input {
+  padding-right: 44px;
+}
+
+.password-wrap button {
+  position: absolute; right: 8px; bottom: 8px; border: 0; background: none;
+}
+
+.password-rules {
+  display: grid; gap: 6px; margin: 10px 0;
+}
+
+.password-rules span {
+  font-size: .64rem; color: #87929d;
+}
+
+.password-rules span.ok {
+  color: var(--g);
+}
+
+.auth-legal {
+  display: inline!important; font-weight: 400!important;
+}
+
+.auth-legal a {
+  color: #1587b5;
+}

@@ -14,12 +14,16 @@ const QUICK_READY = ["네, 일정 만들어주세요", "조금 더 이야기할�
  * AI 취향 대화 패널
  * - 대화 이력 불러오기, 메시지 전송, 메인에서 입력한 요청 자동 전송
  * - onTurn(reply): 한 번 주고받을 때마다 부모에게 알림 (정리본·상태 갱신용)
+ * - locked: 일정이 이미 완성된 여행 (서버가 취향 대화를 막으므로 입력도 닫는다)
+ * - onGenerate: 사용자가 일정 만들기를 원했을 때 보여주는 버튼의 동작
  */
 export default function ChatPanel({
   tripId,
   initialPrompt,
   initialReady,
+  locked,
   onTurn,
+  onGenerate,
 }) {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
@@ -33,7 +37,7 @@ export default function ChatPanel({
 
   const send = async (text) => {
     const content = text.trim();
-    if (!content || sending) return;
+    if (!content || sending || locked) return;
 
     setSending(true);
     setError("");
@@ -109,7 +113,11 @@ export default function ChatPanel({
         <span>✦</span>
         <div>
           <b>Tabi AI</b>
-          <small>대화로 여행 취향을 알려주세요</small>
+          <small>
+            {locked
+              ? "일정이 완성되어 취향 대화는 닫혀 있어요"
+              : "대화로 여행 취향을 알려주세요"}
+          </small>
         </div>
       </header>
 
@@ -144,9 +152,18 @@ export default function ChatPanel({
           </div>
         )}
 
-        {wantsGeneration && (
+        {wantsGeneration && !locked && (
           <div className="system-msg">
-            일정 생성은 다음 단계에서 연결됩니다.
+            일정 만들기를 원하셨어요.{" "}
+            <button type="button" onClick={onGenerate}>
+              지금 일정 만들기
+            </button>
+          </div>
+        )}
+
+        {locked && (
+          <div className="system-msg">
+            일정을 고치는 대화는 다음 단계에서 열릴 예정이에요.
           </div>
         )}
 
@@ -159,32 +176,36 @@ export default function ChatPanel({
         <div ref={bottomRef} />
       </div>
 
-      <div className="quick">
-        {quickReplies.map((text) => (
-          <button
-            key={text}
-            type="button"
-            disabled={sending}
-            onClick={() => send(text)}
-          >
-            {text}
-          </button>
-        ))}
-      </div>
+      {!locked && (
+        <div className="quick">
+          {quickReplies.map((text) => (
+            <button
+              key={text}
+              type="button"
+              disabled={sending}
+              onClick={() => send(text)}
+            >
+              {text}
+            </button>
+          ))}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <textarea
           value={draft}
           maxLength={MAX_LENGTH}
-          placeholder="여행 취향을 알려주세요"
-          disabled={sending}
+          placeholder={
+            locked ? "일정이 완성되었어요" : "여행 취향을 알려주세요"
+          }
+          disabled={sending || locked}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={handleKeyDown}
         />
         <button
           type="submit"
           aria-label="전송"
-          disabled={sending || !draft.trim()}
+          disabled={sending || locked || !draft.trim()}
         >
           ↑
         </button>

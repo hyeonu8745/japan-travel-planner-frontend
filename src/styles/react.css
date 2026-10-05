@@ -1,0 +1,243 @@
+/* React-only compatibility styles.
+ * These selectors are used by the React implementation but were not present
+ * in the CoWork HTML files used during the CSS refactor.
+ */
+
+label.check {
+  display: flex;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  font-weight: 500;
+  color: var(--m);
+}
+
+label.check input {
+  width: auto;
+}
+
+.tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.tags span {
+  background: #f0f3f4;
+  color: #526070;
+  padding: 6px 8px;
+  border-radius: 99px;
+  font-size: 0.62rem;
+}
+
+.facts p {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+}
+
+.facts span {
+  color: var(--m);
+}
+
+.conflict-note {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  background: #eaf6f2;
+  border-left: 3px solid #168266;
+  padding: 10px 11px;
+  margin: 12px 0;
+  font-size: 0.66rem;
+}
+
+.conflict-note b {
+  color: #126b57;
+}
+
+.conflict-note span {
+  color: #536b65;
+}
+
+.prompt .prompt-start {
+  background: var(--r);
+  color: #fff;
+  border: 0;
+  padding: 14px 17px;
+  border-radius: 2px;
+  font-weight: 700;
+  white-space: nowrap;
+  min-height: 44px;
+}
+
+.status.example {
+  background: #e7f5fa;
+  color: #187fa8;
+}
+
+.timeline-summary.two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.place-detail-v3 .back-to-day {
+  border: 0;
+  background: none;
+  color: #1b8db9;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 0 10px;
+  font-size: 0.7rem;
+}
+
+/* 일정 좌표 지도 */
+
+.itinerary-map .itinerary-route {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.itinerary-map .itinerary-route polyline {
+  fill: none;
+  stroke: #27a9dc;
+  stroke-width: 1.2;
+  stroke-dasharray: 2.5 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.map-stop-pin {
+  position: absolute;
+  z-index: 4;
+  transform: translate(-50%, -50%);
+  border: 0;
+  background: transparent;
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+}
+
+.map-stop-pin b {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: var(--n);
+  color: #fff;
+  font-size: 0.68rem;
+}
+
+.map-stop-pin.meal b {
+  background: #27a9dc;
+}
+
+.map-stop-pin.hotel b {
+  background: var(--g);
+}
+
+.map-stop-pin span {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: #fff;
+  border: 1px solid var(--l);
+  padding: 4px 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.map-stop-pin.active b {
+  outline: 5px solid #27a9dc42;
+  transform: scale(1.12);
+}
+
+.map-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--m);
+}
+
+/* 식당 후보 */
+
+.restaurant-candidates-panel {
+  overflow: auto;
+  padding: 24px;
+}
+
+.restaurant-candidates-panel > header {
+  height: auto;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--l);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.candidate-list-flat {
+  margin: 18px 0 0;
+}
+
+.candidate-badges {
+  display: flex !important;
+  justify-content: flex-start !important;
+  gap: 5px !important;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.candidate-badges em {
+  background: #fff7df;
+  color: #7a641f;
+  padding: 4px 6px;
+  font-size: 0.58rem;
+  font-style: normal;
+}
+
+.candidate-state {
+  margin: 20px 0;
+  color: var(--m);
+}
+
+.candidate-state.error {
+  color: #b63c3c;
+}
+
+/* 식당 교체 */
+
+.restaurant-edit-actions {
+  display: grid;
+  gap: 7px;
+  margin: 16px 0;
+}
+
+.restaurant-edit-actions button {
+  width: 100%;
+  border: 1px solid var(--l);
+  background: #fff;
+  color: var(--i);
+  padding: 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.restaurant-edit-actions .primary-action {
+  background: #27a9dc;
+  border-color: #27a9dc;
+  color: #fff;
+}
+
+.restaurant-edit-actions button:disabled,
+.candidate-list-flat button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.day-timeline .description-empty {
+  color: #7a8793;
+  font-style: italic;
+}

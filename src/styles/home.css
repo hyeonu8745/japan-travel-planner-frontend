@@ -1,0 +1,320 @@
+/* Landing and guide pages */
+.header nav {
+  display: flex; gap: 30px;
+}
+
+.header nav a {
+  border: 0; background: none; color: #526074; text-decoration: none; font-weight: 600;
+}
+
+.header button {
+  border: 0; background: none; color: #526074; text-decoration: none; font-weight: 600;
+}
+
+.header>div {
+  display: flex; align-items: center; gap: 10px;
+}
+
+.hero-copy>p {
+  color: #cad3df; line-height: 1.75; max-width: 520px;
+}
+
+.prompt span {
+  color: var(--r);
+}
+
+.prompt input {
+  flex: 1; min-width: 0; border: 0; outline: 0;
+}
+
+.suggest {
+  display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap;
+}
+
+.suggest span {
+  font-size: .7rem; color: #9aa9ba;
+}
+
+.suggest button {
+  border: 1px solid #ffffff2d; background: #ffffff0c; color: #d7dfe7; border-radius: 99px; padding: 7px 10px; font-size: .68rem;
+}
+
+.route-card header {
+  display: flex; justify-content: space-between; font-size: .73rem;
+}
+
+.route-card header span {
+  color: var(--m);
+}
+
+.route-card header b {
+  color: var(--g);
+}
+
+.route-card ol {
+  padding-left: 26px; border-left: 1px dashed #d7a299; list-style: none;
+}
+
+.route-card li {
+  position: relative; margin: 14px 0;
+}
+
+.route-card li b {
+  display: block; font-size: .78rem;
+}
+
+.route-card li small {
+  display: block; color: var(--m); font-size: .67rem;
+}
+
+.route-card footer {
+  display: flex; justify-content: space-between; background: #e8f4ef; color: #47675d; padding: 10px; border-radius: 9px; font-size: .7rem;
+}
+
+.route-card footer b {
+  color: var(--g);
+}
+
+.how h2 {
+  font-size: 2.5rem; letter-spacing: -.05em;
+}
+
+.how>div p {
+  color: var(--m); line-height: 1.7;
+}
+
+.how>div a {
+  color: var(--n); font-weight: 700;
+}
+
+.how>section {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+}
+
+.how article>b {
+  color: var(--r); font-size: .8rem;
+}
+
+.how article h3 {
+  margin-top: 40px;
+}
+
+.how article p {
+  font-size: .78rem; color: var(--m); line-height: 1.6;
+}
+
+.footer {
+  max-width: 1240px; margin: auto; padding: 28px 24px 44px; border-top: 1px solid var(--l); display: flex; justify-content: space-between; align-items: center; color: var(--m); font-size: .75rem;
+}
+
+.header nav a.active {
+  color: var(--r);
+}
+
+.guide-hero p {
+  max-width: 600px; color: var(--m); font-size: 1.05rem; line-height: 1.8;
+}
+
+.flow article:last-child {
+  border: 0;
+}
+
+.flow article span {
+  font-size: .7rem; color: var(--g); font-weight: 700;
+}
+
+.flow a {
+  color: var(--r); font-weight: 700;
+}
+
+.criteria>div:first-child p {
+  color: var(--m); line-height: 1.7;
+}
+
+.criteria-grid b {
+  color: var(--r); font-size: 1.5rem;
+}
+
+.hero>img {
+  position: absolute; width: 100%; height: 100%; object-fit: cover; content: url('/assets/tokyo-hero-clean-v3.png');
+}
+
+.hero-copy>small {
+  letter-spacing: .15em; font-weight: 800; color: #77d8f7;
+}
+
+.how>div>small {
+  letter-spacing: .15em; font-weight: 800; color: #77d8f7;
+}
+
+.guide-hero>span {
+  font-weight: 800; letter-spacing: .15em; color: #77d8f7;
+}
+
+.hero h1 em {
+  font-style: normal; color: #55c9ef;
+}
+
+.prompt {
+  display: flex; align-items: center; gap: 12px; background: white; padding: 9px 9px 9px 16px; margin-top: 28px; border-radius: 2px!important; border-left: 4px solid var(--r); border-left-color: #27a9dc;
+}
+
+.route-card {
+  position: absolute; right: 30px; bottom: 30px; width: 310px; padding: 20px; border-radius: 2px!important; border-top: 4px solid var(--r); background: #fffffff2; border-top-color: #27a9dc;
+}
+
+.route-card li:before {
+  content: ""; position: absolute; left: -32px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #27a9dc;
+}
+
+.guide-hero {
+  padding: 46px 0 54px;
+}
+
+.guide-hero h1 {
+  letter-spacing: -.06em; line-height: 1.12; font-size: 3.45rem; margin: 16px 0;
+}
+
+.flow {
+  background: #fff; border: 1px solid var(--l); border-radius: 2px!important; box-shadow: none; padding: 5px 42px;
+}
+
+.flow article {
+  display: grid; border-bottom: 1px solid var(--l); grid-template-columns: 76px 1fr; gap: 18px; padding: 30px 0;
+}
+
+.flow article>b {
+  color: var(--r); font: 700 2rem Outfit; font-size: 1.65rem;
+}
+
+.flow h2 {
+  font-size: 1.48rem; margin: 8px 0;
+}
+
+.flow p {
+  color: var(--m); line-height: 1.7; margin: 8px 0 12px;
+}
+
+.criteria {
+  padding: 82px 0 76px;
+}
+
+.criteria>div:first-child {
+  display: grid; grid-template-columns: minmax(0,.9fr) minmax(360px,1.1fr); grid-template-areas: 'eyebrow intro' 'heading intro'; column-gap: 80px; align-items: center;
+}
+
+.criteria>div:first-child>small {
+  grid-area: eyebrow; align-self: end; color: #247fa4; font-weight: 800; letter-spacing: .1em;
+}
+
+.criteria>div:first-child>h2 {
+  grid-area: heading; align-self: start; margin: 10px 0 0;
+}
+
+.criteria>div:first-child>p {
+  grid-area: intro; margin: 0; max-width: 520px;
+}
+
+.criteria h2 {
+  font-size: 2.6rem; line-height: 1.24;
+}
+
+.criteria-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); margin-top: 30px; gap: 12px;
+}
+
+.criteria-grid article {
+  background: #fff; border: 1px solid var(--l); border-radius: 2px!important; box-shadow: none; padding: 22px 24px; min-height: 190px;
+}
+
+.criteria-grid article h3 {
+  margin: 18px 0 9px;
+}
+
+.criteria-grid p {
+  font-size: .78rem; color: var(--m); line-height: 1.65; margin: 0;
+}
+
+.criteria-note {
+  font-size: .68rem; color: #8a949e; margin-top: 12px;
+}
+
+.header {
+  height: 76px; margin: auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d8dde2; max-width: 1200px;
+}
+
+.hero {
+  position: relative; margin: auto; overflow: hidden; background: var(--n); border-radius: 2px!important; box-shadow: 0 28px 70px #07182d38; max-width: 1200px; height: 590px;
+}
+
+.hero-copy {
+  position: absolute; left: 64px; width: 580px; color: white; top: 58px;
+}
+
+.hero h1 {
+  letter-spacing: -.06em; line-height: 1.06; margin: 18px 0; font-size: clamp(3rem,5vw,4.4rem);
+}
+
+.how {
+  margin: 0 auto 100px; display: grid; grid-template-columns: .75fr 1.25fr; gap: 70px; max-width: 1120px;
+}
+
+.how article {
+  background: #fff; border: 1px solid var(--l); padding: 24px 20px; border-radius: 2px!important; box-shadow: none; min-height: 230px;
+}
+
+.header .btn {
+  background: var(--n); color: white; text-decoration: none; padding: 11px 16px; font-weight: 700; font-size: .85rem; border-radius: 2px!important; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+}
+
+.prompt a {
+  background: var(--r); color: white; text-decoration: none; padding: 14px 17px; font-weight: 700; white-space: nowrap; border-radius: 2px!important; min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+}
+
+.trust {
+  margin: 24px auto 90px; display: grid; background: #fff; border: 1px solid var(--l); border-radius: 2px!important; box-shadow: none; max-width: 1120px; grid-template-columns: repeat(3,minmax(120px,150px)) minmax(360px,1fr); min-height: 86px; padding: 0 28px; column-gap: 0; align-items: center;
+}
+
+.trust div {
+  height: 42px; padding: 0 28px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border-right: 1px solid var(--l);
+}
+
+.trust div:first-child {
+  padding-left: 0;
+}
+
+.trust b {
+  display: block; line-height: 1.05; margin: 0 0 5px;
+}
+
+.trust span {
+  display: block; font-size: .72rem; color: var(--m); line-height: 1.2;
+}
+
+.trust p {
+  font-size: .72rem; color: var(--m); padding-left: 28px; margin: 0; padding: 0 0 0 30px; line-height: 1.6; align-self: center;
+}
+
+.setup-card>header small {
+  color: #187fa8; font-size: .72rem; font-weight: 800; letter-spacing: .14em;
+}
+
+.setup-card>header {
+  border-bottom: 1px solid var(--l); padding-bottom: 22px; margin-bottom: 25px;
+}
+
+.setup-card>header p {
+  color: var(--m); font-size: .75rem; margin: 0;
+}
+
+.check-card header {
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.legal-wrap>header {
+  border-bottom: 2px solid var(--n); padding-bottom: 24px;
+}
+
+.legal-wrap>header small {
+  color: #168fbe; font-weight: 800; letter-spacing: .12em;
+}
