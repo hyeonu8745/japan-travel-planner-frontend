@@ -3,14 +3,20 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { getPreferences } from "../api/chat";
 
-// ✅ 추가:
-// 식당 후보 조회 / 식당 교체 API까지 import
 import {
   generateItinerary,
   getItinerary,
   getRestaurantCandidates,
   replaceRestaurant,
+  getAttractionCandidates,
+  replaceAttraction,
+  getItineraryVersions,
+  getItineraryVersion,
+  restoreItineraryVersion,
 } from "../api/itinerary";
+
+import AttractionCandidates from "../components/planner/AttractionCandidates";
+import ItineraryHistory from "../components/planner/ItineraryHistory";
 
 import { getTrip } from "../api/trips";
 import { getUser } from "../auth/token";
@@ -218,6 +224,30 @@ export default function PlannerPage() {
   // 후보의 여러 버튼을 동시에 누르지 못하게 하기 위해 사용
   const [replacingId, setReplacingId] = useState(null);
 
+  // 관광지 후보 패널 상태
+  const [attractionCandidateState, setAttractionCandidateState] = useState({
+    open: false,
+    loading: false,
+    data: null,
+    error: "",
+  });
+
+  // 여기부터 변경 이력 상태 추가
+  const [historyState, setHistoryState] = useState({
+    open: false,
+    loading: false,
+    versions: [],
+    error: "",
+  });
+
+  const [previewItinerary, setPreviewItinerary] = useState(null);
+
+  const [previewVersion, setPreviewVersion] = useState(null);
+
+  const [restoringVersion, setRestoringVersion] = useState(null);
+  // 현재 교체 요청 중인 attractionId
+  const [replacingAttractionId, setReplacingAttractionId] = useState(null);
+
   /**
    * 여행 조건 입력 화면에서 넘어온 첫 요청
    *
@@ -416,6 +446,13 @@ export default function PlannerPage() {
         error: "",
       });
 
+      setAttractionCandidateState({
+        open: false,
+        loading: false,
+        data: null,
+        error: "",
+      });
+
       setGeneration({
         status: "idle",
         error: null,
@@ -476,6 +513,13 @@ export default function PlannerPage() {
      * 식당 후보도 닫는다.
      */
     setCandidateState({
+      open: false,
+      loading: false,
+      data: null,
+      error: "",
+    });
+
+    setAttractionCandidateState({
       open: false,
       loading: false,
       data: null,
@@ -544,6 +588,60 @@ export default function PlannerPage() {
       }
 
       setCandidateState({
+        open: true,
+        loading: false,
+        data: null,
+        error:
+          err.status === 409
+            ? "일정이 바뀌었어요. 최신 일정으로 다시 불러왔습니다. 다시 선택해주세요."
+            : err.message,
+      });
+    }
+  };
+
+  /**
+   * =========================================================
+   * 관광지 후보 조회
+   * =========================================================
+   */
+  const openAttractionCandidates = async (stop) => {
+    if (!stop?.id) {
+      setAttractionCandidateState({
+        open: true,
+        loading: false,
+        data: null,
+        error: "관광지 항목 ID가 없어 후보를 불러올 수 없어요.",
+      });
+
+      return;
+    }
+
+    setAttractionCandidateState({
+      open: true,
+      loading: true,
+      data: null,
+      error: "",
+    });
+
+    try {
+      const data = await getAttractionCandidates(tripId, stop.id);
+
+      setAttractionCandidateState({
+        open: true,
+        loading: false,
+        data,
+        error: "",
+      });
+    } catch (err) {
+      if (err.status === 409) {
+        try {
+          await reloadLatestItinerary();
+        } catch {
+          // 최신 일정 재조회 실패
+        }
+      }
+
+      setAttractionCandidateState({
         open: true,
         loading: false,
         data: null,
@@ -670,6 +768,195 @@ export default function PlannerPage() {
 
   /**
    * =========================================================
+   * 관광지 교체
+   * =========================================================
+   */
+  const handleReplaceAttraction = async (attractionId) => {
+    const day = itinerary?.days?.[dayIndex];
+
+    const stop = day?.stops?.find((item) => item.order === selectedOrder);
+
+    if (!stop?.id || replacingAttractionId != null) {
+      return;
+    }
+
+    setReplacingAttractionId(attractionId);
+
+    try {
+      const updated = await replaceAttraction(tripId, stop.id, attractionId);
+
+      // 교체 후 전체 일정으로 갈아끼운다.
+      setItinerary(updated);
+
+      setTrip((prev) => ({
+        ...prev,
+        status: "EDITING",
+      }));
+
+      setAttractionCandidateState({
+        open: false,
+        loading: false,
+        data: null,
+        error: "",
+      });
+    } catch (err) {
+      if (err.status === 409) {
+        try {
+          await reloadLatestItinerary();
+        } catch {
+          // 최신 일정 재조회 실패
+        }
+
+        setAttractionCandidateState({
+          open: true,
+          loading: false,
+          data: null,
+          error:
+            "일정이 바뀌었어요. 최신 일정으로 다시 불러왔습니다. 다시 선택해주세요.",
+        });
+      } else {
+        setAttractionCandidateState((prev) => ({
+          ...prev,
+          open: true,
+          loading: false,
+          error: err.message,
+        }));
+      }
+    } finally {
+      setReplacingAttractionId(null);
+    }
+  };
+
+  const openHistory = async () => {
+    setHistoryState({
+      open: true,
+      loading: true,
+      versions: [],
+      error: "",
+    });
+
+    try {
+      const data = await getItineraryVersions(tripId);
+
+      const versions = Array.isArray(data) ? data : (data.versions ?? []);
+
+      setHistoryState({
+        open: true,
+        loading: false,
+        versions,
+        error: "",
+      });
+    } catch (err) {
+      setHistoryState({
+        open: true,
+        loading: false,
+        versions: [],
+        error: err.message,
+      });
+    }
+  };
+
+  const handlePreviewVersion = async (versionNo) => {
+    try {
+      const data = await getItineraryVersion(tripId, versionNo);
+
+      setPreviewItinerary(data);
+      setPreviewVersion(versionNo);
+
+      setSelectedOrder(null);
+      setDayIndex(0);
+
+      setCandidateState({
+        open: false,
+        loading: false,
+        data: null,
+        error: "",
+      });
+
+      setAttractionCandidateState({
+        open: false,
+        loading: false,
+        data: null,
+        error: "",
+      });
+    } catch (err) {
+      setHistoryState((prev) => ({
+        ...prev,
+        error: err.message,
+      }));
+    }
+  };
+
+  const handleBackToLatest = () => {
+    setPreviewItinerary(null);
+    setPreviewVersion(null);
+    setSelectedOrder(null);
+    setDayIndex(0);
+  };
+
+  const handleRestoreVersion = async (versionNo) => {
+    if (restoringVersion != null) {
+      return;
+    }
+
+    const ok = window.confirm(
+      `v${versionNo} 일정으로 복원할까요?\n복원하면 새 버전이 만들어집니다.`,
+    );
+
+    if (!ok) {
+      return;
+    }
+
+    setRestoringVersion(versionNo);
+
+    try {
+      const restored = await restoreItineraryVersion(tripId, versionNo);
+
+      setItinerary(restored);
+
+      setPreviewItinerary(null);
+      setPreviewVersion(null);
+
+      setTrip((prev) => ({
+        ...prev,
+        status: "EDITING",
+      }));
+
+      setSelectedOrder(null);
+      setDayIndex(0);
+
+      const data = await getItineraryVersions(tripId);
+
+      const versions = Array.isArray(data) ? data : (data.versions ?? []);
+
+      setHistoryState((prev) => ({
+        ...prev,
+        versions,
+        error: "",
+      }));
+    } catch (err) {
+      if (err.status === 409) {
+        try {
+          await reloadLatestItinerary();
+        } catch {
+          // 최신 일정 재조회 실패
+        }
+      }
+
+      setHistoryState((prev) => ({
+        ...prev,
+        error:
+          err.status === 409
+            ? "일정이 바뀌었어요. 최신 일정으로 다시 불러왔습니다."
+            : err.message,
+      }));
+    } finally {
+      setRestoringVersion(null);
+    }
+  };
+
+  /**
+   * =========================================================
    * 초기 오류 화면
    * =========================================================
    */
@@ -717,7 +1004,11 @@ export default function PlannerPage() {
   /**
    * 현재 선택된 DAY
    */
-  const currentDay = hasItinerary ? itinerary.days[dayIndex] : null;
+  const displayedItinerary = previewItinerary ?? itinerary;
+
+  const currentDay = displayedItinerary
+    ? displayedItinerary.days[dayIndex]
+    : null;
 
   /**
    * 선택된 stop
@@ -765,10 +1056,13 @@ export default function PlannerPage() {
         <div className="actions">
           <Link to="/trips">내 여행</Link>
 
+          {hasItinerary && (
+            <button type="button" onClick={openHistory}>
+              변경 이력
+            </button>
+          )}
+
           {hasItinerary ? (
-            /**
-             * 일정이 이미 있으면 새 version 생성
-             */
             <button
               type="button"
               disabled={generating}
@@ -777,9 +1071,6 @@ export default function PlannerPage() {
               일정 다시 만들기
             </button>
           ) : (
-            /**
-             * 아직 일정이 없으면 최초 생성
-             */
             <button
               type="button"
               className="finish"
@@ -822,7 +1113,7 @@ export default function PlannerPage() {
       ====================================================== */}
       <nav className="days">
         {hasItinerary
-          ? itinerary.days.map((day, index) => (
+          ? displayedItinerary.days.map((day, index) => (
               <button
                 key={day.dayNumber}
                 type="button"
@@ -864,7 +1155,7 @@ export default function PlannerPage() {
             현재는 좌표끼리 직선으로 연결한다.
         ==================================================== */}
         <ItineraryMap
-          accommodation={itinerary?.accommodation}
+          accommodation={displayedItinerary?.accommodation}
           day={currentDay}
           selectedOrder={selectedOrder}
           onSelectStop={(order) => {
@@ -884,6 +1175,13 @@ export default function PlannerPage() {
               error: "",
             });
 
+            setAttractionCandidateState({
+              open: false,
+              loading: false,
+              data: null,
+              error: "",
+            });
+
             setPanel("plan");
           }}
         />
@@ -891,15 +1189,48 @@ export default function PlannerPage() {
         {/* ===================================================
             중앙 일정 / 상세 / 후보 영역
         ==================================================== */}
-        {showTimeline ? (
+        {historyState.open ? (
+          <ItineraryHistory
+            versions={historyState.versions}
+            loading={historyState.loading}
+            error={historyState.error}
+            currentVersion={itinerary?.version}
+            previewVersion={previewVersion}
+            restoringVersion={restoringVersion}
+            onPreview={handlePreviewVersion}
+            onRestore={handleRestoreVersion}
+            onBackToLatest={handleBackToLatest}
+            onClose={() => {
+              setHistoryState((prev) => ({
+                ...prev,
+                open: false,
+              }));
+
+              setPreviewItinerary(null);
+              setPreviewVersion(null);
+            }}
+          />
+        ) : showTimeline ? (
           selectedStop ? (
-            /**
-             * 현재 장소를 선택한 상태
-             */
-            candidateState.open ? (
-              /**
-               * 식당 후보 목록
-               */
+            attractionCandidateState.open ? (
+              /* 관광지 후보 목록 */
+              <AttractionCandidates
+                data={attractionCandidateState.data}
+                loading={attractionCandidateState.loading}
+                error={attractionCandidateState.error}
+                replacingId={replacingAttractionId}
+                onReplace={handleReplaceAttraction}
+                onClose={() =>
+                  setAttractionCandidateState({
+                    open: false,
+                    loading: false,
+                    data: null,
+                    error: "",
+                  })
+                }
+              />
+            ) : candidateState.open ? (
+              /* 식당 후보 목록 */
               <RestaurantCandidates
                 data={candidateState.data}
                 loading={candidateState.loading}
@@ -916,9 +1247,7 @@ export default function PlannerPage() {
                 }
               />
             ) : (
-              /**
-               * 장소 상세정보
-               */
+              /* 장소 상세 */
               <PlaceDetail
                 stop={selectedStop}
                 nextStop={nextStop}
@@ -931,33 +1260,34 @@ export default function PlannerPage() {
                     data: null,
                     error: "",
                   });
+
+                  setAttractionCandidateState({
+                    open: false,
+                    loading: false,
+                    data: null,
+                    error: "",
+                  });
                 }}
-                /**
-                 * LUNCH / DINNER에서
-                 * "다른 식당 보기"를 누르면 실행
-                 */
-                onOpenCandidates={() => openRestaurantCandidates(selectedStop)}
-                /**
-                 * alternatives[0] 등의
-                 * 이전 식당으로 되돌리기
-                 */
+                onOpenCandidates={
+                  previewVersion == null
+                    ? () => openRestaurantCandidates(selectedStop)
+                    : undefined
+                }
                 onReplaceAlternative={handleReplaceRestaurant}
                 replacingId={replacingId}
+                onOpenAttractionCandidates={
+                  previewVersion == null
+                    ? () => openAttractionCandidates(selectedStop)
+                    : undefined
+                }
               />
             )
           ) : (
-            /**
-             * 아무 장소도 선택하지 않은 상태 →
-             * DAY 전체 timeline
-             */
+            /* 아무 장소도 선택하지 않았으면 DAY 전체 일정 */
             <DayTimeline
               key={currentDay.dayNumber}
               day={currentDay}
-              /**
-               * 첫 번째 stop의 경로보기는
-               * accommodation을 출발지로 사용
-               */
-              accommodation={itinerary?.accommodation}
+              accommodation={displayedItinerary?.accommodation}
               onOpenDetail={(stop) => {
                 setSelectedOrder(stop.order);
 
@@ -967,15 +1297,18 @@ export default function PlannerPage() {
                   data: null,
                   error: "",
                 });
+
+                setAttractionCandidateState({
+                  open: false,
+                  loading: false,
+                  data: null,
+                  error: "",
+                });
               }}
             />
           )
         ) : (
-          /**
-           * ===================================================
-           * 파악한 취향 탭
-           * ===================================================
-           */
+          /* 파악한 취향 탭 */
           <section className="detail">
             <header>
               <b>지금까지 파악한 취향</b>
@@ -1000,19 +1333,16 @@ export default function PlannerPage() {
               <div className="facts">
                 <p>
                   <span>첫날 도착</span>
-
                   <b>{formatTime(preference.arrivalTime)}</b>
                 </p>
 
                 <p>
                   <span>마지막 날 출발</span>
-
                   <b>{formatTime(preference.departureTime)}</b>
                 </p>
 
                 <p>
                   <span>식비 비중</span>
-
                   <b>
                     {Math.round((preference.foodBudgetRatio ?? 0.4) * 100)}%
                   </b>
@@ -1023,7 +1353,6 @@ export default function PlannerPage() {
 
               <div className="conflict-note">
                 <b>안내</b>
-
                 <span>
                   일정은 대화가 끝난 뒤 실제 식당·관광지 데이터로 만들어집니다.
                 </span>

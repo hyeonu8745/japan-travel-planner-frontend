@@ -241,3 +241,263 @@ label.check input {
   color: #7a8793;
   font-style: italic;
 }
+
+/* 관광지 후보 */
+
+.attraction-candidates-panel {
+  overflow: auto;
+  padding: 24px;
+}
+
+.attraction-candidates-panel > header {
+  height: auto;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--l);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.candidate-info {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--l);
+  background: #f7fbfd;
+  color: var(--m);
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+
+.candidate-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.candidate-head h3 {
+  margin: 0;
+}
+
+.candidate-head p {
+  margin: 4px 0 0;
+  color: var(--m);
+  font-size: 0.65rem;
+}
+
+.attraction-candidates-panel .candidate-badges em {
+  background: #fff7df;
+  color: #7a641f;
+}
+
+.attraction-candidates-panel .candidate-list-flat button {
+  width: 100%;
+  margin-top: 12px;
+  border: 0;
+  background: #27a9dc;
+  color: #fff;
+  padding: 10px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   변경 이력
+========================================================= */
+
+.itinerary-history-panel {
+  overflow: auto;
+  padding: 24px;
+  background: #fff;
+}
+
+.itinerary-history-panel > header {
+  height: auto;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--l);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.itinerary-history-panel > header small {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--m);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.itinerary-history-panel > header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--n);
+}
+
+.itinerary-history-panel > header > button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--l);
+  background: #fff;
+  color: var(--n);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.itinerary-history-panel > header > button:hover {
+  background: #f5f8fa;
+}
+
+/* 과거 버전 미리보기 안내 */
+.history-preview-notice {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0;
+  padding: 14px;
+  border-left: 4px solid #27a9dc;
+  background: #f4fbfe;
+}
+
+.history-preview-notice b {
+  font-size: 0.74rem;
+  color: var(--n);
+}
+
+.history-preview-notice span {
+  color: var(--m);
+  font-size: 0.66rem;
+  line-height: 1.5;
+}
+
+.history-preview-notice button {
+  margin-top: 4px;
+  justify-self: start;
+  border: 1px solid #27a9dc;
+  background: #fff;
+  color: #1684ad;
+  padding: 7px 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 버전 목록 */
+.history-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.history-list article {
+  border: 1px solid var(--l);
+  background: #fff;
+  padding: 14px;
+}
+
+.history-list article.active {
+  border-color: #27a9dc;
+  box-shadow: inset 4px 0 0 #27a9dc;
+}
+
+.history-version-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.history-version-head > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.history-version-head strong {
+  color: var(--n);
+  font-size: 0.92rem;
+}
+
+.history-version-head span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  background: #27a9dc;
+  color: #fff;
+  font-size: 0.56rem;
+  font-weight: 800;
+}
+
+.history-version-head small {
+  color: var(--m);
+  font-size: 0.58rem;
+  white-space: nowrap;
+}
+
+.history-list article > p {
+  margin: 10px 0 12px;
+  color: var(--i);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+/* 액션 버튼 */
+.history-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.history-actions button {
+  flex: 1;
+  border: 1px solid var(--l);
+  background: #fff;
+  color: var(--i);
+  padding: 9px 10px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.history-actions button:hover {
+  background: #f6f8fa;
+}
+
+.history-actions .primary-action {
+  border-color: #27a9dc;
+  background: #27a9dc;
+  color: #fff;
+}
+
+.history-actions .primary-action:hover {
+  background: #168fbc;
+}
+
+.history-actions button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* 식당 휴무 안내 */
+
+.holiday-danger {
+  display: inline-block;
+  margin-top: 4px;
+  color: #b63c3c;
+}
+
+.candidate-badges .holiday-badge {
+  background: #fff0f0;
+  color: #a33;
+}
+
+.candidate-holiday {
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border-left: 3px solid #d97878;
+  background: #fff8f8;
+  color: var(--m);
+  font-size: 0.62rem;
+  line-height: 1.5;
+}

@@ -4,6 +4,7 @@ import {
   genreLabel,
   hhmm,
   mapsSearchUrl,
+  holidayLabel,
 } from "../../utils/itineraryFormat";
 
 const KIND_LABELS = { ATTRACTION: "관광지", LUNCH: "점심", DINNER: "저녁" };
@@ -20,6 +21,7 @@ export default function PlaceDetail({
   onOpenCandidates,
   onReplaceAlternative,
   replacingId,
+  onOpenAttractionCandidates,
 }) {
   const showToast = useToast();
   const isMeal = stop.type !== "ATTRACTION";
@@ -98,11 +100,22 @@ export default function PlaceDetail({
         )}
 
         {/* 식당 정기 휴일 안내 */}
-        {isMeal && place.holiday && (
+        {isMeal && (place.holiday || place.closedOnVisitDay) && (
           <div className="data-notice">
-            정기 휴일: <b>{place.holiday}</b>
+            {place.holiday && (
+              <>
+                정기 휴일: <b>{holidayLabel(place.holiday)}</b>
+              </>
+            )}
+            {place.closedOnVisitDay && (
+              <>
+                {place.holiday && <br />}
+                <b className="holiday-danger">⚠ 이 날 정기 휴일일 수 있어요.</b>
+              </>
+            )}
             <br />
-            타베로그 등록 정보 기준이며 임시 휴무는 반영되지 않을 수 있어요.
+            타베로그 등록 정보 기준이며 임시 휴무·공휴일은 반영되지 않을 수
+            있어요.
           </div>
         )}
 
@@ -126,6 +139,18 @@ export default function PlaceDetail({
                 ↩ {stop.alternatives[0].name}으로 되돌리기
               </button>
             )}
+          </div>
+        )}
+
+        {!isMeal && (
+          <div className="restaurant-edit-actions">
+            <button
+              type="button"
+              className="primary-action"
+              onClick={onOpenAttractionCandidates}
+            >
+              다른 관광지 보기
+            </button>
           </div>
         )}
 

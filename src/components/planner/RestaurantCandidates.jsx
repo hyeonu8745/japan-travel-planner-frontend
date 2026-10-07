@@ -1,4 +1,8 @@
-import { MODE_LABELS, genreLabel } from "../../utils/itineraryFormat";
+import {
+  MODE_LABELS,
+  genreLabel,
+  holidayLabel,
+} from "../../utils/itineraryFormat";
 
 export default function RestaurantCandidates({
   data,
@@ -44,7 +48,12 @@ export default function RestaurantCandidates({
 
               <div className="candidate-badges">
                 {candidate.genreRepeated && <em>앞 끼니와 같은 음식</em>}
+
                 {candidate.budgetRelaxed && <em>예산을 조금 넘어요</em>}
+
+                {candidate.closedOnVisitDay && (
+                  <em className="holiday-badge">이 날 정기 휴일일 수 있어요</em>
+                )}
               </div>
 
               <dl>
@@ -79,6 +88,12 @@ export default function RestaurantCandidates({
                   </dd>
                 </div>
               </dl>
+
+              {candidate.holiday && (
+                <p className="candidate-holiday">
+                  정기 휴일: {holidayLabel(candidate.holiday)}
+                </p>
+              )}
 
               <button
                 type="button"

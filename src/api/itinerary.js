@@ -1,11 +1,13 @@
 import { apiRequest } from "./client";
 
-/** 일정 만들기. 다시 부르면 새 버전이 쌓인다 */
+/** 일정 만들기 */
 export function generateItinerary(tripId) {
-  return apiRequest(`/api/trips/${tripId}/itinerary`, { method: "POST" });
+  return apiRequest(`/api/trips/${tripId}/itinerary`, {
+    method: "POST",
+  });
 }
 
-/** 가장 최근 버전의 일정 */
+/** 가장 최근 버전 일정 조회 */
 export function getItinerary(tripId) {
   return apiRequest(`/api/trips/${tripId}/itinerary`);
 }
@@ -17,10 +19,48 @@ export function getRestaurantCandidates(tripId, stopId) {
   );
 }
 
-/** 식당 교체. 성공하면 새 버전의 전체 일정 반환 */
+/** 식당 교체 */
 export function replaceRestaurant(tripId, stopId, restaurantId) {
   return apiRequest(`/api/trips/${tripId}/itinerary/stops/${stopId}/replace`, {
     method: "POST",
     body: { restaurantId },
   });
+}
+
+/** 관광지 후보 조회 */
+export function getAttractionCandidates(tripId, stopId) {
+  return apiRequest(
+    `/api/trips/${tripId}/itinerary/stops/${stopId}/attraction-candidates`,
+  );
+}
+
+/** 관광지 교체 */
+export function replaceAttraction(tripId, stopId, attractionId) {
+  return apiRequest(
+    `/api/trips/${tripId}/itinerary/stops/${stopId}/replace-attraction`,
+    {
+      method: "POST",
+      body: { attractionId },
+    },
+  );
+}
+
+/** 변경 이력 목록 */
+export function getItineraryVersions(tripId) {
+  return apiRequest(`/api/trips/${tripId}/itinerary/versions`);
+}
+
+/** 특정 버전 일정 조회 */
+export function getItineraryVersion(tripId, versionNo) {
+  return apiRequest(`/api/trips/${tripId}/itinerary/versions/${versionNo}`);
+}
+
+/** 특정 버전 복원 */
+export function restoreItineraryVersion(tripId, versionNo) {
+  return apiRequest(
+    `/api/trips/${tripId}/itinerary/versions/${versionNo}/restore`,
+    {
+      method: "POST",
+    },
+  );
 }

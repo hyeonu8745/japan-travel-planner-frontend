@@ -116,3 +116,38 @@ export function buildRows(day) {
   });
   return rows;
 }
+
+export function holidayLabel(value) {
+  if (!value) return "";
+
+  const text = value.trim();
+
+  const exact = {
+    無休: "연중무휴",
+    年中無休: "연중무휴",
+    不定休: "부정기 휴무",
+    月曜日: "월요일",
+    火曜日: "화요일",
+    水曜日: "수요일",
+    木曜日: "목요일",
+    金曜日: "금요일",
+    土曜日: "토요일",
+    日曜日: "일요일",
+  };
+
+  if (exact[text]) {
+    return exact[text];
+  }
+
+  return text
+    .replaceAll("月曜日", "월요일")
+    .replaceAll("火曜日", "화요일")
+    .replaceAll("水曜日", "수요일")
+    .replaceAll("木曜日", "목요일")
+    .replaceAll("金曜日", "금요일")
+    .replaceAll("土曜日", "토요일")
+    .replaceAll("日曜日", "일요일")
+    .replaceAll("不定休", "부정기 휴무")
+    .replaceAll("年中無休", "연중무휴")
+    .replaceAll("無休", "연중무휴");
+}
