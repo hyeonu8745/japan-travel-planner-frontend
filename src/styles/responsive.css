@@ -729,3 +729,32 @@
 
 @keyframes skeleton {0%{background-position:100% 0}100%{background-position:0 0}}
 
+
+@media(max-width:720px) {
+  .planner-v2 .actions .planner-generate { display: inline-block; font-size: .65rem; }
+  .planner-v2 .workspace { height: auto; }
+  .planner-v2 .timeline-place button { display: inline-block; }
+  .timeline-stop-actions { grid-column: 2; justify-self: start; }
+  .timeline-stop-actions > button, .timeline-order-actions button { min-height: 36px; }
+  .timeline-insert { margin-left: 65px; }
+  .conditions-backdrop { padding: 12px; }
+  .conditions-editor { padding: 24px 18px; max-height: 94dvh; }
+  .planner-v2 .planner-notice, .planner-v2 .planner-preview { padding: 10px 12px; }
+}
+
+@media(max-width:720px) {
+  .planner-v2 .workspace.planner-map-layout { display: block; }
+  .planner-v2 .google-itinerary-map { height: 48dvh; min-height: 340px; }
+  .google-map-footer { padding: 10px 12px; }
+  .google-map-canvas { min-height: 220px; }
+  .planner-chat-dock { right: 12px; bottom: 12px; }
+}
+
+/* Keep AI chat visible alongside the itinerary. */
+@media (min-width:721px) and (max-width:1100px) {
+  .planner-v2 .workspace.planner-map-layout.has-chat { grid-template-columns: minmax(0, 1fr) minmax(350px, 1fr); overflow: auto; }
+  .planner-map-layout.has-chat .planner-chat-dock { grid-column: 1 / -1; height: 480px; }
+}
+@media (max-width:720px) {
+  .planner-map-layout .planner-chat-dock { position: relative; right: auto; bottom: auto; width: 100%; height: 520px; }
+}

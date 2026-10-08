@@ -1,4 +1,5 @@
 import { useToast } from "../toastContext";
+import AttractionDetails from "./AttractionDetails";
 import {
   MODE_LABELS,
   genreLabel,
@@ -11,7 +12,7 @@ const KIND_LABELS = { ATTRACTION: "관광지", LUNCH: "점심", DINNER: "저녁"
 
 /**
  * 장소 상세 (가운데 칸). 타임라인에서 "상세 보기"를 누르면 열린다.
- * - 영업시간·입장료는 우리가 알 수 없으므로 단정하지 않고 Google 지도 확인을 안내한다
+ * - 관광지는 상세 화면을 열 때 Google 상세 API를 조회한다.
  * - nextStop: 다음 장소까지의 이동 (마지막 일정이면 null)
  */
 export default function PlaceDetail({
@@ -22,6 +23,12 @@ export default function PlaceDetail({
   onReplaceAlternative,
   replacingId,
   onOpenAttractionCandidates,
+  readOnly = false,
+  busy = false,
+  canDelete = true,
+  onDelete,
+  warnings = [],
+  visitDate,
 }) {
   const showToast = useToast();
   const isMeal = stop.type !== "ATTRACTION";
@@ -38,41 +45,8 @@ export default function PlaceDetail({
     ? `${KIND_LABELS[stop.type]} · ${genreLabel(place.genre) || "식당"}`
     : `관광지 · ${(place.labels ?? []).slice(0, 2).join(", ") || "명소"}`;
 
-  return (
-    <section className="detail place-detail-v3">
-      <header>
-        <b>{category}</b>
-        <span className="place-kind">{KIND_LABELS[stop.type]}</span>
-      </header>
-
-      <div className="visual">
-        <strong>{isMeal ? "食" : "観"}</strong>
-        <small>
-          방문 예정 · <b>{hhmm(stop.arrival)}</b>
-        </small>
-      </div>
-
-      <div className="body">
-        <button type="button" className="back-to-day" onClick={onBack}>
-          ← 하루 일정으로
-        </button>
-
-        <div className="title">
-          <div>
-            <h1>{stop.name}</h1>
-            <p>{place.address}</p>
-          </div>
-          {place.rating != null && <strong>★ {place.rating}</strong>}
-        </div>
-
-        <p className="review-count">
-          {isMeal
-            ? `타베로그 평점${place.budget ? ` · 예산 ${place.budget}` : ""}`
-            : place.reviewCount != null
-              ? `Google 리뷰 ${place.reviewCount.toLocaleString()}개`
-              : ""}
-        </p>
-
+  const scheduleInfo = (
+    <>
         <div className="place-facts">
           <div>
             <span>체류 시간</span>
@@ -87,6 +61,8 @@ export default function PlaceDetail({
             </b>
           </div>
         </div>
+
+        {!isMeal && warnings.length > 0 && <div className="notice-yellow" role="status"><b>⚠ 일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
 
         {isMeal && place.budgetRelaxed && (
           <div className="notice-yellow">
@@ -120,20 +96,21 @@ export default function PlaceDetail({
         )}
 
         {/* 식당 변경 / 되돌리기 */}
-        {isMeal && (
+        {isMeal && !readOnly && (
           <div className="restaurant-edit-actions">
             <button
               type="button"
               className="primary-action"
               onClick={onOpenCandidates}
+              disabled={busy}
             >
-              다른 식당 보기
+              교체 · 다른 식당 보기
             </button>
 
             {stop.alternatives?.[0] && (
               <button
                 type="button"
-                disabled={replacingId != null}
+                disabled={busy || replacingId != null}
                 onClick={() => onReplaceAlternative(stop.alternatives[0].id)}
               >
                 ↩ {stop.alternatives[0].name}으로 되돌리기
@@ -142,19 +119,61 @@ export default function PlaceDetail({
           </div>
         )}
 
-        {!isMeal && (
+        {!isMeal && !readOnly && (
           <div className="restaurant-edit-actions">
             <button
               type="button"
               className="primary-action"
               onClick={onOpenAttractionCandidates}
+              disabled={busy}
             >
-              다른 관광지 보기
+              교체 · 다른 관광지 보기
             </button>
           </div>
         )}
 
-        <div className="place-actions"></div>
+        {!readOnly && <div className="restaurant-edit-actions">
+          <button type="button" className="danger-action" disabled={busy || !canDelete} onClick={onDelete}>삭제</button>
+          {!canDelete && <small>하루의 마지막 1개 항목은 삭제할 수 없어요.</small>}
+        </div>}
+    </>
+  );
+
+  return (
+    <section className="detail place-detail-v3">
+      <header>
+        <b>{category}</b>
+        <span className="place-kind">{KIND_LABELS[stop.type]}{!isMeal && ` · 방문 ${hhmm(stop.arrival)}`}</span>
+      </header>
+
+      {isMeal && <div className="visual">
+        <strong>食</strong>
+        <small>
+          방문 예정 · <b>{hhmm(stop.arrival)}</b>
+        </small>
+      </div>}
+
+      <div className="body">
+        {isMeal && warnings.length > 0 && <div className="notice-yellow" role="status"><b>⚠ 일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
+        <button type="button" className="back-to-day" onClick={onBack}>
+          ← 하루 일정으로
+        </button>
+
+        <div className="title">
+          <div>
+            <h1>{stop.name}</h1>
+            <p>{place.address}</p>
+          </div>
+          {isMeal && place.rating != null && <strong>★ {place.rating}</strong>}
+        </div>
+
+        {isMeal && <p className="review-count">타베로그 평점{place.budget ? ` · 예산 ${place.budget}` : ""}</p>}
+
+        {isMeal ? scheduleInfo : (
+          <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} visitDate={visitDate}>
+            {scheduleInfo}
+          </AttractionDetails>
+        )}
 
         <div className="place-actions">
           <button type="button" onClick={() => copy(stop.name, "일본어 이름")}>

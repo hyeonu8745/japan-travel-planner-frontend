@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { tripFormValues } from "../utils/tripEditing";
 
 const errorStyle = { color: "#d64545", fontSize: "0.78rem", margin: "0 0 8px" };
 
@@ -8,20 +9,6 @@ const INTEREST_OPTIONS = [
   { value: "SHOPPING", label: "쇼핑" },
   { value: "NIGHT_VIEW", label: "야경" },
 ];
-
-const EMPTY_VALUES = {
-  startDate: "",
-  endDate: "",
-  travelers: 1,
-  budget: "",
-  travelPace: "NORMAL",
-  transportMode: "PUBLIC_TRANSIT",
-  accommodationName: "",
-  accommodationAddress: "",
-  interests: [],
-  allergies: "",
-  mobilityConstraints: "",
-};
 
 /** 오늘 날짜를 YYYY-MM-DD로 (날짜 선택의 최소값) */
 function todayString() {
@@ -40,7 +27,7 @@ export default function TripConditionsForm({
   submitLabel,
   onSubmit,
 }) {
-  const [values, setValues] = useState({ ...EMPTY_VALUES, ...initialValues });
+  const [values, setValues] = useState(() => tripFormValues(initialValues));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -73,13 +60,14 @@ export default function TripConditionsForm({
 
   return (
     <form className="conditions-form setup-form" onSubmit={handleSubmit}>
+      <fieldset className="conditions-fields" disabled={loading}>
       <div className="form-grid">
         <label>
           여행 시작일
           <input
             type="date"
             required
-            min={todayString()}
+            min={initialValues?.startDate && initialValues.startDate < todayString() ? initialValues.startDate : todayString()}
             value={values.startDate}
             onChange={update("startDate")}
           />
@@ -197,6 +185,7 @@ export default function TripConditionsForm({
       <button className="primary setup-submit" type="submit" disabled={loading}>
         {loading ? "저장 중..." : submitLabel}
       </button>
+      </fieldset>
     </form>
   );
 }

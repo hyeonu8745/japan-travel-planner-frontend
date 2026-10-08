@@ -16,7 +16,7 @@ export class ApiError extends Error {
  */
 export async function apiRequest(
   path,
-  { method = "GET", body, auth = true } = {},
+  { method = "GET", body, auth = true, signal, cache } = {},
 ) {
   const headers = {};
   if (body !== undefined) {
@@ -33,8 +33,11 @@ export async function apiRequest(
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal,
+      cache,
     });
-  } catch {
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
     throw new ApiError(
       0,
       "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
@@ -47,6 +50,8 @@ export async function apiRequest(
     window.location.href = "/auth";
     throw new ApiError(401, "로그인이 필요합니다.");
   }
+
+  if (response.status === 204) return null;
 
   const text = await response.text();
   let data = null;

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { getMyTrips } from "../api/trips";
+import { getMyTrips, deleteTrip } from "../api/trips";
+import { DELETE_TRIP_MESSAGE } from "../utils/tripEditing";
 import { clearAuth, getUser } from "../auth/token";
 import Brand from "../components/Brand";
 
@@ -75,6 +76,8 @@ export default function TripsPage() {
   const [error, setError] = useState("");
   const [tab, setTab] = useState("journeys");
   const [filter, setFilter] = useState("ALL");
+  const [deletingId, setDeletingId] = useState(null);
+  const deletingRef = useRef(false);
 
   useEffect(() => {
     getMyTrips()
@@ -86,6 +89,19 @@ export default function TripsPage() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleDelete = async (id) => {
+    if (deletingRef.current || !window.confirm(DELETE_TRIP_MESSAGE)) return;
+    deletingRef.current = true;
+    setDeletingId(id);
+    try {
+      await deleteTrip(id);
+      setTrips((previous) => previous.filter((trip) => trip.id !== id));
+      setError("");
+      navigate("/trips", { replace: true });
+    } catch (err) { setError(err.message); }
+    finally { deletingRef.current = false; setDeletingId(null); }
+  };
 
   const handleLogout = () => {
     clearAuth();
@@ -188,10 +204,10 @@ export default function TripsPage() {
             {loading && <p>불러오는 중...</p>}
             {error && <p style={{ color: "#d64545" }}>{error}</p>}
 
-            {!loading && !error && (
+            {!loading && (
               <section className="trip-grid">
                 {visibleTrips.map((trip) => (
-                  <TripCard key={trip.id} trip={trip} />
+                  <TripCard key={trip.id} trip={trip} onDelete={handleDelete} deletingId={deletingId} />
                 ))}
                 <Link className="empty-trip" to="/trips/new">
                   <b>＋</b>
@@ -237,7 +253,7 @@ export default function TripsPage() {
   );
 }
 
-function TripCard({ trip }) {
+function TripCard({ trip, onDelete, deletingId }) {
   const past = isPast(trip);
   const completed = COMPLETED_STATUSES.includes(trip.status);
   const interests = (trip.interests ?? [])
@@ -263,6 +279,7 @@ function TripCard({ trip }) {
           {trip.travelers === 1 ? "혼자" : `${trip.travelers}명`}
         </p>
         <footer>
+          <button type="button" className="trip-delete danger-action" disabled={deletingId != null} onClick={() => onDelete(trip.id)}>{deletingId === trip.id ? "삭제 중..." : "여행 삭제"}</button>
           <Link to={`/trips/${trip.id}/planner`}>
             {completed ? "일정 보기" : "계속 계획하기"}
           </Link>

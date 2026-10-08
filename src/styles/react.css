@@ -501,3 +501,114 @@ label.check input {
   font-size: 0.62rem;
   line-height: 1.5;
 }
+
+/* Trip and itinerary editing use the existing TabiMate palette. */
+.conditions-form .conditions-fields {
+  border: 0; margin: 0; padding: 0; min-width: 0;
+}
+.conditions-form .conditions-fields input:not([type="checkbox"]) { width: 100%; }
+.conditions-form .conditions-fields > label {
+  display: grid; gap: 7px; margin: 0 0 15px; font-size: .75rem; font-weight: 700;
+}
+.conditions-form .conditions-fields .form-grid label { margin-right: 0; }
+.conditions-backdrop {
+  position: fixed; inset: 0; z-index: 90; background: #07182dbb;
+  display: grid; place-items: center; padding: 24px;
+}
+.conditions-editor {
+  width: min(680px, 100%); max-height: 90vh; overflow: auto;
+  border-top: 4px solid #27a9dc;
+}
+.conditions-editor > header { display: flex; justify-content: space-between; gap: 16px; }
+.conditions-editor > header button { background: none; border: 0; font-size: 1.5rem; align-self: start; }
+.planner-v2 { display: flex; flex-direction: column; height: 100dvh; }
+.planner-v2 > .app-head, .planner-v2 > .planner-tools, .planner-v2 > .days { flex-shrink: 0; }
+.planner-v2 .workspace { flex: 1; min-height: 0; height: auto; }
+.planner-v2 .planner-notice { margin: 0; padding: 10px 20px; display: flex; align-items: center; gap: 12px; font-size: .75rem; }
+.planner-notice button { margin-left: auto; background: none; border: 0; font-size: 1.2rem; }
+.planner-v2 .planner-preview { margin: 0; padding: 10px 20px; }
+.timeline-insert { margin: 10px 0 10px 75px; }
+.timeline-insert button {
+  width: 100%; padding: 9px; border: 1px dashed #9cbfce; background: #eef8fc;
+  color: var(--n); font-size: .7rem; font-weight: 700;
+}
+.timeline-place[draggable="true"] { cursor: grab; }
+.timeline-place.is-dragging { opacity: .45; background: #eef8fc; }
+.timeline-stop-actions { display: grid; gap: 6px; }
+.timeline-order-actions { display: flex; align-items: center; gap: 4px; }
+.timeline-order-actions span { color: #758391; }
+.timeline-order-actions button { min-width: 28px; min-height: 28px; }
+.planner-tools .danger-action { color: #ffc4c4; }
+.restaurant-edit-actions .danger-action, .trip-delete { color: #a33939; border: 1px solid #d6b6b6; background: #fff; }
+.restaurant-edit-actions small { align-self: center; font-size: .65rem; color: var(--m); }
+.trip-content footer { flex-wrap: wrap; }
+.trip-delete { padding: 8px 10px; font-size: .7rem; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+/* Live Google attraction details: scoped to the existing place detail panel. */
+.google-attraction-details { margin: 24px 0; border-top: 2px solid #cfe9f4; padding-top: 18px; color: var(--n); }
+.google-attraction-details > header, .google-attraction-details > footer {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+}
+.google-attraction-details h2 { margin: 0; font-size: .88rem; }
+.google-attribution { color: #40566b; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.google-attraction-details h3 { margin: 18px 0 6px; font-size: 1.1rem; }
+.google-attraction-details h4 { margin: 20px 0 10px; font-size: .8rem; }
+.google-attraction-details p { line-height: 1.75; overflow-wrap: anywhere; }
+.google-detail-state { padding: 20px 12px; background: #f1f8fb; font-size: .75rem; }
+.google-attraction-details button { padding: 8px 10px; border: 1px solid var(--l); background: #fff; color: var(--n); font-size: .7rem; }
+.google-attraction-details button:disabled { opacity: .45; }
+.google-attraction-details a { color: #176b8e; font-size: .72rem; text-underline-offset: 3px; }
+.google-place-photo { margin: 16px 0 0; }
+.google-photo-frame { aspect-ratio: 4 / 3; background: #edf5f9; display: grid; place-items: center; overflow: hidden; }
+.google-photo-frame > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.google-photo-frame p { font-size: .75rem; padding: 0 12px; }
+.google-photo-frame > div { text-align: center; padding: 12px; }
+.google-place-photo figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 0; font-size: .65rem; }
+.google-author { display: inline-flex; align-items: center; gap: 7px; overflow-wrap: anywhere; }
+.google-author-avatar { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.google-photo-gallery nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: .7rem; }
+.google-original-name { margin: 0; color: var(--m); font-size: .7rem; }
+.google-place-rating { display: flex; flex-wrap: wrap; gap: 12px; font-size: .75rem; }
+.google-place-summary { font-size: .78rem; }
+.google-opening-hours ul { list-style: none; padding: 0; margin: 0; }
+.google-opening-hours li { padding: 7px 10px; font-size: .72rem; line-height: 1.6; }
+.google-opening-hours .is-visit-day { background: #edf8fd; border-left: 3px solid #27a9dc; font-weight: 700; }
+.google-opening-hours .is-visit-day span { margin-left: 8px; color: #176b8e; font-size: .62rem; }
+.google-website-link { display: inline-block; margin-top: 12px; }
+.google-review-notice { padding: 10px; background: #f4f7f9; color: #536477; font-size: .7rem; }
+.google-place-reviews article { border-bottom: 1px solid var(--l); padding: 16px 0; }
+.google-place-reviews article > header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.google-place-reviews article > header > div { display: flex; align-items: center; gap: 8px; font-size: .68rem; }
+.google-place-reviews article > header > div span { color: var(--m); }
+.google-place-reviews article p { margin: 9px 0; white-space: pre-wrap; font-size: .75rem; }
+.google-translated { display: inline-block; margin-top: 10px; font-size: .64rem; color: #536477; }
+.google-place-reviews details { margin: 8px 0 12px; font-size: .72rem; }
+.google-place-reviews summary { cursor: pointer; color: #176b8e; }
+.google-attraction-details > footer { padding-top: 18px; }
+
+/* Google map beside the existing itinerary. */
+.planner-v2 .workspace.planner-map-layout { grid-template-columns: minmax(0, 1.1fr) minmax(350px, 1fr); }
+.google-itinerary-map { display: flex; flex-direction: column; min-height: 0; background: #eef5f8; background-image: none; }
+.google-map-canvas { position: relative; flex: 1; min-height: 220px; }
+.google-map-message { position: absolute; inset: 0; z-index: 5; display: grid; place-content: center; padding: 28px; background: #eef5f8; color: #536477; text-align: center; font-size: .8rem; line-height: 1.8; }
+.google-map-footer { flex-shrink: 0; background: #fff; border-top: 1px solid var(--l); padding: 12px 18px; }
+.google-map-footer > b { font-size: .8rem; }
+.google-map-footer p { margin: 7px 0 0; color: var(--m); font-size: .65rem; line-height: 1.6; }
+.google-map-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: .65rem; }
+.google-map-legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 5px; background: #07182d; }
+.google-map-legend .hotel::before { background: #287365; }
+.google-map-legend .lunch::before { background: #27a9dc; }
+.google-map-legend .dinner::before { background: #7560a8; }
+.google-trip-pin { position: absolute; transform: translate(-50%, -100%); display: grid; justify-items: center; gap: 4px; cursor: help; }
+.google-trip-pin > b { display: grid; place-items: center; min-width: 32px; height: 32px; padding: 0 5px; border: 2px solid #fff; background: var(--pin-color); color: #fff; box-shadow: 0 2px 5px #07182d44; font: 700 13px sans-serif; }
+.google-trip-pin > span { max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 3px 5px; background: #fff; border: 1px solid #ccd5de; color: #07182d; font: 600 10px sans-serif; }
+.google-trip-pin-hotel { z-index: 1; }
+.google-trip-pin svg { display: block; width: 18px; height: 18px; }
+.google-trip-pin:focus { z-index: 10; outline: 2px solid #27a9dc; }
+.google-trip-pin:focus::after { content: attr(title); position: absolute; bottom: calc(100% + 6px); background: #fff; border: 1px solid #ccd5de; padding: 8px; white-space: pre; color: #07182d; font: 12px/1.6 sans-serif; }
+.planner-v2 .workspace.planner-map-layout.has-chat { grid-template-columns: minmax(0, 1.05fr) minmax(350px, 1fr) minmax(300px, .8fr); }
+.planner-chat-dock { position: relative; min-width: 0; min-height: 0; background: #fff; }
+.planner-chat-dock[hidden] { display: none; }
+.planner-v2 .planner-chat-dock .chat { position: static; width: 100%; height: 100%; transform: none; border-radius: 0; box-shadow: none; }
+.planner-chat-close { position: absolute; top: 10px; right: 10px; z-index: 1; border: 0; background: #fff; color: #07182d; font-size: 1.2rem; }

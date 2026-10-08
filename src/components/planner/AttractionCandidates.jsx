@@ -19,8 +19,10 @@ export default function AttractionCandidates({
   replacingId,
   onReplace,
   onClose,
+  mode = "replace",
 }) {
-  const title = data?.night ? "다른 야경 장소 보기" : "다른 관광지 보기";
+  const adding = mode === "add";
+  const title = adding ? "일정에 장소 추가" : data?.night ? "다른 야경 장소 보기" : "다른 관광지 보기";
 
   return (
     <section className="detail attraction-candidates-panel">
@@ -42,13 +44,13 @@ export default function AttractionCandidates({
       )}
 
       {loading && (
-        <p className="candidate-state">바꿀 수 있는 장소를 찾고 있어요...</p>
+        <p className="candidate-state">{adding ? "추가할" : "바꿀 수 있는"} 장소를 찾고 있어요...</p>
       )}
 
       {error && <p className="candidate-state error">{error}</p>}
 
       {!loading && !error && data?.candidates?.length === 0 && (
-        <p className="candidate-state">바꿀 수 있는 장소가 없어요.</p>
+        <p className="candidate-state">{adding ? "추가할" : "바꿀 수 있는"} 장소가 없어요.</p>
       )}
 
       {data?.candidates?.length > 0 && (
@@ -66,9 +68,9 @@ export default function AttractionCandidates({
               </div>
 
               <div className="candidate-badges">
-                {!candidate.sameZone && <em>인근 지역</em>}
+                {candidate.sameZone === false && <em>인근 지역</em>}
 
-                {!candidate.fitsInDay && <em>시간이 빠듯해요</em>}
+                {candidate.fitsInDay === false && <em>시간이 넘쳐요</em>}
               </div>
 
               <dl>
@@ -113,8 +115,8 @@ export default function AttractionCandidates({
                 onClick={() => onReplace(candidate.id)}
               >
                 {replacingId === candidate.id
-                  ? "교체하는 중..."
-                  : data.night
+                  ? adding ? "추가하는 중..." : "교체하는 중..."
+                  : adding ? "이 관광지 추가" : data.night
                     ? "이 야경 장소로 교체"
                     : "이 관광지로 교체"}
               </button>

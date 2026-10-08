@@ -1,5 +1,25 @@
 import { apiRequest } from "./client";
 
+export function deleteItineraryStop(tripId, stopId) {
+  return apiRequest(`/api/trips/${tripId}/itinerary/stops/${stopId}`, { method: "DELETE" });
+}
+
+export function reorderDay(tripId, dayNumber, stopIds, version) {
+  return apiRequest(`/api/trips/${tripId}/itinerary/days/${dayNumber}/order`, {
+    method: "PUT", body: { stopIds, version },
+  });
+}
+
+export function getAttractionInsertionCandidates(tripId, dayNumber, position) {
+  return apiRequest(`/api/trips/${tripId}/itinerary/days/${dayNumber}/attraction-candidates?position=${position}`);
+}
+
+export function addAttraction(tripId, dayNumber, attractionId, position, version) {
+  return apiRequest(`/api/trips/${tripId}/itinerary/days/${dayNumber}/attractions`, {
+    method: "POST", body: { attractionId, position, version },
+  });
+}
+
 /** 일정 만들기 */
 export function generateItinerary(tripId) {
   return apiRequest(`/api/trips/${tripId}/itinerary`, {
