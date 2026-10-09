@@ -1,3 +1,5 @@
+import { useState } from "react";
+import RestaurantDetails from "./RestaurantDetails";
 import {
   MODE_LABELS,
   genreLabel,
@@ -11,7 +13,16 @@ export default function RestaurantCandidates({
   replacingId,
   onReplace,
   onClose,
+  visitDate,
 }) {
+  const [selected, setSelected] = useState(null);
+  const current = data?.candidates?.find((candidate) => candidate.id === selected);
+  if (current && !loading) return <section className="detail restaurant-candidates-panel"><div className="body">
+    <button type="button" className="back-to-day" onClick={() => setSelected(null)}>← 식당 후보로</button>
+    <RestaurantDetails restaurantId={current.id} fallbackName={current.name} visitDate={visitDate}>
+      <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={replacingId != null} onClick={() => onReplace(current.id)}>{replacingId === current.id ? "교체하는 중..." : "이 식당으로 교체"}</button>
+    </RestaurantDetails>
+  </div></section>;
   return (
     <section className="detail restaurant-candidates-panel">
       <header>
@@ -20,7 +31,7 @@ export default function RestaurantCandidates({
           <h2>다른 식당 보기</h2>
         </div>
 
-        <button type="button" onClick={onClose}>
+        <button type="button" className="tabi-button candidate-close" aria-label="식당 후보 닫기" onClick={onClose}>
           ×
         </button>
       </header>
@@ -95,8 +106,11 @@ export default function RestaurantCandidates({
                 </p>
               )}
 
+              <div className="candidate-card-actions">
+              <button type="button" className="tabi-button" onClick={() => setSelected(candidate.id)}>상세 보기</button>
               <button
                 type="button"
+                className="tabi-button tabi-button-primary"
                 disabled={replacingId != null}
                 onClick={() => onReplace(candidate.id)}
               >
@@ -104,6 +118,7 @@ export default function RestaurantCandidates({
                   ? "교체하는 중..."
                   : "이 식당으로 교체"}
               </button>
+              </div>
             </article>
           ))}
         </div>

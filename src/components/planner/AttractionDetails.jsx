@@ -22,7 +22,7 @@ function Author({ author }) {
     : <span className="google-author">{content}</span>;
 }
 
-function CurrentPhoto({ attractionId, photo, onExpired, onReload }) {
+function CurrentPhoto({ attractionId, photo, onExpired, onReload, loadPhoto, photoAlt }) {
   const [state, setState] = useState({ loading: true, uri: null, error: "" });
   const frameRef = useRef(null);
   useEffect(() => {
@@ -36,7 +36,7 @@ function CurrentPhoto({ attractionId, photo, onExpired, onReload }) {
       Promise.resolve().then(async () => {
         if (!active) return;
         try {
-          const result = await getAttractionPhoto(attractionId, photo.name, { signal: controller.signal });
+          const result = await loadPhoto(attractionId, photo.name, { signal: controller.signal });
           const uri = externalUrl(result.photoUri);
           if (active) setState({ loading: false, uri, error: uri ? "" : "사진 주소가 없어요." });
         } catch (error) {
@@ -53,13 +53,13 @@ function CurrentPhoto({ attractionId, photo, onExpired, onReload }) {
     if (observer) observer.observe(frameRef.current);
     else load();
     return () => { active = false; observer?.disconnect(); controller.abort(); };
-  }, [attractionId, photo.name, onExpired]);
+  }, [attractionId, photo.name, onExpired, loadPhoto]);
 
   return <figure className="google-place-photo">
     <div className="google-photo-frame" ref={frameRef} aria-busy={state.loading}>
       {state.loading && <p role="status">사진을 불러오고 있어요...</p>}
       {state.error && <div role="status"><p>{state.error}</p><button type="button" onClick={onReload}>상세 새로 불러오기</button></div>}
-      {state.uri && <img src={state.uri} alt="관광지 사진" referrerPolicy="no-referrer" onError={() => setState({ loading: false, uri: null, error: "사진을 표시하지 못했어요. 상세를 새로 불러와주세요." })} />}
+      {state.uri && <img src={state.uri} alt={photoAlt} referrerPolicy="no-referrer" onError={() => setState({ loading: false, uri: null, error: "사진을 표시하지 못했어요. 상세를 새로 불러와주세요." })} />}
     </div>
     {state.uri && photo.authors?.length > 0 && <figcaption>
       <span>사진 작성자</span>
@@ -68,7 +68,7 @@ function CurrentPhoto({ attractionId, photo, onExpired, onReload }) {
   </figure>;
 }
 
-export default function AttractionDetails({ attractionId, fallbackName, visitDate, children }) {
+export default function AttractionDetails({ attractionId, fallbackName, visitDate, children, loadDetails = getAttractionDetails, loadPhoto = getAttractionPhoto, detailTitle = "관광지 상세 정보", photoAlt = "관광지 사진", loadingText = "장소 정보를 불러오고 있어요...", renderIntro }) {
   const [state, setState] = useState({ loading: true, data: null, error: "" });
   const [attempt, setAttempt] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -97,7 +97,7 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
         return;
       }
       try {
-        const data = await getAttractionDetails(attractionId, { signal: controller.signal });
+        const data = await loadDetails(attractionId, { signal: controller.signal });
         if (active) setState({ loading: false, data, error: "" });
       } catch (error) {
         if (active && error.name !== "AbortError") setState({ loading: false, data: null, error: error.message });
@@ -105,35 +105,38 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
     });
     // Nothing is persisted or shared with other detail sessions.
     return () => { active = false; controller.abort(); };
-  }, [attractionId, attempt]);
+  }, [attractionId, attempt, loadDetails]);
 
   const details = state.data;
+  const Intro = renderIntro;
+  const hasGoogle = details && details.hasGoogle !== false;
   const photos = details?.photos ?? [];
   const index = Math.min(photoIndex, Math.max(photos.length - 1, 0));
   const photo = photos[index];
   const visitDay = visitDate ? WEEKDAYS[new Date(`${visitDate}T12:00:00`).getDay()] : null;
 
-  return <section className="google-attraction-details" aria-label="관광지 상세 정보" aria-busy={state.loading}>
-    <header><h2>관광지 상세 정보</h2><span className="google-attribution">{details?.attribution ?? "Google Maps"}</span></header>
-    {state.loading && <p className="google-detail-state" role="status">장소 정보를 불러오고 있어요...</p>}
+  return <section className="google-attraction-details" aria-label={detailTitle} aria-busy={state.loading}>
+    <header><h2>{detailTitle}</h2>{(hasGoogle || !renderIntro) && <span className="google-attribution">{details?.attribution ?? "Google Maps"}</span>}</header>
+    {state.loading && <p className="google-detail-state" role="status">{loadingText}</p>}
     {state.error && <div className="google-detail-state" role="status"><p>{state.error}</p><button type="button" onClick={reload}>다시 불러오기</button></div>}
     {details && <>
       {photo && <div className="google-photo-gallery">
-        <CurrentPhoto key={`${attempt}-${index}-${photo.name}`} attractionId={attractionId} photo={photo} onExpired={handleExpiredPhoto} onReload={reload} />
+        <CurrentPhoto key={`${attempt}-${index}-${photo.name}`} attractionId={attractionId} photo={photo} onExpired={handleExpiredPhoto} onReload={reload} loadPhoto={loadPhoto} photoAlt={photoAlt} />
         {photos.length > 1 && <nav aria-label="장소 사진 넘기기">
           <button type="button" disabled={index === 0} onClick={() => setPhotoIndex(index - 1)}>← 이전 사진</button>
           <span aria-live="polite">{index + 1} / {photos.length}</span>
           <button type="button" disabled={index === photos.length - 1} onClick={() => setPhotoIndex(index + 1)}>다음 사진 →</button>
         </nav>}
       </div>}
-      <h3>{details.localizedName || details.name || fallbackName}</h3>
+      {Intro ? <Intro details={details} onReload={reload} /> : <><h3>{details.localizedName || details.name || fallbackName}</h3>
       {details.localizedName && details.name !== details.localizedName && <p className="google-original-name">{details.name}</p>}
       {(details.rating != null || details.userRatingCount != null) && <p className="google-place-rating">
         {details.rating != null && <b>★ {details.rating}</b>}
         {details.userRatingCount != null && <span>리뷰 {details.userRatingCount.toLocaleString()}개</span>}
       </p>}
-      {details.summary && <p className="google-place-summary">{details.summary}</p>}
+      {details.summary && <p className="google-place-summary">{details.summary}</p>}</>}
       {children}
+      {hasGoogle && <>
       {details.openingHours?.length > 0 && <section className="google-opening-hours">
         <h4>영업시간</h4>
         <ul>{details.openingHours.map((hours, line) => <li key={line} className={visitDay && hours.startsWith(visitDay) ? "is-visit-day" : ""}>
@@ -154,6 +157,7 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
         </article>)}
       </section>
       <footer><span className="google-attribution">{details.attribution}</span>{externalUrl(details.googleMapsUri) && <a href={details.googleMapsUri} target="_blank" rel="noopener noreferrer">Google 지도에서 보기 ↗</a>}</footer>
+      </>}
     </>}
     {!details && children}
   </section>;

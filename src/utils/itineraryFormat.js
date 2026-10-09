@@ -45,11 +45,15 @@ export function totalTravelMinutes(day) {
 
 /** Google 지도 경로 보기 링크. 실제 지하철 경로는 이 링크로 확인한다 */
 export function directionsUrl(from, to, mode) {
+  const valid = (point) => point != null && ["lat", "lng"].every((axis) =>
+    point[axis] != null && point[axis] !== "" && Number.isFinite(Number(point[axis])) &&
+    Math.abs(Number(point[axis])) <= (axis === "lat" ? 90 : 180));
+  if (!valid(from) || !valid(to) || !GOOGLE_TRAVEL_MODES[mode]) return null;
   const params = new URLSearchParams({
     api: "1",
     origin: `${from.lat},${from.lng}`,
     destination: `${to.lat},${to.lng}`,
-    travelmode: GOOGLE_TRAVEL_MODES[mode] ?? "transit",
+    travelmode: GOOGLE_TRAVEL_MODES[mode],
   });
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }

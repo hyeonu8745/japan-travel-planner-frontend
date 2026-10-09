@@ -153,10 +153,11 @@ export default function ChatPanel({
         )}
 
         {wantsGeneration && !locked && (
-          <div className="system-msg">
-            일정 만들기를 원하셨어요.{" "}
-            <button type="button" onClick={onGenerate}>
-              지금 일정 만들기
+          <div className="system-msg chat-generation-prompt">
+            <b>여행 일정을 만들 준비가 됐어요</b>
+            <span>지금까지 이야기한 취향으로 일정을 만들어요.</span>
+            <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" onClick={onGenerate}>
+              일정 만들기 <span aria-hidden="true">→</span>
             </button>
           </div>
         )}
@@ -182,6 +183,7 @@ export default function ChatPanel({
             <button
               key={text}
               type="button"
+              className="tabi-button chat-quick-button"
               disabled={sending}
               onClick={() => send(text)}
             >

@@ -57,6 +57,7 @@ export default function PlannerPage() {
   const [chatOpen, setChatOpen] = useState(true);
   const [dayNumber, setDayNumber] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [timelineSelection, setTimelineSelection] = useState(null);
   const [generation, setGeneration] = useState({ status: "idle", error: null });
   const [attempt, setAttempt] = useState(0);
   const [wantsGeneration, setWantsGeneration] = useState(false);
@@ -76,6 +77,7 @@ export default function PlannerPage() {
   const currentDay = displayedItinerary?.days.find((day) => day.dayNumber === dayNumber)
     ?? displayedItinerary?.days[0];
   const selectedStop = currentDay?.stops.find((stop) => stop.order === selectedOrder);
+  const mapSelectedOrder = selectedOrder ?? (timelineSelection?.dayNumber === currentDay?.dayNumber && currentDay?.stops.some((stop) => stop.order === timelineSelection.order) ? timelineSelection.order : null);
   const nextStop = selectedStop ? currentDay.stops[currentDay.stops.indexOf(selectedStop) + 1] : null;
   const editable = !previewItinerary && !busy && trip?.status !== "READY_TO_GENERATE";
 
@@ -384,7 +386,7 @@ export default function PlannerPage() {
           : days.map((label, index) => <button key={label} type="button" disabled>DAY {index + 1}<span>{label}</span></button>)}
       </nav>
       <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}`}>
-        <ItineraryMap accommodation={displayedItinerary?.accommodation} day={currentDay} />
+        <ItineraryMap accommodation={displayedItinerary?.accommodation} day={currentDay} selectedOrder={mapSelectedOrder} />
         {history.open ? <ItineraryHistory
           versions={history.versions} loading={history.loading} error={history.error}
           currentVersion={itinerary?.version} previewVersion={previewVersion} restoringVersion={restoringVersion}
@@ -392,7 +394,7 @@ export default function PlannerPage() {
           onClose={() => { closeCandidates(); setHistory((previous) => ({ ...previous, open: false })); }}
         /> : showTimeline ? (
           candidates.kind ? (
-            candidates.kind === "restaurant" ? <RestaurantCandidates data={candidates.data} loading={candidates.loading} error={candidates.error} replacingId={replacingId} onReplace={handleCandidate} onClose={closeCandidates} />
+            candidates.kind === "restaurant" ? <RestaurantCandidates visitDate={currentDay.date} data={candidates.data} loading={candidates.loading} error={candidates.error} replacingId={replacingId} onReplace={handleCandidate} onClose={closeCandidates} />
               : <AttractionCandidates mode={candidates.kind === "add" ? "add" : "replace"} data={candidates.data} loading={candidates.loading} error={candidates.error} replacingId={replacingId} onReplace={handleCandidate} onClose={closeCandidates} />
           ) : selectedStop ? <PlaceDetail
             stop={selectedStop} nextStop={nextStop} readOnly={!!previewItinerary || trip.status === "READY_TO_GENERATE"} busy={busy}
@@ -405,6 +407,7 @@ export default function PlannerPage() {
             onOpenAttractionCandidates={() => openCandidates("attraction")}
           /> : <DayTimeline key={`${currentDay.dayNumber}-${displayedItinerary.version}`} day={currentDay}
             accommodation={displayedItinerary.accommodation} onOpenDetail={(stop) => openDetail(stop.order)}
+            selectedOrder={mapSelectedOrder} onSelectStop={(stop) => setTimelineSelection({ dayNumber: currentDay.dayNumber, order: stop.order })}
             readOnly={!!previewItinerary || trip.status === "READY_TO_GENERATE"} busy={busy} onReorder={handleReorder} onAdd={(position) => openCandidates("add", position)}
           />
         ) : <section className="detail">

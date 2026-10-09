@@ -1,4 +1,4 @@
-import { MODE_LABELS, hhmm } from "./itineraryFormat";
+import { MODE_LABELS, hhmm, directionsUrl } from "./itineraryFormat";
 
 export const MAP_COLORS = { HOTEL: "#287365", ATTRACTION: "#07182d", LUNCH: "#27a9dc", DINNER: "#7560a8" };
 
@@ -19,7 +19,8 @@ export function buildMapDay(accommodation, day) {
   const segments = [];
   for (let index = 1; index < route.length; index++) {
     const from = route[index - 1], to = route[index];
-    if (from?.position && to?.position) segments.push({ key: to.key, path: [from.position, to.position] });
+    to.directionsUrl = directionsUrl(from?.position, to.position, to.travel?.mode);
+    if (from?.position && to?.position) segments.push({ key: to.key, mode: to.travel?.mode, minutes: to.travel?.minutes, fromOrder: from.order ?? "숙소", toOrder: to.order, fromName: from.name, toName: to.name, directionsUrl: to.directionsUrl, path: [from.position, to.position] });
   }
   return { points: route.filter((point) => point?.position), segments, missingCount: stops.filter((stop) => !stop.position).length + (accommodation && !hotel ? 1 : 0) };
 }

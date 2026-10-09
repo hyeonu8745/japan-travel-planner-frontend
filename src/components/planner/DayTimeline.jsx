@@ -24,7 +24,7 @@ const REGION_IMAGES = {
  * - onOpenDetail(stop): "상세 보기"를 눌렀을 때
  * 서버가 계산한 값을 그대로 보여주기만 한다 (시각, 이동, 여유 시간, 빠진 장소, 안내)
  */
-export default function DayTimeline({ day, accommodation, onOpenDetail, readOnly = false, busy = false, onReorder, onAdd }) {
+export default function DayTimeline({ day, accommodation, onOpenDetail, selectedOrder = null, onSelectStop, readOnly = false, busy = false, onReorder, onAdd }) {
   const dragIndex = useRef(null);
   const [dragging, setDragging] = useState(null);
   const canEdit = !readOnly && !busy;
@@ -81,7 +81,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, readOnly
       )}
       {hasTransit && (
         <div className="notice-gray">
-          대중교통 시간은 예상치예요. 실제 경로는 &lsquo;경로 보기&rsquo;에서
+          대중교통 시간은 예상치예요. 실제 경로는 &lsquo;길찾기&rsquo;에서
           확인하세요.
         </div>
       )}
@@ -101,6 +101,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, readOnly
           }
           if (row.kind === "move") {
             const routeFrom = row.from ?? accommodation;
+            const routeUrl = directionsUrl(routeFrom, row.to, row.travel.mode);
 
             return (
               <Fragment key={row.key}>
@@ -110,15 +111,17 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, readOnly
                 {row.travel.estimated && (
                   <span className="estimate-badge">예상치</span>
                 )}
-                {routeFrom && routeFrom.lat != null && row.to.lat != null && (
+                {routeUrl ? (
                   <a
-                    href={directionsUrl(routeFrom, row.to, row.travel.mode)}
+                    className="directions-button"
+                    href={routeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    경로 보기
+                    길찾기
                   </a>
-                )}
+                ) : <span className="directions-unavailable">좌표가 없어 길찾기를 열 수 없어요.</span>}
+                {row.travel.mode === "TRANSIT" && <span className="directions-transit-note">열차·환승 안내는 Google 지도에서</span>}
               </li>
               </Fragment>
             );
@@ -133,7 +136,8 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, readOnly
           const { stop } = row;
           const index = day.stops.indexOf(stop);
           return (
-            <li key={row.key} className={`timeline-place${dragging === index ? " is-dragging" : ""}`}
+            <li key={row.key} className={`timeline-place timeline-stop-card${selectedOrder === stop.order ? " is-selected" : ""}${dragging === index ? " is-dragging" : ""}`}
+              onClick={(event) => { if (!event.target.closest("button, a")) onSelectStop?.(stop); }}
               draggable={canEdit}
               onDragStart={(event) => {
                 if (!canEdit) { event.preventDefault(); return; }
@@ -154,7 +158,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, readOnly
             >
               <time>{stop.arrival.slice(0, 5)}</time>
               <div>
-                <h3>{stop.name}</h3>
+                <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{stop.order}</span><span>{stop.name}</span></button></h3>
                 <p>{stopSubtitle(stop)}</p>
               </div>
               <div className="timeline-stop-actions">

@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useToast } from "../toastContext";
 import AttractionDetails from "./AttractionDetails";
+import RestaurantDetails from "./RestaurantDetails";
 import {
   MODE_LABELS,
   genreLabel,
@@ -31,6 +33,7 @@ export default function PlaceDetail({
   visitDate,
 }) {
   const showToast = useToast();
+  const [alternativeDetail, setAlternativeDetail] = useState(null);
   const isMeal = stop.type !== "ATTRACTION";
   const place = isMeal ? stop.restaurant : stop.attraction;
 
@@ -62,7 +65,7 @@ export default function PlaceDetail({
           </div>
         </div>
 
-        {!isMeal && warnings.length > 0 && <div className="notice-yellow" role="status"><b>⚠ 일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
+        {warnings.length > 0 && <div className="notice-yellow" role="status"><b>⚠ 일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
 
         {isMeal && place.budgetRelaxed && (
           <div className="notice-yellow">
@@ -139,6 +142,14 @@ export default function PlaceDetail({
     </>
   );
 
+  if (isMeal && alternativeDetail?.stopId === stop.id) return <section className="detail place-detail-v3">
+    <div className="body"><button type="button" className="back-to-day" onClick={() => setAlternativeDetail(null)}>← 현재 식당으로</button>
+      <RestaurantDetails restaurantId={alternativeDetail.candidate.id} fallbackName={alternativeDetail.candidate.name} visitDate={visitDate} readOnly={readOnly}>
+        {!readOnly && <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={busy || replacingId != null} onClick={() => { setAlternativeDetail(null); onReplaceAlternative(alternativeDetail.candidate.id); }}>이 식당으로 교체</button>}
+      </RestaurantDetails>
+    </div>
+  </section>;
+
   return (
     <section className="detail place-detail-v3">
       <header>
@@ -146,15 +157,8 @@ export default function PlaceDetail({
         <span className="place-kind">{KIND_LABELS[stop.type]}{!isMeal && ` · 방문 ${hhmm(stop.arrival)}`}</span>
       </header>
 
-      {isMeal && <div className="visual">
-        <strong>食</strong>
-        <small>
-          방문 예정 · <b>{hhmm(stop.arrival)}</b>
-        </small>
-      </div>}
 
       <div className="body">
-        {isMeal && warnings.length > 0 && <div className="notice-yellow" role="status"><b>⚠ 일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
         <button type="button" className="back-to-day" onClick={onBack}>
           ← 하루 일정으로
         </button>
@@ -164,16 +168,17 @@ export default function PlaceDetail({
             <h1>{stop.name}</h1>
             <p>{place.address}</p>
           </div>
-          {isMeal && place.rating != null && <strong>★ {place.rating}</strong>}
         </div>
 
-        {isMeal && <p className="review-count">타베로그 평점{place.budget ? ` · 예산 ${place.budget}` : ""}</p>}
 
-        {isMeal ? scheduleInfo : (
+        {isMeal ? <RestaurantDetails key={stop.id} restaurantId={place.id} fallbackName={stop.name} visitDate={visitDate} onReplace={onOpenCandidates} readOnly={readOnly} busy={busy}>
+          {scheduleInfo}
+        </RestaurantDetails> : (
           <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} visitDate={visitDate}>
             {scheduleInfo}
           </AttractionDetails>
         )}
+        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h3>이전 식당 후보</h3>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}>{candidate.name} · 상세 보기</button>)}</section>}
 
         <div className="place-actions">
           <button type="button" onClick={() => copy(stop.name, "일본어 이름")}>
