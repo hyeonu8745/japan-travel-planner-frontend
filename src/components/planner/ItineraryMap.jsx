@@ -16,8 +16,10 @@ class MapBoundary extends Component {
   }
 }
 
-function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures }) {
+function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onShowAll }) {
   const pinElements = useRef([]);
+  const showAllCallback = useRef(onShowAll);
+  useEffect(() => { showAllCallback.current = onShowAll; }, [onShowAll]);
   const selectMapStop = useRef(null);
   const map = useMap();
   const maps = useMapsLibrary("maps");
@@ -90,6 +92,11 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures }) {
       overlay.onRemove = () => pin.remove(); overlay.setMap(map);
       return overlay;
     });
+    const updateNames = () => pinElements.current.forEach(({ pin }) => {
+      pin.querySelector(":scope > span").hidden = (map.getZoom() ?? 0) < 16;
+    });
+    updateNames();
+    const zoomListener = map.addListener("zoom_changed", updateNames);
     const lineListeners = [];
     const transitLabels = [];
     const routeLabels = [];
@@ -97,12 +104,13 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures }) {
     const emphasizeSegment = (index) => {
       lines.forEach((line, lineIndex) => {
         const selected = lineIndex === index, transit = model.segments[lineIndex].mode === "TRANSIT";
+        const muted = index != null && !selected;
         const zIndex = selected ? 1000 : 10 + lineIndex * 4;
-        line.setOptions({ strokeColor: selected ? routeColor(model.segments[lineIndex].mode, lineIndex) : "#8d9baa", strokeWeight: selected ? 8 : 3, strokeOpacity: transit ? 0 : selected ? 1 : .75, zIndex: zIndex + 2,
-          icons: selected ? baseIcons[lineIndex] : transit ? [{ ...baseIcons[lineIndex][0], icon: { ...baseIcons[lineIndex][0].icon, strokeColor: "#8794a2", fillColor: "#8794a2", strokeWeight: .8, scale: .65 } }] : [] });
+        line.setOptions({ strokeColor: muted ? "#8d9baa" : routeColor(model.segments[lineIndex].mode, lineIndex), strokeWeight: selected ? 8 : muted ? 4 : 6, strokeOpacity: transit ? 0 : muted ? .75 : 1, zIndex: zIndex + 2,
+          icons: muted ? baseIcons[lineIndex].map((symbol) => ({ ...symbol, icon: { ...symbol.icon, strokeColor: "#8d9baa", fillColor: "#8d9baa" } })) : baseIcons[lineIndex] });
         outlines[lineIndex].setOptions({ strokeOpacity: selected && !transit ? .85 : 0, zIndex, icons: selected && transit ? [{ ...baseIcons[lineIndex][0], icon: { ...baseIcons[lineIndex][0].icon, strokeColor: "#07182d", fillColor: "#07182d", strokeWeight: 5 } }] : [] });
-        casings[lineIndex].setOptions({ strokeWeight: selected ? 12 : 5, zIndex: zIndex + 1,
-          icons: transit ? [{ ...baseIcons[lineIndex][0], icon: { ...baseIcons[lineIndex][0].icon, strokeColor: "#fff", fillColor: "#fff", strokeWeight: selected ? 3 : 2, scale: selected ? 1 : .65 } }] : [] });
+        casings[lineIndex].setOptions({ strokeWeight: selected ? 12 : 10, zIndex: zIndex + 1,
+          icons: transit ? [{ ...baseIcons[lineIndex][0], icon: { ...baseIcons[lineIndex][0].icon, strokeColor: "#fff", fillColor: "#fff", strokeWeight: 3, scale: 1 } }] : [] });
       });
       routeLabels.forEach(({ label }, labelIndex) => label.classList.toggle("is-selected", labelIndex === index));
     };
@@ -207,9 +215,21 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures }) {
       }
     };
     fit();
+    const resetSelection = (fitAll = false) => {
+      infoWindow.close(); routePanel.hidden = true; emphasizeSegment(null);
+      pinElements.current.forEach(({ pin }) => { pin.classList.remove("is-selected"); pin.setAttribute("aria-pressed", "false"); });
+      showAllCallback.current?.();
+      if (fitAll) fit();
+    };
+    const overviewButton = document.createElement("button"); overviewButton.type = "button";
+    overviewButton.className = "google-map-overview"; overviewButton.textContent = "전체 경로 보기";
+    overviewButton.addEventListener("click", () => resetSelection(true));
+    maps.OverlayView.preventMapHitsAndGesturesFrom?.(overviewButton);
+    map.getDiv().append(overviewButton);
+    const blankClickListener = map.addListener("click", () => resetSelection());
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(fit) : null;
     observer?.observe(map.getDiv());
-    return () => { active = false; selectMapStop.current = null; pinElements.current = []; observer?.disconnect(); infoWindow.close(); routePanel.remove(); lineListeners.forEach((listener) => listener.remove()); transitLabels.forEach((overlay) => overlay.setMap(null)); overlays.forEach((overlay) => overlay.setMap(null)); [...lines, ...outlines, ...casings, ...hitLines].forEach((line) => line.setMap(null)); };
+    return () => { active = false; selectMapStop.current = null; pinElements.current = []; observer?.disconnect(); zoomListener.remove(); blankClickListener.remove(); overviewButton.remove(); infoWindow.close(); routePanel.remove(); lineListeners.forEach((listener) => listener.remove()); transitLabels.forEach((overlay) => overlay.setMap(null)); overlays.forEach((overlay) => overlay.setMap(null)); [...lines, ...outlines, ...casings, ...hitLines].forEach((line) => line.setMap(null)); };
   }, [map, maps, core, model, routeCache, onRouteFailures]);
   useEffect(() => {
     pinElements.current.forEach(({ pin, order }) => {
@@ -222,7 +242,7 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures }) {
   return null;
 }
 
-function GoogleDayMap({ apiKey, model, selectedOrder }) {
+function GoogleDayMap({ apiKey, model, selectedOrder, onShowAll }) {
   const [routeCache] = useState(() => createRouteCache());
   const [routeFailures, setRouteFailures] = useState(0);
   const [status, setStatus] = useState("loading");
@@ -244,7 +264,7 @@ function GoogleDayMap({ apiKey, model, selectedOrder }) {
       <MapBoundary>
         <Map defaultCenter={model.points[0].position} defaultZoom={13} maxZoom={18} gestureHandling="cooperative"
           mapTypeControl={false} streetViewControl={false} fullscreenControl zoomControl style={{ width: "100%", height: "100%" }}>
-          <DayMapGeometry model={model} selectedOrder={selectedOrder} routeCache={routeCache} onRouteFailures={setRouteFailures} />
+          <DayMapGeometry model={model} selectedOrder={selectedOrder} routeCache={routeCache} onRouteFailures={setRouteFailures} onShowAll={onShowAll} />
         </Map>
       </MapBoundary>
     </APIProvider>
@@ -255,7 +275,7 @@ function GoogleDayMap({ apiKey, model, selectedOrder }) {
   </>;
 }
 
-export default function ItineraryMap({ accommodation, day, selectedOrder = null }) {
+export default function ItineraryMap({ accommodation, day, selectedOrder = null, onShowAll }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
   const model = useMemo(() => buildMapDay(accommodation, day), [accommodation, day]);
   return <section className="map itinerary-map google-itinerary-map" aria-label="오늘의 일정 지도">
@@ -263,8 +283,8 @@ export default function ItineraryMap({ accommodation, day, selectedOrder = null 
       {!day ? <MapMessage>일정을 만들면 선택한 날짜의 지도가 표시돼요.</MapMessage>
         : !apiKey ? <MapMessage>Google 지도 키가 아직 설정되지 않았어요. 지도 설정 후 개발 서버를 다시 실행해주세요.</MapMessage>
           : !model.points.length ? <MapMessage>이 날짜에는 지도에 표시할 좌표가 없어요.</MapMessage>
-            : <GoogleDayMap apiKey={apiKey} model={model} selectedOrder={selectedOrder} />}
-      {day && <div className="google-route-legend" aria-label="이동수단 범례"><span className="walk">실선: 도보·차</span><span className="transit">점선: 대중교통</span><small>선택한 구간은 컬러로 강조 · 이동 안내는 하단에 표시<br />대중교통: 실제 노선은 길찾기에서 확인</small></div>}
+            : <GoogleDayMap apiKey={apiKey} model={model} selectedOrder={selectedOrder} onShowAll={onShowAll} />}
+      {day && <div className="google-route-legend" aria-label="이동수단 범례"><span className="walk">실선: 도보·차 (구간별 색상)</span><span className="transit">점선: 대중교통</span><small>선택한 구간은 굵게 강조 · 이동 안내는 하단에 표시<br />대중교통: 실제 노선은 길찾기에서 확인</small></div>}
     </div>
     <footer className="google-map-footer">
       <b>{day ? `DAY ${day.dayNumber} · ${day.zoneLabel}` : "여행 지도"}</b>

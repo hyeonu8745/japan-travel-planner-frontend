@@ -24,6 +24,7 @@ export default function ChatPanel({
   locked,
   onTurn,
   onGenerate,
+  refreshVersion = 0,
 }) {
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState("");
@@ -75,7 +76,7 @@ export default function ChatPanel({
         if (cancelled) return;
         setMessages(history);
 
-        if (initialPrompt && history.length === 0 && !autoSentRef.current) {
+        if (refreshVersion === 0 && initialPrompt && history.length === 0 && !autoSentRef.current) {
           autoSentRef.current = true;
           send(initialPrompt);
         }
@@ -85,7 +86,7 @@ export default function ChatPanel({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripId]);
+  }, [tripId, refreshVersion]);
 
   // 새 메시지가 생기면 맨 아래로 스크롤
   useEffect(() => {
@@ -140,7 +141,7 @@ export default function ChatPanel({
           ) : (
             <div key={m.id} className="ai-msg">
               <span>✦</span>
-              <p style={{ whiteSpace: "pre-wrap" }}>{m.content}</p>
+              <p style={{ whiteSpace: "pre-line" }}>{m.content}</p>
             </div>
           ),
         )}

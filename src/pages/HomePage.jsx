@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { isLoggedIn } from "../auth/token";
 import Footer from "../components/Footer";
 import PublicHeader from "../components/PublicHeader";
+import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
 const SUGGESTIONS = ["부모님과 편안한 도쿄 여행", "우에노·야나카 골목 위주로"];
 
@@ -37,7 +38,7 @@ export default function HomePage() {
               <em>검색 말고 대화로.</em>
             </h1>
             <p>
-              현재 도쿄 6개 구를 지원합니다. 가고 싶은 곳과 취향을 말하면 평점,
+              도쿄 중심 8개 구의 관광지를 지원합니다. 가고 싶은 곳과 취향을 말하면 평점,
               날씨, 이동 시간을 함께 검토해 현실적인 일정을 만듭니다.
             </p>
             <form className="prompt" onSubmit={handleStart}>
@@ -65,7 +66,7 @@ export default function HomePage() {
               ))}
             </div>
             <p className="service-scope">
-              현재 도쿄 베타 지원 · 일본 전역 확대 예정
+              관광지 8개 구 · 식당 6개 구(고토·스미다 제외) · 도쿄 베타
             </p>
           </div>
           <aside className="route-card">
@@ -103,10 +104,11 @@ export default function HomePage() {
             <span>관광 명소</span>
           </div>
           <div>
-            <b>6</b>
-            <span>도쿄 지원 구</span>
+            <b>8</b>
+            <span>관광지 지원 구</span>
           </div>
           <p>
+            {ATTRACTION_SCOPE}<br />{RESTAURANT_SCOPE}<br />
             평점 3.4 이상 식당과 Google 관광 명소 데이터 안에서만 추천해,
             존재하지 않는 장소를 만들어내지 않습니다.
           </p>

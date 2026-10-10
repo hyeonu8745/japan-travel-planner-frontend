@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import Footer from "../components/Footer";
 import PublicHeader from "../components/PublicHeader";
+import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
 export default function GuidePage() {
   const location = useLocation();
@@ -31,6 +32,7 @@ export default function GuidePage() {
           <p>
             원하는 여행을 말하면 AI가 후보를 비교하고, 이동 가능한 일정으로
             정리합니다.
+            <br />{ATTRACTION_SCOPE}<br />{RESTAURANT_SCOPE}
           </p>
         </section>
 

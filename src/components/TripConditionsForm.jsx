@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { tripFormValues } from "../utils/tripEditing";
+import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
 const errorStyle = { color: "#d64545", fontSize: "0.78rem", margin: "0 0 8px" };
 
@@ -60,6 +61,7 @@ export default function TripConditionsForm({
 
   return (
     <form className="conditions-form setup-form" onSubmit={handleSubmit}>
+      <div className="trip-service-scope"><p>{ATTRACTION_SCOPE}</p><p>{RESTAURANT_SCOPE}</p></div>
       <fieldset className="conditions-fields" disabled={loading}>
       <div className="form-grid">
         <label>
@@ -144,6 +146,7 @@ export default function TripConditionsForm({
             value={values.accommodationAddress}
             onChange={update("accommodationAddress")}
           />
+          <small className="accommodation-scope-note">관광지 지원 범위에는 고토(오다이바·도요스)와 스미다(스카이트리 주변)도 포함돼요. 숙소의 정확한 주소를 입력해주세요.</small>
         </label>
       </div>
 

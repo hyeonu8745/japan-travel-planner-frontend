@@ -1,0 +1,209 @@
+/* TabiMate approved mockups. Presentation only; API and map drawing are unchanged. */
+.google-trip-pin > span[hidden] { display:none; }
+.google-map-overview { position:absolute;left:12px;bottom:28px;z-index:4;border:1px solid #bfd3df;background:#fff;color:#0c233d;padding:10px 14px;font-size:12px;font-weight:700;box-shadow:0 2px 8px #07182d22;cursor:pointer; }
+.google-map-overview:hover { background:#edf8fc; }
+.google-map-overview:focus-visible { outline:2px solid #27a9dc;outline-offset:2px; }
+.google-map-canvas .google-route-panel { bottom:78px; }
+.trip-service-scope { padding:14px 16px;background:#edf7fb;border-left:3px solid #27a9dc;margin:0 0 20px; }
+.trip-service-scope p { margin:0;font-size:12px;line-height:1.8;color:#35566e; }
+.trip-service-scope p+p { margin-top:4px; }
+.panel-icon { flex:0 0 auto;vertical-align:middle; }
+.planner-redesign { --ink:#0b233c;--muted:#5e7189;--line:#dce7ef;--ice:#eef8fd;color:var(--ink); }
+.planner-redesign.day-timeline { container:timeline-panel / inline-size; }
+.planner-redesign.place-detail-v3 { container:detail-panel / inline-size; }
+@media(min-width:1000px) {
+ .planner-v2 .workspace.planner-map-layout { grid-template-columns:minmax(0,.9fr) minmax(480px,1.1fr); }
+ .planner-v2 .workspace.planner-map-layout.has-place-detail { grid-template-columns:minmax(240px,.55fr) minmax(0,1.45fr); }
+ .planner-v2 .workspace.planner-map-layout.has-place-detail.has-chat { grid-template-columns:minmax(180px,.5fr) minmax(0,1.5fr) minmax(260px,.65fr); }
+}
+/* Itinerary: illustrated header, connected cards, fixed summary. */
+.planner-redesign .timeline-fixed-head { padding:16px 20px 0;border-bottom:1px solid var(--line); }
+.planner-redesign .region-day-cover { height:clamp(120px,19dvh,170px);margin:0; }
+.planner-redesign .region-day-cover img { width:100%;height:100%;object-fit:cover; }
+.planner-redesign .region-day-cover>div { position:absolute;inset:0;padding:20px 24px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(90deg,#f5fbffff,#f5fbffde 37%,#f5fbff00 75%); }
+.planner-redesign .region-day-cover h2 { color:var(--ink);font-size:25px;letter-spacing:-.035em;line-height:1.3; }
+.planner-redesign .region-day-cover p { color:#26425c;font-size:12px;margin:10px 0 0; }
+.planner-redesign .timeline-fixed-head .timeline-head { border:0;padding:14px 4px 16px; }
+.planner-redesign .timeline-head p { color:#4c637c;font-size:12px;line-height:1.8; }
+.planner-redesign .timeline-scroll { padding:16px 20px;background:#fff; }
+.planner-redesign .timeline-start { border:0;padding:2px 0 8px;grid-template-columns:44px minmax(0,1fr);gap:18px; }
+.planner-redesign .timeline-start h3 { font-size:13px; }
+.planner-redesign .timeline-start p { margin:4px 0 0;font-size:11px;color:var(--muted); }
+.planner-redesign .timeline-start time { color:var(--muted);font-size:11px; }
+.planner-redesign .timeline-stop-card { position:relative;grid-template-columns:44px minmax(0,1fr);gap:18px;padding:0;border:0;background:transparent;box-shadow:none; }
+.planner-redesign .timeline-stop-card:hover,.planner-redesign .timeline-stop-card.is-selected { border:0;background:transparent;box-shadow:none; }
+.planner-redesign .timeline-stop-card time { padding-top:19px;font-size:12px;font-weight:600;color:var(--ink); }
+.planner-redesign .timeline-stop-card::before { content:'';position:absolute;top:26px;left:50px;width:8px;height:8px;border-radius:50%;background:#173651; }
+.planner-redesign .timeline-stop-surface { min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;min-height:82px;padding:12px 14px;border:1px solid var(--line);background:#fff;transition:border-color .15s,background .15s; }
+.planner-redesign .timeline-stop-card:hover .timeline-stop-surface { border-color:#91cbe1; }
+.planner-redesign .timeline-stop-card.is-selected .timeline-stop-surface { border-color:#22a8db;background:linear-gradient(110deg,#ecf9ff,#f7fcff); }
+.planner-redesign .timeline-stop-card h3 { margin:0; }
+.planner-redesign .timeline-stop-select { display:flex;align-items:center;gap:12px;font-size:16px;line-height:1.45;letter-spacing:-.02em; }
+.planner-redesign .timeline-stop-select>span:last-child { overflow-wrap:anywhere; }
+.planner-redesign .timeline-stop-number { width:32px;height:32px;font-size:15px;background:linear-gradient(135deg,#173954,#0b233c); }
+.planner-redesign .timeline-stop-number.lunch { background:#18a7d6; }
+.planner-redesign .timeline-stop-number.dinner { background:#6a59a1; }
+.planner-redesign .timeline-stop-main>p { font-size:11px;line-height:1.6;color:var(--muted);margin:4px 0 0 44px; }
+.planner-redesign .timeline-stop-main>.stop-reasons { margin-left:44px; }
+.planner-redesign .stop-reasons { gap:5px;margin-top:6px; }
+.planner-redesign .stop-reasons li { font-size:10px;padding:3px 7px;border:0;background:#f0f3f7;color:#64758b; }
+.planner-redesign .stop-reasons li.is-emphasis { background:#ddf2fc;color:#13769c; }
+.planner-redesign .timeline-stop-actions { grid-column:2;grid-row:1;display:flex;flex-direction:row;align-items:center;gap:8px;padding:0;margin:0;border:0;justify-self:end; }
+.planner-redesign .timeline-order-actions { display:flex;gap:3px;align-items:center; }
+.planner-redesign .timeline-order-actions>span { font-size:12px;color:#96a7b6; }
+.planner-redesign .timeline-order-actions button { width:25px;min-height:30px;padding:0;border:0;background:transparent;font-size:17px;color:var(--ink); }
+.planner-redesign .timeline-order-actions button:disabled { opacity:.25; }
+.planner-redesign .timeline-stop-actions>button { padding:5px 0 5px 10px;border:0;border-left:1px solid var(--line);background:transparent;color:#087dac;white-space:nowrap;font-size:12px;font-weight:600; }
+.planner-redesign .timeline-stop-actions>button span { font-size:18px;margin-left:3px; }
+.planner-redesign .timeline-transfer { position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-left:54px;padding:10px 0;border-left:1px dotted #b2c5d3; }
+.planner-redesign .timeline-transfer::before { content:'';position:absolute;top:24px;left:-4px;width:7px;height:7px;border:1px solid #8fa5b7;border-radius:50%;background:#fff; }
+.planner-redesign .timeline-move { display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:4px 0 4px 20px;margin:0;border:0;background:transparent;color:var(--muted);font-size:11px; }
+.planner-redesign .timeline-move::before { content:none; }
+.planner-redesign .timeline-move .panel-icon { width:18px;height:18px;color:var(--ink); }
+.planner-redesign .timeline-move-label b { font-weight:600; }
+.planner-redesign .directions-button { border:0;background:transparent;padding:4px;color:#0783b8;font-size:11px;font-weight:600; }
+.planner-redesign .directions-transit-note { font-size:10px;color:#8091a2; }
+.planner-redesign .timeline-add-inline { white-space:nowrap;background:transparent;border:0;padding:6px;color:#0783b8;font-size:11px; }
+.planner-redesign .timeline-insert { display:flex;justify-content:flex-end;margin:3px 0; }
+.planner-redesign .timeline-insert button { width:auto;padding:6px;border:0;background:transparent;font-size:11px;color:#0783b8; }
+.planner-v2 .planner-redesign .timeline-summary { background:#fff;border-top:1px solid var(--line);box-shadow:none; }
+.planner-v2 .planner-redesign .timeline-summary div { display:flex;align-items:center;justify-content:flex-start;gap:14px;padding:16px 24px; }
+.planner-redesign .timeline-summary .panel-icon { width:32px;height:32px;color:#245d89; }
+.planner-v2 .planner-redesign .timeline-summary .timeline-summary-label { display:flex;flex-direction:column;gap:5px; }
+.planner-v2 .planner-redesign .timeline-summary span { margin:0;color:var(--muted);font-size:11px; }
+.planner-v2 .planner-redesign .timeline-summary b { font-size:21px; }
+.planner-redesign .notice-yellow,.planner-redesign .notice-gray { padding:12px 14px;margin:0 0 12px;border-left-width:2px;font-size:11px;line-height:1.8; }
+/* Place details: photo/title hero, paired information panels, supporting data, footer. */
+.planner-v2 .planner-redesign.place-detail-v3>.place-detail-navigation { background:linear-gradient(110deg,#0b233c,#092036);padding:10px 20px;min-height:48px;border:0;color:#fff; }
+.planner-v2 .planner-redesign .place-detail-navigation .back-to-day { background:transparent;border:0;color:#fff;font-size:13px;padding:6px 0;margin:0; }
+.planner-redesign .place-detail-category b { display:none; }
+.planner-redesign .place-kind { border:0;color:#fff;background:transparent;font-size:12px; }
+.planner-v2 .planner-redesign.place-detail-v3>.body { padding:16px 18px;background:#fff; }
+.planner-redesign .google-attraction-details { padding:0;margin:0;border:0; }
+.planner-redesign .google-attraction-details>header { position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
+.planner-redesign .detail-hero { display:grid;gap:22px;align-items:start; }
+.planner-redesign .detail-intro { min-width:0; }
+.planner-redesign .detail-place-heading h1 { font-size:28px;line-height:1.3;letter-spacing:-.035em;margin:0 0 5px;overflow-wrap:anywhere; }
+.planner-redesign .detail-japanese-name { margin:0 0 9px;color:#6b7b91;font-size:14px; }
+.planner-redesign .detail-address { display:flex;align-items:flex-start;gap:7px;margin:8px 0;font-size:12px;line-height:1.7;color:#4d637c; }
+.planner-redesign .detail-address .panel-icon { width:16px;height:16px;margin-top:3px; }
+.planner-redesign .detail-category { margin:6px 0 10px;color:#7d8ea2;font-size:11px; }
+.planner-redesign .google-place-summary { margin:12px 0;font-size:13px;line-height:1.8;color:#3c536e; }
+.planner-redesign .google-photo-gallery { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;margin:0;min-width:0; }
+.planner-redesign .google-place-photo { display:contents; }
+.planner-redesign .google-photo-frame { position:relative;grid-column:1/-1;aspect-ratio:16/9;max-height:360px;background:#eff6fa; }
+.planner-redesign .google-photo-frame>img { width:100%;height:100%;object-fit:cover; }
+.planner-redesign .google-place-photo figcaption { display:flex;flex-wrap:wrap;align-items:center;gap:6px;grid-column:1;padding:10px 0;font-size:10px;color:#6b7e95; }
+.planner-redesign .google-author-avatar { width:22px;height:22px;object-fit:cover; }
+.planner-redesign .google-attribution { font-size:10px;color:#3f5872;font-weight:600; }
+.planner-redesign .google-photo-gallery nav { display:flex;align-items:center;gap:8px;grid-column:2;margin:0;padding:8px 0;font-size:10px;border:0; }
+.planner-v2 .planner-redesign .google-photo-gallery nav button { border:0;background:transparent;padding:4px;color:#126485;font-size:10px;min-height:28px; }
+.planner-redesign .photo-overlay-controls { position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:12px;pointer-events:none; }
+.planner-v2 .planner-redesign .photo-overlay-controls button { display:grid;place-items:center;width:34px;height:34px;min-height:34px;padding:0;border:1px solid #ffffffb0;border-radius:50%;background:#071d38a0;color:#fff;font-size:29px;line-height:1;pointer-events:auto; }
+.planner-redesign .photo-overlay-controls button:disabled { opacity:.3; }
+.planner-redesign .restaurant-detail-ratings { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 8px;border:0;background:transparent; }
+.planner-redesign .restaurant-detail-ratings>div { display:flex;align-items:center;flex-wrap:wrap;gap:5px 8px;min-width:0;padding:10px 12px;border:1px solid var(--line);background:#fff; }
+.planner-redesign .restaurant-detail-ratings span { flex-basis:100%;font-weight:600;font-size:11px; }
+.planner-redesign .restaurant-detail-ratings b { font-size:19px;color:var(--ink); }
+.planner-redesign .restaurant-detail-ratings small { font-size:10px;color:#64758d; }
+.planner-redesign .detail-intro .data-notice { padding:0;border:0;background:transparent;font-size:10px;line-height:1.7;margin:8px 0; }
+.planner-redesign .restaurant-features h4 { display:none; }
+.planner-redesign .restaurant-features ul { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px; }
+.planner-redesign .restaurant-features li { display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 4px;border:1px solid var(--line);background:#fff;font-size:11px;color:#29475e; }
+.planner-redesign .restaurant-features .panel-icon { width:16px;height:16px;color:#078bae; }
+.planner-redesign .restaurant-features li.cash-only { border-color:#f0c492;color:#a45a16;background:#fff7ed; }
+.planner-redesign .google-place-rating { display:flex;align-items:center;gap:9px; }
+.planner-redesign .google-place-rating b { padding:6px 9px;background:#0b233c;color:#fff;font-size:14px; }
+.planner-redesign .google-place-rating span { font-size:11px;color:var(--muted); }
+.planner-redesign .detail-information-grid { display:grid;gap:12px;margin:18px 0 12px;align-items:stretch; }
+.planner-redesign .restaurant-basic-info,.planner-redesign .detail-schedule-info,.planner-redesign .google-opening-hours,.planner-redesign .review-insights { min-width:0;padding:14px;border:1px solid #d7e8f3;background:linear-gradient(145deg,#f3faff,#ebf7fc);margin:0; }
+.planner-redesign .google-attraction-details .restaurant-basic-info>h3,.planner-redesign .google-attraction-details .detail-schedule-info>h3,.planner-redesign .google-attraction-details h4 { margin:0 0 12px;font-size:15px;color:var(--ink);letter-spacing:-.02em; }
+.planner-redesign .restaurant-detail-facts { margin:0;border:0;background:transparent; }
+.planner-redesign .restaurant-detail-facts>div { display:grid;grid-template-columns:105px minmax(0,1fr);gap:8px;padding:8px 0;border-bottom:1px solid #dce8ef;font-size:12px; }
+.planner-redesign .restaurant-detail-facts dt { background:#f4f7fa;color:#506681;padding:3px 6px; }
+.planner-redesign .restaurant-detail-facts dd { padding:3px 0;margin:0;color:#17354d;overflow-wrap:anywhere; }
+.planner-redesign .restaurant-basic-info .data-notice { padding:0;margin:14px 0 0;border:0;background:transparent;font-size:10px;line-height:1.8; }
+.planner-redesign .place-facts { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 12px;border:0;background:transparent; }
+.planner-redesign .place-facts>div { display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:8px;padding:12px 10px;border:1px solid #e0e9f0;background:#fff; }
+.planner-redesign .place-facts .panel-icon { grid-row:1/3;align-self:center;width:27px;height:27px;color:#284c67; }
+.planner-redesign .place-facts span,.planner-redesign .place-facts b { grid-column:2; }
+.planner-redesign .place-facts span { font-size:10px;color:#6a7d93; }
+.planner-redesign .place-facts b { margin:4px 0 0;font-size:17px;color:var(--ink); }
+.planner-redesign .detail-schedule-info>.data-notice { padding:8px 0;border:0;background:transparent;margin:8px 0;font-size:10px;line-height:1.7; }
+.planner-redesign .detail-edit-toolbar { display:flex;gap:8px;margin-top:12px; }
+.planner-redesign .detail-edit-toolbar .restaurant-edit-actions { display:flex;gap:8px;margin:0;min-width:0; }
+.planner-redesign .detail-edit-toolbar .restaurant-edit-actions:first-child { flex:1; }
+.planner-redesign .restaurant-edit-actions .primary-action { width:100%;padding:9px 12px;min-height:38px;border:1px solid #0b233c;background:linear-gradient(100deg,#13334e,#0b233c);color:#fff;font-size:12px; }
+.planner-redesign .restaurant-edit-actions .danger-action { min-width:90px;padding:9px 12px;min-height:38px;border:1px solid #61778c;background:#fff;color:#29425b;font-size:12px; }
+.planner-v2 .planner-redesign .detail-restore { border:0;background:transparent;color:#087eaa;padding:10px 0;font-size:11px;text-decoration:underline; }
+.planner-redesign .restaurant-alternative-details { margin:4px 0 0;padding:0;border:0; }
+.planner-redesign .restaurant-alternative-details h4 { font-size:11px;margin:0 0 6px; }
+.planner-redesign .restaurant-alternative-details button { display:flex;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid var(--line);background:#fff;text-align:left; }
+.planner-redesign .restaurant-alternative-details button>.panel-icon { width:32px;height:32px;color:#1389ae;background:#eef8fd;padding:6px; }
+.planner-redesign .restaurant-alternative-details button>span { flex:1;min-width:0;font-size:12px;font-weight:600; }
+.planner-redesign .restaurant-alternative-details small { display:block;font-size:10px;color:#1284ad;margin-top:4px; }
+.planner-redesign .detail-support-grid { display:grid;gap:12px;margin:12px 0; }
+.planner-redesign .detail-support-grid>div:empty { display:none; }
+.planner-redesign .google-opening-hours li { padding:5px 8px;border-bottom:1px solid #e0e9f0;font-size:11px; }
+.planner-redesign .google-opening-hours li.is-visit-day { background:#dff2fe;color:#087da9; }
+.planner-redesign .google-website-link { display:block;padding:8px 0;color:#0783b3;font-size:11px; }
+.planner-redesign .review-insights h4 small { color:#8190a4;font-size:10px; }
+.planner-redesign .review-insight-counts { gap:6px;margin:0 0 10px; }
+.planner-redesign .review-insight-counts li { font-size:11px;padding:6px 9px;background:#fff;border:1px solid #dfe9f0; }
+.planner-redesign .review-insight-evidence { display:grid;gap:8px;padding:0;margin:0;list-style:none; }
+.planner-redesign .review-insight-evidence li { padding:12px;background:#fff;border:1px solid #e1eaf1; }
+.planner-redesign .review-insight-evidence a { color:#277048;font-size:11px; }
+.planner-redesign .review-insight-evidence li.is-caution a { color:#b15b20; }
+.planner-redesign .review-insight-evidence blockquote { margin:8px 0 0;padding:8px;background:#f3f6fa;border:0;font-size:12px;line-height:1.8;color:#445b74; }
+.planner-redesign .review-insights .google-review-notice { padding:0;margin:10px 0 0;background:transparent;font-size:10px;line-height:1.8; }
+.planner-redesign .google-place-reviews { margin:12px 0 0;padding:14px;border:1px solid var(--line);background:#fff; }
+.planner-redesign .google-review-notice { margin:8px 0 12px;padding:0;border:0;background:transparent;color:#6f8198;font-size:10px;line-height:1.7; }
+.planner-redesign .google-review-grid { display:grid;gap:10px; }
+.planner-redesign .google-review-grid article { margin:0;padding:12px;border:1px solid var(--line);background:#fff; }
+.planner-redesign .google-review-grid article>header { flex-wrap:wrap;gap:8px; }
+.planner-redesign .google-review-grid article>header b { color:#df940b; }
+.planner-redesign .google-review-grid article p { font-size:12px;line-height:1.8;color:#445b74; }
+.planner-redesign .google-review-grid article a,.planner-redesign .google-review-grid summary { font-size:11px; }
+.planner-redesign .google-review-grid .google-author { color:#19374e;font-weight:600; }
+.planner-redesign .google-attraction-details>footer { border:0;margin:12px 0 0;padding:6px 0;font-size:11px; }
+.planner-redesign .detail-data-note { margin:10px 0 0;color:#8a98a9;font-size:10px; }
+.planner-redesign .detail-footer { display:flex;align-items:center;flex-wrap:wrap;gap:12px;flex:0 0 auto;padding:10px 18px;border-top:1px solid var(--line);background:#fff; }
+.planner-redesign .detail-footer .place-actions { display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0; }
+.planner-redesign .detail-footer .place-actions button,.planner-redesign .detail-footer .place-actions a { padding:5px 8px;border:0;border-left:1px solid var(--line);background:transparent;font-size:11px;color:#087faa; }
+@container detail-panel (min-width:880px) {
+ .planner-redesign .detail-hero.has-photo { grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px; }
+ .planner-redesign .google-photo-frame { aspect-ratio:16/9;max-height:none; }
+ .planner-redesign .detail-information-grid:has(.restaurant-basic-info) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .planner-redesign .detail-support-grid:has(.review-insights)>div:not(:empty) { min-width:0; }
+ .planner-redesign .detail-support-grid:has(.review-insights):has(.google-opening-hours) { grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); }
+ .planner-redesign .google-review-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .planner-redesign .review-insight-evidence { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .planner-redesign .restaurant-features ul { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@container timeline-panel (max-width:540px) {
+ .planner-redesign .timeline-stop-surface { grid-template-columns:minmax(0,1fr); }
+ .planner-redesign .timeline-stop-actions { grid-column:1;grid-row:2; }
+ .planner-redesign .timeline-stop-actions>button { margin:0; }
+ .planner-redesign .timeline-transfer { flex-wrap:wrap; }
+ .planner-redesign .region-day-cover h2 { font-size:21px; }
+ .planner-redesign .timeline-stop-main>p,.planner-redesign .timeline-stop-main>.stop-reasons { margin-left:0; }
+ .planner-v2 .planner-redesign .timeline-summary div { padding:12px;gap:8px; }
+ .planner-v2 .planner-redesign .timeline-summary b { font-size:16px; }
+ .planner-redesign .timeline-summary .panel-icon { width:24px;height:24px; }
+}
+@container detail-panel (max-width:480px) {
+ .planner-redesign .detail-place-heading h1 { font-size:24px; }
+ .planner-redesign .google-photo-gallery { grid-template-columns:minmax(0,1fr); }
+ .planner-redesign .google-photo-gallery nav { grid-column:1;justify-content:space-between; }
+ .planner-redesign .place-facts>div { grid-template-columns:minmax(0,1fr); }
+ .planner-redesign .place-facts .panel-icon { display:none; }
+ .planner-redesign .place-facts span,.planner-redesign .place-facts b { grid-column:1; }
+ .planner-redesign .detail-edit-toolbar { flex-wrap:wrap; }
+ .planner-redesign .restaurant-detail-facts>div { grid-template-columns:90px minmax(0,1fr); }
+}
+@media(max-width:720px) {
+ .planner-redesign .timeline-fixed-head { padding:12px 12px 0; }
+ .planner-redesign .timeline-scroll { padding:14px 12px; }
+ .planner-v2 .planner-redesign.place-detail-v3>.body { padding:14px 12px; }
+ .planner-v2 .planner-redesign.place-detail-v3>.place-detail-navigation { padding:10px 14px; }
+}

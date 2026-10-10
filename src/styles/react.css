@@ -1355,3 +1355,46 @@ button:disabled { cursor: not-allowed; }
 .planner-v2 .chat .quick { display: flex; flex-wrap: wrap; gap: 8px; }
 .planner-v2 .chat .chat-quick-button { min-height: 34px; padding: 8px 10px; font-size: 11px; text-align: left; white-space: normal; background: #f3faff; }
 @media (max-width: 480px) { .planner-v2 .candidate-card-actions { flex-direction: column; } .planner-v2 .candidate-card-actions .tabi-button { width: 100%; } }
+
+.stop-reasons, .review-insight-counts { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 10px 0 0; padding: 0; }
+.stop-reasons li { padding: 4px 7px; border: 1px solid #d6dde3; background: #f3f5f7; color: #596a7a; font-size: 10px; line-height: 1.5; }
+.stop-reasons li.is-emphasis { border-color: #bfdce8; background: #edf8fc; color: #176b8e; }
+.review-insights { margin: 20px 0; padding: 14px; border: 1px solid #ccd5de; background: #f7fafc; }
+.review-insights h4 { margin-top: 0; }
+.review-insights h4 small { margin-left: 6px; color: #687a8b; font-size: 10px; }
+.review-insight-counts li { padding: 5px 8px; border: 1px solid #ccd5de; font-size: 11px; }
+.review-insight-counts .is-caution, .review-experiences .is-caution { color: #934510; background: #fff3e5; border-color: #e4be91; }
+.review-insight-counts .is-positive, .review-experiences .is-positive { color: #22694e; background: #edf8f1; border-color: #b7d7c5; }
+.review-insight-evidence, .review-experiences { list-style: none; padding: 0; margin: 12px 0; }
+.review-insight-evidence li { margin-top: 10px; font-size: 12px; }
+.review-insight-evidence blockquote, .review-experiences blockquote { margin: 6px 0 0; padding-left: 10px; border-left: 2px solid #bbcbd5; font-size: 12px; line-height: 1.7; }
+.review-experiences li { padding: 8px 10px; border: 1px solid; margin: 6px 0; font-size: 11px; }
+.google-place-reviews article { scroll-margin-top: 20px; }
+.planner-v2 .day-timeline {
+  display: flex; flex-direction: column; height: 100%; min-height: 0; padding: 0; overflow: hidden;
+}
+.timeline-fixed-head { flex: 0 0 auto; padding: 20px 24px 0; background: #fff; border-bottom: 1px solid #dce6ed; }
+.timeline-fixed-head .region-day-cover { height: clamp(100px, 18dvh, 170px); margin: 0; }
+.timeline-fixed-head .timeline-head { padding: 12px 0 16px; }
+.timeline-fixed-head .timeline-head p { margin: 0; white-space: normal; overflow-wrap: anywhere; }
+.timeline-scroll { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px 24px; scrollbar-gutter: stable; background: #f8fbfd; }
+.timeline-scroll:focus-visible { outline: 2px solid #27a9dc; outline-offset: -2px; }
+.timeline-scroll .timeline-list { margin: 0; }
+.planner-v2 .day-timeline .timeline-summary { flex: 0 0 auto; margin: 0; border: 0; border-top: 1px solid #bfdce8; background: #edf8fc; box-shadow: 0 -3px 12px #07182d08; }
+.planner-v2 .day-timeline .timeline-summary div { padding: 14px 24px; }
+.planner-v2 .day-timeline .timeline-summary b { font-size: 15px; color: #07182d; }
+.planner-v2 .day-timeline .timeline-summary span { font-size: 11px; }
+.planner-v2 .place-detail-v3 { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow: hidden; }
+.planner-v2 .place-detail-v3 > .place-detail-navigation { flex: 0 0 auto; height: auto; min-height: 66px; padding: 12px 24px; gap: 12px; border-bottom: 1px solid #bfdce8; background: #f3faff; }
+.planner-v2 .place-detail-navigation .back-to-day { margin: 0; flex-shrink: 0; min-height: 36px; background: #fff; }
+.place-detail-category { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; text-align: right; }
+.planner-v2 .place-detail-v3 > .body { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 22px 24px; }
+.planner-v2 .place-detail-v3 .title h1 { margin-top: 0; font-size: 22px; }
+@media (max-width: 720px) {
+  .planner-v2 .workspace .day-timeline, .planner-v2 .workspace .place-detail-v3 { height: 90dvh; min-height: 500px; }
+  .timeline-fixed-head { padding: 16px 16px 0; }
+  .timeline-scroll { padding: 16px; }
+  .planner-v2 .day-timeline .timeline-summary div { padding: 12px 16px; }
+  .planner-v2 .place-detail-v3 > .place-detail-navigation { padding: 12px 16px; }
+  .planner-v2 .place-detail-v3 > .body { padding: 18px 16px; }
+}

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useToast } from "../toastContext";
 import AttractionDetails from "./AttractionDetails";
 import RestaurantDetails from "./RestaurantDetails";
+import StopReasons from "./StopReasons";
+import DetailArt from "./DetailArt";
 import {
   MODE_LABELS,
   genreLabel,
@@ -49,13 +51,21 @@ export default function PlaceDetail({
     : `관광지 · ${(place.labels ?? []).slice(0, 2).join(", ") || "명소"}`;
 
   const scheduleInfo = (
-    <>
+    <section className="detail-schedule-info" aria-label="방문 일정">
+        <h3><DetailArt name="calendar" />방문 일정</h3>
         <div className="place-facts">
           <div>
+            <DetailArt name="clock" />
+            <span>도착 예정 시간</span>
+            <b>{hhmm(stop.arrival)}</b>
+          </div>
+          <div>
+            <DetailArt name="clock" />
             <span>체류 시간</span>
             <b>{stop.stayMinutes}분</b>
           </div>
           <div>
+            <DetailArt name={nextStop?.travel.mode || "pin"} />
             <span>다음 장소까지</span>
             <b>
               {nextStop
@@ -65,7 +75,7 @@ export default function PlaceDetail({
           </div>
         </div>
 
-        {warnings.length > 0 && <div className="notice-yellow" role="status"><b>⚠ 일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
+        {warnings.length > 0 && <div className="notice-yellow" role="status"><b><DetailArt name="warning" />일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
 
         {isMeal && place.budgetRelaxed && (
           <div className="notice-yellow">
@@ -99,6 +109,7 @@ export default function PlaceDetail({
         )}
 
         {/* 식당 변경 / 되돌리기 */}
+        <div className="detail-edit-toolbar">
         {isMeal && !readOnly && (
           <div className="restaurant-edit-actions">
             <button
@@ -107,18 +118,9 @@ export default function PlaceDetail({
               onClick={onOpenCandidates}
               disabled={busy}
             >
-              교체 · 다른 식당 보기
+              다른 식당 보기 ↗
             </button>
 
-            {stop.alternatives?.[0] && (
-              <button
-                type="button"
-                disabled={busy || replacingId != null}
-                onClick={() => onReplaceAlternative(stop.alternatives[0].id)}
-              >
-                ↩ {stop.alternatives[0].name}으로 되돌리기
-              </button>
-            )}
           </div>
         )}
 
@@ -130,63 +132,69 @@ export default function PlaceDetail({
               onClick={onOpenAttractionCandidates}
               disabled={busy}
             >
-              교체 · 다른 관광지 보기
+              다른 관광지 보기 ↗
             </button>
           </div>
         )}
 
         {!readOnly && <div className="restaurant-edit-actions">
-          <button type="button" className="danger-action" disabled={busy || !canDelete} onClick={onDelete}>삭제</button>
+          <button type="button" className="danger-action" disabled={busy || !canDelete} onClick={onDelete}>일정에서 삭제</button>
           {!canDelete && <small>하루의 마지막 1개 항목은 삭제할 수 없어요.</small>}
         </div>}
-    </>
+        </div>
+        {isMeal && !readOnly && stop.alternatives?.[0] && <button className="detail-restore" type="button" disabled={busy || replacingId != null} onClick={() => onReplaceAlternative(stop.alternatives[0].id)}>↩ {stop.alternatives[0].name}으로 되돌리기</button>}
+        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h4>이전 식당 후보</h4>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}><DetailArt name="food" /><span>{candidate.name}<small>상세 보기</small></span><b aria-hidden="true">›</b></button>)}</section>}
+    </section>
   );
 
-  if (isMeal && alternativeDetail?.stopId === stop.id) return <section className="detail place-detail-v3">
-    <div className="body"><button type="button" className="back-to-day" onClick={() => setAlternativeDetail(null)}>← 현재 식당으로</button>
+  if (isMeal && alternativeDetail?.stopId === stop.id) return <section className="detail place-detail-v3 planner-redesign detail-art">
+    <header className="place-detail-navigation"><button type="button" className="back-to-day" onClick={() => setAlternativeDetail(null)}>← 현재 식당으로</button><b>이전 식당 후보</b></header>
+    <div className="body">
       <RestaurantDetails restaurantId={alternativeDetail.candidate.id} fallbackName={alternativeDetail.candidate.name} visitDate={visitDate} readOnly={readOnly}>
         {!readOnly && <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={busy || replacingId != null} onClick={() => { setAlternativeDetail(null); onReplaceAlternative(alternativeDetail.candidate.id); }}>이 식당으로 교체</button>}
       </RestaurantDetails>
     </div>
   </section>;
 
+  const heading = (details) => {
+    const title = details?.localizedName || stop.name;
+    const originalName = details?.restaurant?.name || details?.name || stop.name;
+    const address = details?.restaurant?.address || place.address;
+    return <div className="detail-place-heading">
+      <h1>{title}</h1>
+      {originalName !== title && <p className="detail-japanese-name">{originalName}</p>}
+      {address && <p className="detail-address"><DetailArt name="pin" />{address}</p>}
+      <p className="detail-category">{category}</p>
+      <StopReasons reasons={stop.reasons} />
+    </div>;
+  };
   return (
-    <section className="detail place-detail-v3">
-      <header>
-        <b>{category}</b>
-        <span className="place-kind">{KIND_LABELS[stop.type]}{!isMeal && ` · 방문 ${hhmm(stop.arrival)}`}</span>
+    <section className="detail place-detail-v3 planner-redesign detail-art">
+      <header className="place-detail-navigation">
+        <button type="button" className="back-to-day" onClick={onBack}>← 하루 일정으로</button>
+        <div className="place-detail-category"><DetailArt name={isMeal ? "food" : "pin"} /><b>{category}</b>
+        <span className="place-kind">{KIND_LABELS[stop.type]} · {hhmm(stop.arrival)} 방문</span>
+        </div>
       </header>
 
 
       <div className="body">
-        <button type="button" className="back-to-day" onClick={onBack}>
-          ← 하루 일정으로
-        </button>
-
-        <div className="title">
-          <div>
-            <h1>{stop.name}</h1>
-            <p>{place.address}</p>
-          </div>
-        </div>
-
-
-        {isMeal ? <RestaurantDetails key={stop.id} restaurantId={place.id} fallbackName={stop.name} visitDate={visitDate} onReplace={onOpenCandidates} readOnly={readOnly} busy={busy}>
+        {isMeal ? <RestaurantDetails key={stop.id} restaurantId={place.id} fallbackName={stop.name} visitDate={visitDate} heading={heading} onReplace={onOpenCandidates} readOnly={readOnly} busy={busy}>
           {scheduleInfo}
         </RestaurantDetails> : (
-          <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} visitDate={visitDate}>
+          <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} visitDate={visitDate} heading={heading}>
             {scheduleInfo}
           </AttractionDetails>
         )}
-        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h3>이전 식당 후보</h3>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}>{candidate.name} · 상세 보기</button>)}</section>}
-
-        <div className="place-actions">
+        <p className="detail-data-note">영업시간·입장료는 Google Maps와 공식 사이트에서 확인하세요.</p>
+      </div>
+        <footer className="detail-footer"><span className="google-attribution">Google Maps</span><div className="place-actions">
           <button type="button" onClick={() => copy(stop.name, "일본어 이름")}>
-            일본어 이름 복사
+            <span aria-hidden="true">⧉</span> 일본어 이름 복사
           </button>
           {place.address && (
             <button type="button" onClick={() => copy(place.address, "주소")}>
-              주소 복사
+              <DetailArt name="pin" /> 주소 복사
             </button>
           )}
           <a
@@ -194,14 +202,9 @@ export default function PlaceDetail({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Google Maps에서 확인
+            <DetailArt name="pin" /> Google 지도에서 보기 ↗
           </a>
-        </div>
-
-        <div className="data-notice">
-          영업시간·입장료는 Google Maps와 공식 사이트에서 확인하세요
-        </div>
-      </div>
+        </div></footer>
     </section>
   );
 }

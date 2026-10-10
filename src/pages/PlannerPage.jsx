@@ -55,6 +55,7 @@ export default function PlannerPage() {
   const [itinerary, setItinerary] = useState(null);
   const [panel, setPanel] = useState("plan");
   const [chatOpen, setChatOpen] = useState(true);
+  const [chatRefreshVersion, setChatRefreshVersion] = useState(0);
   const [dayNumber, setDayNumber] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [timelineSelection, setTimelineSelection] = useState(null);
@@ -171,6 +172,7 @@ export default function PlannerPage() {
     setGeneration({ status: "running", error: null });
     try {
       applyItinerary(await generateItinerary(tripId));
+      setChatRefreshVersion((value) => value + 1);
       setTrip((previous) => ({ ...previous, status: "GENERATED" }));
       setPreviewItinerary(null);
       setSelectedOrder(null);
@@ -259,14 +261,17 @@ export default function PlannerPage() {
     }
   };
 
-  const mutateItinerary = async (request, { clearSelection = false } = {}) => {
+  const mutateItinerary = async (request, { clearSelection = false, candidateFailure = false } = {}) => {
     if (!editable || !acquireMutation()) return;
     setNotice("");
     try {
       applyItinerary(await request());
       setTrip((previous) => ({ ...previous, status: "EDITING" }));
       if (clearSelection) setSelectedOrder(null);
-    } catch (err) { await handleApiError(err); }
+    } catch (err) {
+      if (candidateFailure && err.status === 400) setCandidates((previous) => ({ ...previous, error: err.message }));
+      await handleApiError(err);
+    }
     finally { releaseMutation(); }
   };
 
@@ -281,7 +286,7 @@ export default function PlannerPage() {
     await mutateItinerary(() => kind === "add"
       ? addAttraction(tripId, currentDay.dayNumber, id, candidates.position, itinerary.version)
       : kind === "restaurant" ? replaceRestaurant(tripId, selectedStop.id, id)
-        : replaceAttraction(tripId, selectedStop.id, id));
+        : replaceAttraction(tripId, selectedStop.id, id), { candidateFailure: !alternative && kind === "restaurant" });
     setReplacingId(null);
   };
 
@@ -385,8 +390,8 @@ export default function PlannerPage() {
         {displayedItinerary ? displayedItinerary.days.map((day) => <button key={day.dayNumber} type="button" disabled={busy} className={day.dayNumber === currentDay?.dayNumber ? "active" : ""} onClick={() => selectDay(day.dayNumber)}>DAY {day.dayNumber}<span>{day.zoneLabel}</span></button>)
           : days.map((label, index) => <button key={label} type="button" disabled>DAY {index + 1}<span>{label}</span></button>)}
       </nav>
-      <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}`}>
-        <ItineraryMap accommodation={displayedItinerary?.accommodation} day={currentDay} selectedOrder={mapSelectedOrder} />
+      <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}${selectedStop && !candidates.kind ? " has-place-detail" : ""}`}>
+        <ItineraryMap accommodation={displayedItinerary?.accommodation} day={currentDay} selectedOrder={mapSelectedOrder} onShowAll={() => setTimelineSelection(null)} />
         {history.open ? <ItineraryHistory
           versions={history.versions} loading={history.loading} error={history.error}
           currentVersion={itinerary?.version} previewVersion={previewVersion} restoringVersion={restoringVersion}
@@ -425,7 +430,7 @@ export default function PlannerPage() {
         </section>}
         <div className="planner-chat-dock" hidden={hasItinerary && !chatOpen}>
         {hasItinerary && <button className="planner-chat-close" type="button" aria-label="AI 대화 닫기" onClick={() => setChatOpen(false)}>×</button>}
-        <ChatPanel tripId={tripId} initialPrompt={initialPrompt} initialReady={trip.status === "READY_TO_GENERATE"}
+        <ChatPanel tripId={tripId} refreshVersion={chatRefreshVersion} initialPrompt={initialPrompt} initialReady={trip.status === "READY_TO_GENERATE"}
           locked={hasItinerary || HAS_ITINERARY.includes(trip.status) || busy || !!previewItinerary}
           onTurn={handleTurn} onGenerate={startGeneration} />
         </div>

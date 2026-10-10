@@ -1,5 +1,7 @@
+import DetailArt from "./DetailArt";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAttractionDetails, getAttractionPhoto } from "../../api/attractions";
+import ReviewInsights, { ReviewFindings } from "./ReviewInsights";
 
 const WEEKDAYS = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
 
@@ -22,7 +24,7 @@ function Author({ author }) {
     : <span className="google-author">{content}</span>;
 }
 
-function CurrentPhoto({ attractionId, photo, onExpired, onReload, loadPhoto, photoAlt }) {
+function CurrentPhoto({ attractionId, photo, onExpired, onReload, loadPhoto, photoAlt, navigation }) {
   const [state, setState] = useState({ loading: true, uri: null, error: "" });
   const frameRef = useRef(null);
   useEffect(() => {
@@ -60,15 +62,17 @@ function CurrentPhoto({ attractionId, photo, onExpired, onReload, loadPhoto, pho
       {state.loading && <p role="status">사진을 불러오고 있어요...</p>}
       {state.error && <div role="status"><p>{state.error}</p><button type="button" onClick={onReload}>상세 새로 불러오기</button></div>}
       {state.uri && <img src={state.uri} alt={photoAlt} referrerPolicy="no-referrer" onError={() => setState({ loading: false, uri: null, error: "사진을 표시하지 못했어요. 상세를 새로 불러와주세요." })} />}
+      {navigation}
     </div>
-    {state.uri && photo.authors?.length > 0 && <figcaption>
-      <span>사진 작성자</span>
-      {photo.authors.map((author, index) => <Author key={index} author={author} />)}
+    {state.uri && <figcaption>
+      <span className="google-attribution">Google Maps</span>
+      {photo.authors?.length > 0 && <><span>사진 작성자</span>
+      {photo.authors.map((author, index) => <Author key={index} author={author} />)}</>}
     </figcaption>}
   </figure>;
 }
 
-export default function AttractionDetails({ attractionId, fallbackName, visitDate, children, loadDetails = getAttractionDetails, loadPhoto = getAttractionPhoto, detailTitle = "관광지 상세 정보", photoAlt = "관광지 사진", loadingText = "장소 정보를 불러오고 있어요...", renderIntro }) {
+export default function AttractionDetails({ attractionId, fallbackName, visitDate, children, heading, loadDetails = getAttractionDetails, loadPhoto = getAttractionPhoto, detailTitle = "관광지 상세 정보", photoAlt = "관광지 사진", loadingText = "장소 정보를 불러오고 있어요...", renderIntro, renderFacts }) {
   const [state, setState] = useState({ loading: true, data: null, error: "" });
   const [attempt, setAttempt] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -109,56 +113,68 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
 
   const details = state.data;
   const Intro = renderIntro;
+  const Facts = renderFacts;
   const hasGoogle = details && details.hasGoogle !== false;
   const photos = details?.photos ?? [];
   const index = Math.min(photoIndex, Math.max(photos.length - 1, 0));
   const photo = photos[index];
   const visitDay = visitDate ? WEEKDAYS[new Date(`${visitDate}T12:00:00`).getDay()] : null;
+  const placeHeading = typeof heading === "function" ? heading(details) : heading;
 
   return <section className="google-attraction-details" aria-label={detailTitle} aria-busy={state.loading}>
     <header><h2>{detailTitle}</h2>{(hasGoogle || !renderIntro) && <span className="google-attribution">{details?.attribution ?? "Google Maps"}</span>}</header>
     {state.loading && <p className="google-detail-state" role="status">{loadingText}</p>}
     {state.error && <div className="google-detail-state" role="status"><p>{state.error}</p><button type="button" onClick={reload}>다시 불러오기</button></div>}
     {details && <>
+      <div className={`detail-hero${photo ? " has-photo" : ""}`}>
       {photo && <div className="google-photo-gallery">
-        <CurrentPhoto key={`${attempt}-${index}-${photo.name}`} attractionId={attractionId} photo={photo} onExpired={handleExpiredPhoto} onReload={reload} loadPhoto={loadPhoto} photoAlt={photoAlt} />
+        <CurrentPhoto key={`${attempt}-${index}-${photo.name}`} attractionId={attractionId} photo={photo} onExpired={handleExpiredPhoto} onReload={reload} loadPhoto={loadPhoto} photoAlt={photoAlt}
+          navigation={photos.length > 1 && <div className="photo-overlay-controls"><button className="tabi-button-primary" type="button" aria-label="이전 사진으로" disabled={index === 0} onClick={() => setPhotoIndex(index - 1)}>‹</button><button className="tabi-button-primary" type="button" aria-label="다음 사진으로" disabled={index === photos.length - 1} onClick={() => setPhotoIndex(index + 1)}>›</button></div>} />
         {photos.length > 1 && <nav aria-label="장소 사진 넘기기">
           <button type="button" disabled={index === 0} onClick={() => setPhotoIndex(index - 1)}>← 이전 사진</button>
           <span aria-live="polite">{index + 1} / {photos.length}</span>
           <button type="button" disabled={index === photos.length - 1} onClick={() => setPhotoIndex(index + 1)}>다음 사진 →</button>
         </nav>}
       </div>}
-      {Intro ? <Intro details={details} onReload={reload} /> : <><h3>{details.localizedName || details.name || fallbackName}</h3>
-      {details.localizedName && details.name !== details.localizedName && <p className="google-original-name">{details.name}</p>}
+      <div className="detail-intro">{placeHeading}
+      {Intro ? <Intro details={details} onReload={reload} /> : <>{!heading && <><h3>{details.localizedName || details.name || fallbackName}</h3>
+      {details.localizedName && details.name !== details.localizedName && <p className="google-original-name">{details.name}</p>}</>}
       {(details.rating != null || details.userRatingCount != null) && <p className="google-place-rating">
         {details.rating != null && <b>★ {details.rating}</b>}
         {details.userRatingCount != null && <span>리뷰 {details.userRatingCount.toLocaleString()}개</span>}
       </p>}
       {details.summary && <p className="google-place-summary">{details.summary}</p>}</>}
-      {children}
+      </div></div>
+      <div className="detail-information-grid">{Facts && <Facts details={details} />}{children}</div>
       {hasGoogle && <>
+      <div className="detail-support-grid">
+      <div>
       {details.openingHours?.length > 0 && <section className="google-opening-hours">
-        <h4>영업시간</h4>
+        <h4><DetailArt name="clock" />영업시간</h4>
         <ul>{details.openingHours.map((hours, line) => <li key={line} className={visitDay && hours.startsWith(visitDay) ? "is-visit-day" : ""}>
           {hours}{visitDay && hours.startsWith(visitDay) && <span>방문 요일</span>}
         </li>)}</ul>
       </section>}
       {externalUrl(details.websiteUri) && <a className="google-website-link" href={details.websiteUri} target="_blank" rel="noopener noreferrer">공식 사이트 ↗</a>}
+      </div>
+      <ReviewInsights insights={details.reviewInsights} reviews={details.reviews} idPrefix={`google-review-${attractionId}`} />
+      </div>
       <section className="google-place-reviews">
-        <h4>리뷰</h4>
+        <h4><DetailArt name="reviews" />방문자 리뷰</h4>
         {details.reviewNotice && <p className="google-review-notice">{details.reviewNotice}</p>}
         {!details.reviews?.length && <p>표시할 리뷰가 없어요.</p>}
-        {details.reviews?.map((review, reviewIndex) => <article key={reviewIndex}>
+        <div className="google-review-grid">{details.reviews?.map((review, reviewIndex) => <article key={reviewIndex} id={`google-review-${attractionId}-${reviewIndex}`}>
           <header><Author author={review.author} /><div>{review.rating != null && <b>★ {review.rating}</b>}{review.relativeTime && <span>{review.relativeTime}</span>}</div></header>
           {review.translated && <span className="google-translated">번역됨</span>}
           {review.text && <p>{review.text}</p>}
+          {!review.translated && details.reviewInsights?.analyzedReviewCount > 0 && <ReviewFindings findings={details.reviewInsights.findings?.filter((finding) => finding.reviewIndex === reviewIndex)} />}
           {review.translated && review.originalText && <details><summary>원문 보기</summary><p lang={review.originalLanguage || undefined}>{review.originalText}</p></details>}
           {externalUrl(review.googleMapsUri) && <a href={review.googleMapsUri} target="_blank" rel="noopener noreferrer">리뷰 원문 보기 ↗</a>}
-        </article>)}
+        </article>)}</div>
       </section>
       <footer><span className="google-attribution">{details.attribution}</span>{externalUrl(details.googleMapsUri) && <a href={details.googleMapsUri} target="_blank" rel="noopener noreferrer">Google 지도에서 보기 ↗</a>}</footer>
       </>}
     </>}
-    {!details && children}
+    {!details && <>{placeHeading}{children}</>}
   </section>;
 }

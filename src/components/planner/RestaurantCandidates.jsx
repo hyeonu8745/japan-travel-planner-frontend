@@ -19,6 +19,7 @@ export default function RestaurantCandidates({
   const current = data?.candidates?.find((candidate) => candidate.id === selected);
   if (current && !loading) return <section className="detail restaurant-candidates-panel"><div className="body">
     <button type="button" className="back-to-day" onClick={() => setSelected(null)}>← 식당 후보로</button>
+    {error && <p className="candidate-state error" role="alert">{error}</p>}
     <RestaurantDetails restaurantId={current.id} fallbackName={current.name} visitDate={visitDate}>
       <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={replacingId != null} onClick={() => onReplace(current.id)}>{replacingId === current.id ? "교체하는 중..." : "이 식당으로 교체"}</button>
     </RestaurantDetails>
@@ -38,7 +39,7 @@ export default function RestaurantCandidates({
 
       {loading && <p className="candidate-state">후보 식당을 찾고 있어요...</p>}
 
-      {error && <p className="candidate-state error">{error}</p>}
+      {error && <p className="candidate-state error" role="alert">{error}</p>}
 
       {!loading && !error && data?.candidates?.length === 0 && (
         <p className="candidate-state">조건에 맞는 다른 식당이 없어요.</p>
