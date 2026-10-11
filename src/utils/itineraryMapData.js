@@ -1,5 +1,7 @@
 import { MODE_LABELS, hhmm, directionsUrl } from "./itineraryFormat";
 
+import { displayName } from "./itineraryPresentation";
+
 export const MAP_COLORS = { HOTEL: "#287365", ATTRACTION: "#07182d", LUNCH: "#27a9dc", DINNER: "#7560a8" };
 
 function position(point) {
@@ -12,7 +14,7 @@ export function buildMapDay(accommodation, day) {
   const hotelPosition = position(accommodation);
   const hotel = hotelPosition ? { key: "hotel", type: "HOTEL", name: accommodation.name || "숙소", position: hotelPosition } : null;
   const stops = [...(day?.stops ?? [])].sort((a, b) => a.order - b.order).map((stop) => ({
-    key: `${day.dayNumber}-${stop.order}`, type: stop.type, order: stop.order, name: stop.name,
+    key: `${day.dayNumber}-${stop.order}`, type: stop.type, order: stop.order, name: displayName(stop), originalName: stop.nameKo ? stop.name : null,
     position: position(stop), arrival: stop.arrival, departure: stop.departure, travel: stop.travel,
   }));
   const route = [hotel, ...stops];
@@ -29,5 +31,5 @@ export function mapPointTitle(point) {
   if (point.type === "HOTEL") return `숙소 · ${point.name}`;
   const travel = point.travel;
   const movement = travel && `${MODE_LABELS[travel.mode] ?? travel.mode} ${travel.minutes}분${travel.distanceMeters != null ? ` · ${travel.distanceMeters.toLocaleString()}m` : ""}`;
-  return [ `${point.order}. ${point.name}`, `${hhmm(point.arrival)}–${hhmm(point.departure)}`, movement && `앞 장소에서 ${movement}` ].filter(Boolean).join("\n");
+  return [ `${point.order}. ${point.name}`, point.originalName, `${hhmm(point.arrival)}–${hhmm(point.departure)}`, movement && `앞 장소에서 ${movement}` ].filter(Boolean).join("\n");
 }

@@ -1,5 +1,7 @@
 // 일정 응답(ItineraryResponseDto)을 화면에 보여주기 위한 순수 함수 모음
 
+import { restaurantGenres } from "./itineraryPresentation";
+
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 export const MODE_LABELS = { WALK: "도보", TRANSIT: "대중교통", DRIVE: "차량" };
@@ -85,7 +87,7 @@ export function stopSubtitle(stop) {
     return `${kind} · 체류 ${stop.stayMinutes}분`;
   }
   const meal = stop.type === "LUNCH" ? "점심" : "저녁";
-  const genre = genreLabel(stop.restaurant?.genre);
+  const genre = restaurantGenres(stop.restaurant);
   return `${meal}${genre ? ` · ${genre}` : ""} · 체류 ${stop.stayMinutes}분`;
 }
 

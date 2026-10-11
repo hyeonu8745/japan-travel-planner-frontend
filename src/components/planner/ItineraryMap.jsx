@@ -4,6 +4,8 @@ import { transitArc, routeColor, pathMidpoint, pixelPathDistance } from "../../u
 import { createRouteCache } from "../../api/mapRoutes";
 import { buildMapDay, MAP_COLORS, mapPointTitle } from "../../utils/itineraryMapData";
 
+import { dayZonesLabel } from "../../utils/itineraryPresentation";
+
 function MapMessage({ children }) {
   return <div className="google-map-message" role="status">{children}</div>;
 }
@@ -287,7 +289,7 @@ export default function ItineraryMap({ accommodation, day, selectedOrder = null,
       {day && <div className="google-route-legend" aria-label="이동수단 범례"><span className="walk">실선: 도보·차 (구간별 색상)</span><span className="transit">점선: 대중교통</span><small>선택한 구간은 굵게 강조 · 이동 안내는 하단에 표시<br />대중교통: 실제 노선은 길찾기에서 확인</small></div>}
     </div>
     <footer className="google-map-footer">
-      <b>{day ? `DAY ${day.dayNumber} · ${day.zoneLabel}` : "여행 지도"}</b>
+      <b>{day ? `DAY ${day.dayNumber} · ${dayZonesLabel(day)}` : "여행 지도"}</b>
       <div className="google-map-legend"><span className="hotel">숙소</span><span className="attraction">관광지</span><span className="lunch">점심</span><span className="dinner">저녁</span></div>
       <p>도보·차는 실제 경로, 대중교통은 위치를 잇는 점선 곡선이며 실제 노선이 아니에요. 이동 시간은 일정 기준이며, 자세한 안내는 ‘길찾기’에서 확인하세요.</p>
       {model.missingCount > 0 && <p>좌표가 없는 장소 {model.missingCount}곳은 지도에서 제외했어요.</p>}

@@ -11,6 +11,8 @@ import {
   totalTravelMinutes,
 } from "../../utils/itineraryFormat";
 
+import { dayZonesLabel, displayName } from "../../utils/itineraryPresentation";
+
 const ART_ROOT = "/assets/itinerary-v1";
 const MOVE_ART = { WALK: "walk", TRANSIT: "transit", DRIVE: "drive" };
 
@@ -63,21 +65,15 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
       <div className="timeline-fixed-head">
       <div className="region-day-cover">
         {image && (
-          <img src={`/assets/${image}`} alt={`${day.zoneLabel} 수채화 풍경`} />
+          <img src={`/assets/${image}`} alt={`${dayZonesLabel(day)} 수채화 풍경`} />
         )}
         <div>
-          <h2>DAY {day.dayNumber} · {day.zoneLabel}</h2>
+          <h2>DAY {day.dayNumber} · {dayZonesLabel(day)}</h2>
           <p>{formatLongDate(day.date)}</p>
         </div>
       </div>
 
-      <header className="timeline-head">
-        {day.description ? (
-          <p>{day.description}</p>
-        ) : (
-          <p className="description-empty">식당 변경이 반영된 일정입니다.</p>
-        )}
-      </header>
+      {day.description && <header className="timeline-head"><p>{day.description}</p></header>}
       </div>
 
       <div className="timeline-scroll" role="region" aria-label={`DAY ${day.dayNumber} 일정`} tabIndex={0}>
@@ -91,7 +87,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
           <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
             {day.dropped.map((d) => (
               <li key={d.name}>
-                {d.name} · {d.reasonLabel}
+                {displayName(d)} · {d.reasonLabel}
               </li>
             ))}
           </ul>
@@ -185,15 +181,16 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
               <div className="timeline-stop-main">
                 <ItineraryArt name={placeArt(stop)} className="timeline-place-art" />
                 <span className="timeline-place-kind">{stop.type === "ATTRACTION" ? "관광지" : stop.type === "LUNCH" ? "점심" : "저녁"}</span>
-                <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{stop.order}</span><span>{stop.name}</span></button></h3>
+                <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{stop.order}</span><span className="timeline-name-stack"><strong>{displayName(stop)}</strong>{stop.nameKo && <small>{stop.name}</small>}</span></button></h3>
                 <p>{stopSubtitle(stop)}</p>
                 <StopReasons reasons={stop.reasons} />
+                {stop.warnings?.length > 0 && <ul className="timeline-stop-warnings">{stop.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
               </div>
               <div className="timeline-stop-actions">
                 {!readOnly && <div className="timeline-order-actions">
                   <span title="카드를 끌어서 순서 변경" aria-hidden="true">⠿</span>
-                  <button type="button" disabled={!canEdit || index === 0} aria-label={`${stop.name} 위로 이동`} onClick={() => moveStop(index, index - 1)}>↑</button>
-                  <button type="button" disabled={!canEdit || index === day.stops.length - 1} aria-label={`${stop.name} 아래로 이동`} onClick={() => moveStop(index, index + 1)}>↓</button>
+                  <button type="button" disabled={!canEdit || index === 0} aria-label={`${displayName(stop)} 위로 이동`} onClick={() => moveStop(index, index - 1)}>↑</button>
+                  <button type="button" disabled={!canEdit || index === day.stops.length - 1} aria-label={`${displayName(stop)} 아래로 이동`} onClick={() => moveStop(index, index + 1)}>↓</button>
                 </div>}
                 {onOpenDetail && <button type="button" disabled={busy} onClick={() => onOpenDetail(stop)}>상세 보기 <span aria-hidden="true">›</span></button>}
               </div>

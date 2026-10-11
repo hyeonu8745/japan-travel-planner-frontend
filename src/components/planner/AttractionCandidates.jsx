@@ -1,5 +1,7 @@
 import { MODE_LABELS } from "../../utils/itineraryFormat";
 
+import { displayName } from "../../utils/itineraryPresentation";
+
 function shiftLabel(minutes) {
   if (minutes == null || minutes === 0) {
     return "일정 종료 시각 변화 없음";
@@ -59,7 +61,7 @@ export default function AttractionCandidates({
             <article key={candidate.id}>
               <div className="candidate-head">
                 <div>
-                  <h3>{candidate.name}</h3>
+                  <h3>{displayName(candidate)}</h3>{candidate.nameKo && <small className="candidate-original-name">{candidate.name}</small>}
 
                   <p>{(candidate.labels ?? []).join(" · ") || "관광지"}</p>
                 </div>

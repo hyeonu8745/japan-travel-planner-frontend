@@ -1,7 +1,9 @@
 import AttractionDetails from "./AttractionDetails";
 import DetailArt from "./DetailArt";
 import { getRestaurantDetails, getRestaurantPhoto } from "../../api/restaurants";
-import { genreLabel, holidayLabel } from "../../utils/itineraryFormat";
+import { holidayLabel } from "../../utils/itineraryFormat";
+
+import { restaurantGenres } from "../../utils/itineraryPresentation";
 
 async function loadDetails(id, options) {
   const restaurant = await getRestaurantDetails(id, options);
@@ -31,7 +33,7 @@ function RestaurantFacts({ details }) {
   </section>;
 }
 
-export default function RestaurantDetails({ restaurantId, fallbackName, visitDate, children, heading, onReplace, readOnly = false, busy = false }) {
+export default function RestaurantDetails({ restaurantId, fallbackName, nameKo, genreLabels, visitDate, children, heading, onReplace, readOnly = false, busy = false }) {
   return <AttractionDetails key={restaurantId} attractionId={restaurantId} fallbackName={fallbackName} visitDate={visitDate}
     loadDetails={loadDetails} loadPhoto={getRestaurantPhoto} detailTitle="식당 상세 정보" photoAlt="식당 사진"
     loadingText="식당 정보를 불러오고 있어요. 처음 확인하는 식당은 조금 더 걸릴 수 있어요."
@@ -40,8 +42,9 @@ export default function RestaurantDetails({ restaurantId, fallbackName, visitDat
       const data = details.restaurant, tabelog = data.tabelog ?? {}, google = details.hasGoogle ? data.google : null;
       const features = google?.features;
       return <>
-        {!heading && <><h3>{google?.localizedName || data.name || fallbackName}</h3>
-        <p className="google-original-name">{genreLabel(data.genre)}{data.address && ` · ${data.address}`}</p></>}
+        {!heading && <><h3>{nameKo || data.nameKo || google?.localizedName || data.name || fallbackName}</h3>
+        {(nameKo || data.nameKo || (google?.localizedName && google.localizedName !== data.name)) && <p className="google-original-name">{data.name || fallbackName}</p>}
+        <p className="google-original-name">{restaurantGenres({ ...data, genreLabels: genreLabels ?? data.genreLabels })}{data.address && ` · ${data.address}`}</p></>}
         {google?.summary && <p className="google-place-summary">{google.summary}</p>}
         <div className="restaurant-detail-ratings">
           <div><span>타베로그</span><b>★ {tabelog.rating ?? "정보 없음"}</b>{tabelog.reviewCount != null && <small>리뷰 {tabelog.reviewCount.toLocaleString()}개</small>}</div>

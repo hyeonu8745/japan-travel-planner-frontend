@@ -6,11 +6,12 @@ import StopReasons from "./StopReasons";
 import DetailArt from "./DetailArt";
 import {
   MODE_LABELS,
-  genreLabel,
   hhmm,
   mapsSearchUrl,
   holidayLabel,
 } from "../../utils/itineraryFormat";
+
+import { displayName, restaurantGenres } from "../../utils/itineraryPresentation";
 
 const KIND_LABELS = { ATTRACTION: "관광지", LUNCH: "점심", DINNER: "저녁" };
 
@@ -47,7 +48,7 @@ export default function PlaceDetail({
   };
 
   const category = isMeal
-    ? `${KIND_LABELS[stop.type]} · ${genreLabel(place.genre) || "식당"}`
+    ? `${KIND_LABELS[stop.type]} · ${restaurantGenres(place) || "식당"}`
     : `관광지 · ${(place.labels ?? []).slice(0, 2).join(", ") || "명소"}`;
 
   const scheduleInfo = (
@@ -75,7 +76,7 @@ export default function PlaceDetail({
           </div>
         </div>
 
-        {warnings.length > 0 && <div className="notice-yellow" role="status"><b><DetailArt name="warning" />일정 안내</b><ul>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
+        {[...warnings, ...(stop.warnings ?? [])].length > 0 && <div className="notice-yellow" role="status"><b><DetailArt name="warning" />일정 안내</b><ul>{[...new Set([...warnings, ...(stop.warnings ?? [])])].map((warning, index) => <li key={index}>{warning}</li>)}</ul></div>}
 
         {isMeal && place.budgetRelaxed && (
           <div className="notice-yellow">
@@ -142,27 +143,27 @@ export default function PlaceDetail({
           {!canDelete && <small>하루의 마지막 1개 항목은 삭제할 수 없어요.</small>}
         </div>}
         </div>
-        {isMeal && !readOnly && stop.alternatives?.[0] && <button className="detail-restore" type="button" disabled={busy || replacingId != null} onClick={() => onReplaceAlternative(stop.alternatives[0].id)}>↩ {stop.alternatives[0].name}으로 되돌리기</button>}
-        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h4>이전 식당 후보</h4>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}><DetailArt name="food" /><span>{candidate.name}<small>상세 보기</small></span><b aria-hidden="true">›</b></button>)}</section>}
+        {isMeal && !readOnly && stop.alternatives?.[0] && <button className="detail-restore" type="button" disabled={busy || replacingId != null} onClick={() => onReplaceAlternative(stop.alternatives[0].id)}>↩ {displayName(stop.alternatives[0])}으로 되돌리기</button>}
+        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h4>이전 식당 후보</h4>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}><DetailArt name="food" /><span>{displayName(candidate)}{candidate.nameKo && <small>{candidate.name}</small>}<small>{restaurantGenres(candidate)} · 상세 보기</small></span><b aria-hidden="true">›</b></button>)}</section>}
     </section>
   );
 
   if (isMeal && alternativeDetail?.stopId === stop.id) return <section className="detail place-detail-v3 planner-redesign detail-art">
     <header className="place-detail-navigation"><button type="button" className="back-to-day" onClick={() => setAlternativeDetail(null)}>← 현재 식당으로</button><b>이전 식당 후보</b></header>
     <div className="body">
-      <RestaurantDetails restaurantId={alternativeDetail.candidate.id} fallbackName={alternativeDetail.candidate.name} visitDate={visitDate} readOnly={readOnly}>
+      <RestaurantDetails restaurantId={alternativeDetail.candidate.id} fallbackName={alternativeDetail.candidate.name} nameKo={alternativeDetail.candidate.nameKo} genreLabels={alternativeDetail.candidate.genreLabels} visitDate={visitDate} readOnly={readOnly}>
         {!readOnly && <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={busy || replacingId != null} onClick={() => { setAlternativeDetail(null); onReplaceAlternative(alternativeDetail.candidate.id); }}>이 식당으로 교체</button>}
       </RestaurantDetails>
     </div>
   </section>;
 
   const heading = (details) => {
-    const title = details?.localizedName || stop.name;
-    const originalName = details?.restaurant?.name || details?.name || stop.name;
+    const title = stop.nameKo || details?.localizedName || stop.name;
+    const originalName = stop.name;
     const address = details?.restaurant?.address || place.address;
     return <div className="detail-place-heading">
       <h1>{title}</h1>
-      {originalName !== title && <p className="detail-japanese-name">{originalName}</p>}
+      {(stop.nameKo || originalName !== title) && <p className="detail-japanese-name">{originalName}</p>}
       {address && <p className="detail-address"><DetailArt name="pin" />{address}</p>}
       <p className="detail-category">{category}</p>
       <StopReasons reasons={stop.reasons} />

@@ -2,9 +2,10 @@ import { useState } from "react";
 import RestaurantDetails from "./RestaurantDetails";
 import {
   MODE_LABELS,
-  genreLabel,
   holidayLabel,
 } from "../../utils/itineraryFormat";
+
+import { displayName, restaurantGenres } from "../../utils/itineraryPresentation";
 
 export default function RestaurantCandidates({
   data,
@@ -20,7 +21,7 @@ export default function RestaurantCandidates({
   if (current && !loading) return <section className="detail restaurant-candidates-panel"><div className="body">
     <button type="button" className="back-to-day" onClick={() => setSelected(null)}>← 식당 후보로</button>
     {error && <p className="candidate-state error" role="alert">{error}</p>}
-    <RestaurantDetails restaurantId={current.id} fallbackName={current.name} visitDate={visitDate}>
+    <RestaurantDetails restaurantId={current.id} fallbackName={current.name} nameKo={current.nameKo} genreLabels={current.genreLabels} visitDate={visitDate}>
       <button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={replacingId != null} onClick={() => onReplace(current.id)}>{replacingId === current.id ? "교체하는 중..." : "이 식당으로 교체"}</button>
     </RestaurantDetails>
   </div></section>;
@@ -51,8 +52,8 @@ export default function RestaurantCandidates({
             <article key={candidate.id}>
               <div>
                 <div>
-                  <h3>{candidate.name}</h3>
-                  <p>{genreLabel(candidate.genre)}</p>
+                  <h3>{displayName(candidate)}</h3>{candidate.nameKo && <small className="candidate-original-name">{candidate.name}</small>}
+                  <p>{restaurantGenres(candidate)}</p>
                 </div>
 
                 <span>★ {candidate.rating ?? "-"}</span>

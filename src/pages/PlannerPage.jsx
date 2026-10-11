@@ -21,6 +21,8 @@ import AttractionCandidates from "../components/planner/AttractionCandidates";
 import ItineraryHistory from "../components/planner/ItineraryHistory";
 import { DELETE_TRIP_MESSAGE, REGENERATE_CONDITIONS_MESSAGE, requiresRegeneration } from "../utils/tripEditing";
 
+import { dayZonesLabel, displayName, retainedSelection } from "../utils/itineraryPresentation";
+
 const CATEGORY_LABELS = {
   FOOD_PREFER: "좋아하는 음식", FOOD_AVOID: "피할 음식", ATMOSPHERE: "분위기",
   MOBILITY: "이동", SMOKING: "흡연", SCHEDULE: "일정", ETC: "기타",
@@ -132,6 +134,8 @@ export default function PlannerPage() {
     setItinerary(updated); // IDs and dropped/warnings belong to the new version as a whole.
     setDayNumber((previous) => updated?.days.some((day) => day.dayNumber === previous)
       ? previous : updated?.days[0]?.dayNumber ?? 1);
+    setSelectedOrder((previous) => retainedSelection(updated, { dayNumber, order: previous })?.order ?? null);
+    setTimelineSelection((previous) => retainedSelection(updated, previous));
     closeCandidates();
   };
 
@@ -162,7 +166,13 @@ export default function PlannerPage() {
   const handleTurn = (reply) => {
     setTrip((previous) => ({ ...previous, status: reply.tripStatus }));
     setWantsGeneration(reply.userWantsGeneration);
-    getPreferences(tripId).then(setPreference).catch(() => {});
+    if (reply.itinerary != null) {
+      applyItinerary(reply.itinerary);
+      setPanel("plan");
+      setHistory((previous) => ({ ...previous, open: false }));
+      setNotice("");
+    }
+    if (reply.mode !== "EDIT") getPreferences(tripId).then(setPreference).catch(() => {});
   };
 
   const startGeneration = async () => {
@@ -292,7 +302,7 @@ export default function PlannerPage() {
 
   const handleDeleteStop = () => {
     if (!editable || !selectedStop || currentDay.stops.length <= 1) return;
-    if (!window.confirm(`${selectedStop.name}을(를) 일정에서 삭제할까요?\n삭제하면 새 버전이 만들어지고 이전 일정은 변경 이력에 남습니다.`)) return;
+    if (!window.confirm(`${displayName(selectedStop)}을(를) 일정에서 삭제할까요?\n삭제하면 새 버전이 만들어지고 이전 일정은 변경 이력에 남습니다.`)) return;
     mutateItinerary(() => deleteItineraryStop(tripId, selectedStop.id), { clearSelection: true });
   };
 
@@ -387,7 +397,7 @@ export default function PlannerPage() {
       {notice && <div className="planner-notice notice-yellow" role="status">{notice}<button type="button" onClick={() => setNotice("")} aria-label="안내 닫기">×</button></div>}
       {previewItinerary && <div className="history-preview-notice planner-preview"><b>v{previewVersion} 과거 버전 · 읽기 전용</b><button type="button" onClick={handleBackToLatest}>최신 일정으로 돌아가기</button></div>}
       <nav className="days">
-        {displayedItinerary ? displayedItinerary.days.map((day) => <button key={day.dayNumber} type="button" disabled={busy} className={day.dayNumber === currentDay?.dayNumber ? "active" : ""} onClick={() => selectDay(day.dayNumber)}>DAY {day.dayNumber}<span>{day.zoneLabel}</span></button>)
+        {displayedItinerary ? displayedItinerary.days.map((day) => <button key={day.dayNumber} type="button" disabled={busy} className={day.dayNumber === currentDay?.dayNumber ? "active" : ""} onClick={() => selectDay(day.dayNumber)}>DAY {day.dayNumber}<span>{dayZonesLabel(day)}</span></button>)
           : days.map((label, index) => <button key={label} type="button" disabled>DAY {index + 1}<span>{label}</span></button>)}
       </nav>
       <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}${selectedStop && !candidates.kind ? " has-place-detail" : ""}`}>
@@ -431,7 +441,8 @@ export default function PlannerPage() {
         <div className="planner-chat-dock" hidden={hasItinerary && !chatOpen}>
         {hasItinerary && <button className="planner-chat-close" type="button" aria-label="AI 대화 닫기" onClick={() => setChatOpen(false)}>×</button>}
         <ChatPanel tripId={tripId} refreshVersion={chatRefreshVersion} initialPrompt={initialPrompt} initialReady={trip.status === "READY_TO_GENERATE"}
-          locked={hasItinerary || HAS_ITINERARY.includes(trip.status) || busy || !!previewItinerary}
+          tripStatus={trip.status} disabled={busy} readOnly={!!previewItinerary}
+          isOpen={!hasItinerary || chatOpen} onSendStart={acquireMutation} onSendEnd={releaseMutation}
           onTurn={handleTurn} onGenerate={startGeneration} />
         </div>
       </main>
