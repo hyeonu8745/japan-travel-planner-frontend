@@ -1,0 +1,127 @@
+/* Approved premium itinerary and chat. Map columns and detail sheets retain their layout. */
+.place-artwork { display:block; width:56px; height:56px; object-fit:contain; flex:0 0 auto; }
+.candidate-artwork { width:64px; height:64px; float:left; margin:0 14px 8px 0; }
+.planner-redesign.itinerary-art.premium-timeline { --art-blue:#247bea; --art-teal:#247bea; --art-coral:#247bea; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-fixed-head { background:#fff;padding:0; }
+.planner-redesign.itinerary-art.premium-timeline .region-day-cover { height:clamp(130px,20dvh,190px); }
+.premium-timeline .region-day-cover img { width:100%;height:100%;object-fit:cover; }
+.planner-redesign.itinerary-art.premium-timeline .region-day-cover>div { padding:38px 24px 18px;background:linear-gradient(transparent,#07182dd4); }
+.planner-redesign.itinerary-art.premium-timeline .region-day-cover h2 { font-size:clamp(19px,2vw,27px);letter-spacing:-.035em;line-height:1.25; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-fixed-head .timeline-head { padding:12px 24px; background:#fff;border-bottom:1px solid #e5edf5; }
+.premium-timeline .timeline-head p { color:#61758d;font-size:12px;line-height:1.75;margin:0; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-scroll { padding:18px 22px 24px;background:#fbfcfe; }
+.premium-timeline .timeline-list { margin:0;padding:0; }
+.premium-timeline .timeline-list::before { width:1px;background:#bad3ef; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-start { padding-bottom:10px; }
+.premium-timeline .timeline-start-content>.itinerary-art-icon { width:38px;height:38px;padding:3px;background:#eaf3ff;border-radius:50%; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-start h3 { font-size:14px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-card { margin:0;background:transparent;border:0;padding:0;box-shadow:none; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-card time { font-size:12px;font-weight:700;color:#213c60; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-card::before { width:8px;height:8px;border:0;left:61px;top:calc(50% - 4px);box-shadow:none;background:#247bea; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-surface { min-height:104px;border-radius:8px;border:1px solid #dfe8f2;background:#fff;padding:14px;gap:12px;box-shadow:0 2px 8px #17365404; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-card.is-selected .timeline-stop-surface { background:#f1f7ff;border-color:#247bea;box-shadow:0 2px 12px #247bea09; }
+.premium-timeline .timeline-stop-main { grid-template-columns:34px 62px minmax(0,1fr);column-gap:12px; }
+.premium-timeline .timeline-place-art { grid-column:2;grid-row:1/5;width:62px;height:62px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-number,
+.planner-redesign.itinerary-art.premium-timeline .is-selected .timeline-stop-number { width:34px;height:34px;border-radius:6px;background:#112d50;box-shadow:0 2px 4px #112d5012;font-size:13px;font-weight:600; }
+.premium-timeline .timeline-place-kind { color:#2874bf; }
+.premium-timeline .timeline-stop-select>span:last-child { font-size:14px;font-weight:750;letter-spacing:-.02em; }
+.premium-timeline .timeline-name-stack small { font-size:10px;line-height:1.4;color:#70829c;margin-top:3px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-main>p { font-size:10px;color:#647b94; }
+.premium-timeline .stop-reasons li { border-radius:12px;padding:3px 7px;font-size:9px; }
+.premium-timeline .type-lunch .stop-reasons li.is-emphasis,.premium-timeline .type-dinner .stop-reasons li.is-emphasis { background:#e8f3ff;color:#2c6da2; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-actions>button { border-color:#cfdeed;background:#fff;border-radius:6px;color:#21456b;padding:7px 10px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-order-actions button { background:#f7f9fc; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-transfer { padding-top:10px;padding-bottom:10px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-transfer::before { width:7px;height:7px;background:#247bea;left:-3px; }
+.premium-timeline .timeline-move>.itinerary-art-icon { width:21px;height:21px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-add-inline,
+.planner-redesign.itinerary-art.premium-timeline .timeline-insert button { border:1px solid #cfdeed;background:#fff;border-radius:6px;color:#315677;font-size:10px;padding:5px 10px; }
+.planner-v2 .planner-redesign.itinerary-art.premium-timeline .timeline-summary { flex-shrink:0;background:#fff; }
+.premium-timeline .timeline-summary>div>.itinerary-art-icon { background:none!important;border-radius:0;padding:0;width:30px;height:30px; }
+.planner-v2 .planner-redesign.itinerary-art.premium-timeline .timeline-summary>div { padding:13px 20px; }
+.planner-v2 .planner-redesign.itinerary-art.premium-timeline .timeline-summary b { font-size:18px;color:#112d50; }
+.premium-timeline button:focus-visible,.premium-chat button:focus-visible { outline:2px solid #247bea;outline-offset:3px; }
+
+/* Desktop dock width is inherited from the workspace; only its contents change. */
+.planner-v2 .planner-chat-dock .premium-chat { display:flex;flex-direction:column;height:100%;min-height:0;background:#f7faff;color:#132c4a; }
+.planner-v2 .premium-chat>header { height:auto;min-height:76px;flex:0 0 auto;padding:14px 42px 14px 18px;gap:10px;background:#fff;border-bottom:1px solid #e1eaf4; }
+.premium-chat .tabi-chat-logo { width:36px;height:36px;object-fit:contain;flex:none;background:#edf5ff;border-radius:8px;padding:3px; }
+.planner-v2 .premium-chat>header div { min-width:0;gap:3px; }
+.premium-chat>header b { font-size:17px;letter-spacing:-.03em;color:#102b4d; }
+.planner-v2 .premium-chat>header small { color:#74859b;font-size:10px;line-height:1.4; }
+.planner-v2 .premium-chat>header>.chat-mode-label { width:auto;height:auto;min-width:0;background:none;color:#3477bc;margin-left:auto;padding:0;display:flex;align-items:center;gap:5px;border-radius:0!important;font-size:9px;white-space:nowrap; }
+.chat-mode-label::before { content:'';width:5px;height:5px;border-radius:50%;background:#247bea; }
+.planner-v2 .planner-chat-close { top:24px;right:14px;background:transparent;color:#153654;line-height:24px;width:24px;height:24px; }
+.planner-v2 .premium-chat .messages { min-height:0;flex:1;overflow:auto;overscroll-behavior:contain;padding:20px 14px;gap:22px;font-size:12px;line-height:1.8; }
+.planner-v2 .premium-chat .ai-msg { display:flex;max-width:100%;width:100%;gap:8px;align-items:flex-start; }
+.planner-v2 .premium-chat .ai-msg>.premium-ai-avatar { width:26px;height:26px;flex:0 0 26px;display:grid;place-items:center;background:#eaf3ff;border-radius:50%;margin-top:22px; }
+.premium-ai-avatar img { width:21px;height:21px; }
+.premium-ai-content { min-width:0;flex:1; }
+.chat-author { display:flex;align-items:center;gap:8px;color:#294669;font-weight:600;font-size:10px;line-height:1.4;margin:0 0 7px 2px; }
+.chat-author time,.premium-user-message>time { font-size:9px;font-weight:400;color:#8b9ab0; }
+.chat-answer { padding:14px 15px;border:1px solid #e4ecf5;background:#fff;border-radius:9px;box-shadow:0 2px 9px #17365404;overflow-wrap:anywhere; }
+.planner-v2 .premium-chat .ai-msg p { white-space:pre-line;line-height:1.8;font-size:12px;margin:0;color:#213c5b; }
+.premium-user-message { display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:88%;align-self:flex-end; }
+.planner-v2 .premium-chat .user { border-radius:9px;background:#102c50;box-shadow:none;color:#fff;margin:0;max-width:100%;padding:11px 14px;white-space:pre-wrap;font-size:12px;line-height:1.75;overflow-wrap:anywhere; }
+.chat-option-list { display:grid;gap:8px;margin-top:12px; }
+.chat-option-card { display:grid;grid-template-columns:26px 40px minmax(0,1fr) 10px;align-items:center;gap:8px;width:100%;padding:10px 9px;text-align:left;background:#fff;border:1px solid #d9e6f4;border-radius:7px;color:#183c65;cursor:pointer;transition:border-color .15s,background .15s; }
+.chat-option-card:hover:not(:disabled),.chat-option-card:focus-visible { background:#eff6ff;border-color:#247bea; }
+.chat-option-number { display:grid;place-items:center;width:26px;height:28px;border-radius:5px;background:#e9f2ff;color:#247bea;font-size:12px;font-weight:700; }
+.chat-option-card .place-artwork { width:40px;height:40px; }
+.chat-option-copy { min-width:0;display:flex;flex-direction:column;gap:4px; }
+.chat-option-copy b { font-size:11px;line-height:1.5;color:#142e50;overflow-wrap:anywhere; }
+.chat-option-copy small { font-size:9px;line-height:1.6;color:#7389a1;white-space:pre-line; }
+.chat-inline-confirmation { display:flex;flex-wrap:wrap;gap:8px;margin-top:12px; }
+.chat-inline-confirmation button { border:1px solid #d4e2ef;border-radius:6px;background:#fff;color:#496786;font-size:10px;padding:7px 11px;cursor:pointer; }
+.chat-inline-confirmation .chat-confirm-action { background:#247bea;border-color:#247bea;color:#fff; }
+.chat-inline-confirmation .chat-keep-action { width:100%;background:#fff; }
+.chat-answer.is-applied { display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start; }
+.chat-success-icon { width:28px;height:28px;margin-top:2px; }
+.chat-generation-card { background:#f0f8ff;border:1px solid #d9e9f5;border-radius:9px;padding:16px;display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px; }
+.chat-generation-card>img { width:30px;height:30px;grid-column:1;grid-row:1/3; }
+.chat-generation-card>b { grid-column:2;font-size:13px;color:#173654; }
+.planner-v2 .premium-chat .chat-generation-card>p { grid-column:2;font-size:11px;color:#7187a0; }
+.chat-generation-card>button { grid-column:1/-1;margin-top:6px;display:flex;justify-content:center;align-items:center;gap:14px;padding:11px 12px;border:0;border-radius:7px;color:#fff;background:#247bea;font-size:11px;cursor:pointer; }
+.chat-generation-card>small { grid-column:1/-1;text-align:center;padding-top:10px;border-top:1px solid #dbe9f3;color:#7b90a7;font-size:9px;line-height:1.5; }
+.chat-working { display:flex;align-items:center;gap:10px;padding:11px 14px; }
+.chat-working-dots { display:flex;align-items:center;gap:4px;flex:none; }
+.chat-working-dots i { width:6px;height:6px;border-radius:50%;background:#247bea;animation:premium-chat-pulse 1.2s ease-in-out infinite; }
+.chat-working-dots i:nth-child(2) { background:#82b6ff;animation-delay:.15s; }
+.chat-working-dots i:nth-child(3) { background:#a7e8dc;animation-delay:.3s; }
+.planner-v2 .premium-chat .chat-working p { color:#7187a0;font-size:10px; }
+.chat-inline-suggestions { display:flex;flex-wrap:wrap;gap:6px;padding-top:9px; }
+.chat-inline-suggestions button { border:1px solid #d4e2f0;border-radius:6px;background:#fff;color:#55738f;padding:6px 8px;font-size:9px;cursor:pointer; }
+.premium-chat-note { color:#7589a0;font-size:11px;padding:10px 12px;text-align:center; }
+.premium-chat-note.chat-error { color:#b34545;background:#fff5f3;border:1px solid #f0d6d0;border-radius:7px;text-align:left; }
+.chat-error button { display:block;margin-top:8px;border:1px solid #eccac1;background:#fff;padding:6px 10px;color:#9c4545;border-radius:5px; }
+.planner-v2 .premium-chat form { display:block;flex:0 0 auto;border:0;border-top:1px solid #e0eaf4;padding:13px 14px 11px;background:#fff;margin:0;border-radius:0!important; }
+.chat-composer { display:grid;grid-template-columns:minmax(0,1fr) 36px;align-items:end;gap:8px;padding:9px;border:1px solid #ceddef;border-radius:8px;background:#fff;transition:border-color .15s,box-shadow .15s; }
+.chat-composer:focus-within { border-color:#247bea;box-shadow:0 0 0 2px #247bea12; }
+.planner-v2 .premium-chat textarea { background:transparent;width:100%;min-height:44px;max-height:120px;padding:2px 3px;font-size:12px;line-height:1.7;color:#203e60;border:0;outline:none;resize:vertical; }
+.premium-chat textarea::placeholder { color:#8a9bb1; }
+.planner-v2 .premium-chat form button { width:36px;height:36px;min-height:0;padding:0;border:0;background:transparent;border-radius:7px;cursor:pointer; }
+.premium-chat form button img { width:36px;height:36px;display:block; }
+.planner-v2 .premium-chat form>small { display:flex;justify-content:space-between;gap:6px;margin-top:8px;color:#8193ab;font-size:9px;line-height:1.4; }
+.premium-chat button:disabled { opacity:.45;cursor:default; }
+@keyframes premium-chat-pulse { 0%,70%,100% { opacity:.45;transform:translateY(0); } 35% { opacity:1;transform:translateY(-2px); } }
+@media(prefers-reduced-motion:reduce) { .chat-working-dots i { animation:none; } }
+@container timeline-panel (max-width:540px) {
+  .planner-redesign.itinerary-art.premium-timeline .timeline-scroll { padding:16px 12px; }
+  .premium-timeline .timeline-stop-main { grid-template-columns:28px 46px minmax(0,1fr);column-gap:8px; }
+  .premium-timeline .timeline-place-art { width:46px;height:46px; }
+  .planner-redesign.itinerary-art.premium-timeline .timeline-stop-number { width:28px;height:30px;font-size:11px; }
+  .premium-timeline .timeline-stop-select>span:last-child { font-size:13px; }
+  .planner-redesign.itinerary-art.premium-timeline .timeline-stop-card::before { left:47px; }
+  .planner-redesign.itinerary-art.premium-timeline .timeline-stop-surface { padding:12px; }
+  .premium-timeline .timeline-head { padding:10px 14px; }
+  .planner-redesign.itinerary-art.premium-timeline .region-day-cover>div { padding:32px 16px 15px; }
+}
+@media(max-width:600px) { .premium-chat>header b { font-size:16px; } .planner-v2 .premium-chat .messages { padding:16px 12px; } }
+
+/* Balanced detail controls and message bubbles sized to their content. */
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-actions { align-self:center;align-content:center;row-gap:8px; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-actions>button { display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:36px;padding:9px 10px;line-height:1; }
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-actions>button span { display:block;line-height:1;margin:0;font-size:18px; }
+.planner-v2 .premium-chat .chat-answer { width:fit-content;max-width:100%;box-sizing:border-box; }
+.planner-v2 .premium-chat .chat-answer:has(.chat-option-list) { width:100%; }

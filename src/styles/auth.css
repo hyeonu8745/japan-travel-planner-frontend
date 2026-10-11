@@ -84,7 +84,7 @@
 }
 
 .passport>b {
-  font-size: 0; display: block; background: url('/assets/tabimate-logo-ice-v3.png') left center/contain no-repeat; background-image: url('/assets/tabimate-logo-japan-v4.png'); width: 205px; height: 50px;
+  font-size: 0; display: block; background: url('/assets/brand/tabimate-logo-japan-v4.png') left center/contain no-repeat; background-image: url('/assets/brand/tabimate-logo-japan-v4.png'); width: 205px; height: 50px;
 }
 
 .passport span {

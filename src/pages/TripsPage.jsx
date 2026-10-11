@@ -230,12 +230,12 @@ export default function TripsPage() {
             <div className="poster-grid">
               <article className="poster-tile">
                 <a
-                  href="/assets/sapporo-ai-poster-example.png"
+                  href="/assets/posters/sapporo-ai-poster-example.png"
                   target="_blank"
                   rel="noreferrer"
                 >
                   <img
-                    src="/assets/sapporo-ai-poster-example.png"
+                    src="/assets/posters/sapporo-ai-poster-example.png"
                     alt="여행 포스터 스타일 예시"
                   />
                 </a>

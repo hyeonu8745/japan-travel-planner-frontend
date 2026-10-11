@@ -1,3 +1,4 @@
+import PlaceArtwork from "./PlaceArtwork";
 import { MODE_LABELS } from "../../utils/itineraryFormat";
 
 import { displayName } from "../../utils/itineraryPresentation";
@@ -61,7 +62,7 @@ export default function AttractionCandidates({
             <article key={candidate.id}>
               <div className="candidate-head">
                 <div>
-                  <h3>{displayName(candidate)}</h3>{candidate.nameKo && <small className="candidate-original-name">{candidate.name}</small>}
+                  <PlaceArtwork place={candidate} className="candidate-artwork" /><h3>{displayName(candidate)}</h3>{candidate.nameKo && <small className="candidate-original-name">{candidate.name}</small>}
 
                   <p>{(candidate.labels ?? []).join(" · ") || "관광지"}</p>
                 </div>

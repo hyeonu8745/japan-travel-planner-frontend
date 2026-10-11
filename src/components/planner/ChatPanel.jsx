@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { getChatHistory, sendChatMessage } from "../../api/chat";
 import { confirmationReplies } from "../../utils/itineraryPresentation";
 import "../../styles/apiAdditions.css";
+import PlaceArtwork from "./PlaceArtwork";
+import { chatOptions, chatMessageTime } from "../../utils/chatPresentation";
 
 const MAX_LENGTH = 1000;
 const QUICK_GATHERING = ["음식은 아무거나 괜찮아요", "조용한 곳이 좋아요", "도착·출발 시각은 아직 몰라요"];
@@ -25,7 +27,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
   const loadedRef = useRef(false);
   const editMode = replyState?.mode === "EDIT" || ["GENERATED", "EDITING"].includes(tripStatus);
 
-  const send = async (text) => {
+  const send = async (text, generateAfter = false) => {
     const content = text.trim();
     if (!content || content.length > MAX_LENGTH || sendingRef.current || disabled || readOnly || !loadedRef.current) return;
     if (onSendStart?.() === false) return;
@@ -35,6 +37,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
     setDraft("");
     const tempId = `temp-${Date.now()}`;
     setMessages((previous) => [...previous, { id: tempId, role: "USER", content }]);
+    let shouldGenerate = false;
     try {
       const reply = await sendChatMessage(tripId, content);
       setMessages((previous) => [...previous.filter((message) => message.id !== tempId), reply.userMessage, reply.assistantMessage].filter(Boolean));
@@ -42,6 +45,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
       setWantsGeneration(reply.userWantsGeneration);
       setReplyState(reply);
       onTurn?.(reply);
+      shouldGenerate = generateAfter && reply.mode !== "EDIT" && reply.userWantsGeneration === true;
     } catch (err) {
       setMessages((previous) => previous.filter((message) => message.id !== tempId));
       setDraft(content);
@@ -51,6 +55,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
       setSending(false);
       onSendEnd?.();
     }
+    if (shouldGenerate) onGenerate?.();
   };
 
   useEffect(() => {
@@ -90,25 +95,50 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
 
   const blocked = sending || loading || disabled || readOnly || !historyReady;
   const choices = confirmationReplies(replyState);
-  const quickReplies = choices.length ? choices : editMode ? [] : ready ? QUICK_READY : QUICK_GATHERING;
-  return <aside className="chat">
-    <header><span>✦</span><div><b>Tabi AI</b><small>{readOnly ? "과거 일정은 읽기 전용이에요" : editMode ? "바꾸고 싶은 일정을 말씀해주세요" : "대화로 여행 취향을 알려주세요"}</small></div></header>
+  const lastAssistant = messages.findLast((message) => message.role === 'ASSISTANT');
+  const options = choices.length ? chatOptions(replyState?.assistantMessage?.content) : [];
+  const quickReplies = editMode ? [] : ready ? QUICK_READY : QUICK_GATHERING;
+  const aiAvatar = <span className="premium-ai-avatar" aria-hidden="true"><img src="/assets/ui-v2/ai-spark.svg" alt="" /></span>;
+  return <aside className="chat premium-chat">
+    <header>
+      <img className="tabi-chat-logo" src="/assets/chat/tabi-avatar-v2.png" alt="" />
+      <div><b>Tabi AI</b><small>여행을 함께 다듬어요</small></div>
+      <span className="chat-mode-label">{readOnly ? '읽기 전용' : editMode ? '일정 수정' : '취향 대화'}</span>
+    </header>
     <div className="messages" aria-live="polite" aria-busy={sending || loading}>
-      {loading && <div className="ai-msg"><span>✦</span><p>대화를 불러오고 있어요...</p></div>}
-      {messages.map((message) => message.role === "USER"
-        ? <p key={message.id} className="user" style={{ whiteSpace: "pre-wrap" }}>{message.content}</p>
-        : <div key={message.id} className="ai-msg"><span>✦</span><p style={{ whiteSpace: "pre-line" }}>{message.content}</p></div>)}
-      {sending && <div className="ai-msg"><span>✦</span><p>{editMode ? "일정을 확인하고 답변을 준비하고 있어요..." : "답변을 작성하고 있어요..."}</p></div>}
-      {wantsGeneration && !editMode && !readOnly && <div className="system-msg chat-generation-prompt"><b>여행 일정을 만들 준비가 됐어요</b><span>지금까지 이야기한 취향으로 일정을 만들어요.</span><button type="button" className="tabi-button tabi-button-primary tabi-button-wide" disabled={blocked} onClick={onGenerate}>일정 만들기 →</button></div>}
-      {readOnly && <div className="system-msg">현재 일정으로 돌아온 뒤 수정 요청을 보내주세요.</div>}
-      {error && <div className="system-msg" role="alert" style={{ color: "#d64545" }}>{error}{!historyReady && <button type="button" className="tabi-button" onClick={() => setRetry((value) => value + 1)}>다시 불러오기</button>}</div>}
+      {loading && <div className="premium-chat-note" role="status">대화를 불러오고 있어요...</div>}
+      {messages.map((message) => {
+        const time = chatMessageTime(message.createdAt);
+        if (message.role === 'USER') return <div key={message.id} className="premium-user-message"><p className="user">{message.content}</p>{time && <time>{time}</time>}</div>;
+        const pending = !sending && message.id === replyState?.assistantMessage?.id && choices.length > 0;
+        const applied = message.id === replyState?.assistantMessage?.id && replyState?.itinerary != null;
+        const hasOptions = pending && options.length > 0;
+        const content = hasOptions ? message.content.split('\n').filter((line) => !/^\s*\d+[.)、]\s*\S/.test(line)).join('\n') : message.content;
+        return <div key={message.id} className="ai-msg">
+          {aiAvatar}<div className="premium-ai-content"><div className="chat-author">Tabi AI{time && <time>{time}</time>}</div>
+          <div className={`chat-answer${applied ? ' is-applied' : ''}`}>
+            {applied && <img className="chat-success-icon" src="/assets/ui-v2/success.svg" alt="일정 반영 완료" />}
+            <p>{content}</p>
+            {hasOptions && <div className="chat-option-list" aria-label="서버가 제안한 선택지">{options.map((option) => <button key={option.number} type="button" disabled={blocked || readOnly} onClick={() => send(option.number)} className="chat-option-card">
+              <span className="chat-option-number">{option.number}</span>
+              <PlaceArtwork place={{ name: option.name, genreLabels: option.genreLabels, labels: option.genreLabels }} type={/식당|끼니|점심|저녁|타베로그|스시|라멘|돈카츠|장어/.test(message.content) ? 'LUNCH' : 'ATTRACTION'} />
+              <span className="chat-option-copy"><b>{option.name}</b>{option.detail && <small>{option.detail}</small>}</span><span aria-hidden="true">›</span>
+            </button>)}</div>}
+            {pending && <div className="chat-inline-confirmation">{(hasOptions ? ['그대로'] : choices).map((text) => <button key={text} type="button" disabled={blocked} className={text === '그대로' ? 'chat-keep-action' : 'chat-confirm-action'} onClick={() => send(text)}>{text === '그대로' ? '그대로 둘게요' : text === '네' ? '네, 바꿔주세요' : text}</button>)}</div>}
+          </div>
+          {!editMode && !readOnly && !pending && !sending && message.id === lastAssistant?.id && !ready && <div className="chat-inline-suggestions">{quickReplies.map((text) => <button key={text} type="button" disabled={blocked} onClick={() => send(text)}>{text}</button>)}</div>}
+        </div></div>;
+      })}
+      {sending && <div className="ai-msg">{aiAvatar}<div className="premium-ai-content"><div className="chat-author">Tabi AI</div><div className="chat-answer chat-working" role="status"><span className="chat-working-dots" aria-hidden="true"><i /><i /><i /></span><p>{editMode ? '일정을 확인하고 있어요' : '답변을 준비하고 있어요'}</p></div></div></div>}
+      {(wantsGeneration || ready) && !editMode && !readOnly && <div className="ai-msg">{aiAvatar}<div className="premium-ai-content"><div className="chat-author">Tabi AI</div><div className="chat-generation-card"><img src="/assets/ui-v2/generate.svg" alt="" /><b>여행 준비가 끝났어요</b><p>이야기한 취향으로 일정을 만들어볼까요?</p><button type="button" disabled={blocked} onClick={() => send('네, 일정 만들어주세요', true)}>이 취향으로 일정 만들기 <span aria-hidden="true">→</span></button><small>더 이야기하고 싶다면 계속 입력해주세요.</small></div></div></div>}
+      {readOnly && <div className="premium-chat-note">현재 일정으로 돌아온 뒤 수정 요청을 보내주세요.</div>}
+      {error && <div className="premium-chat-note chat-error" role="alert">{error}{!historyReady && <button type="button" onClick={() => setRetry((value) => value + 1)}>다시 불러오기</button>}</div>}
       <div ref={bottomRef} />
     </div>
-    {!readOnly && quickReplies.length > 0 && <div className={`quick${choices.length ? " chat-confirmation" : ""}`} aria-label={choices.length ? "일정 수정 확인" : "빠른 답변"}>{quickReplies.map((text) => <button key={text} type="button" className="tabi-button chat-quick-button" disabled={blocked} onClick={() => send(text)}>{text}</button>)}</div>}
     <form onSubmit={(event) => { event.preventDefault(); send(draft); }}>
-      <textarea value={draft} maxLength={MAX_LENGTH} placeholder={readOnly ? "과거 일정은 읽기 전용이에요" : editMode ? "예) 2일차 저녁을 스시로 바꿔줘" : "여행 취향을 알려주세요"} disabled={blocked} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(draft); } }} />
-      <button type="submit" aria-label="전송" disabled={blocked || !draft.trim()}>↑</button>
-      <small>Enter로 전송, Shift+Enter로 줄바꿈 · {draft.length}/{MAX_LENGTH}</small>
+      <div className="chat-composer"><textarea aria-label="Tabi AI에 메시지 보내기" value={draft} maxLength={MAX_LENGTH} rows={2} placeholder={readOnly ? '과거 일정은 읽기 전용이에요' : editMode ? '예) 2일차 저녁을 스시로 바꿔줘' : '여행 취향을 알려주세요'} disabled={blocked} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(draft); } }} />
+      <button type="submit" aria-label="메시지 전송" disabled={blocked || !draft.trim()}><img src="/assets/ui-v2/send.svg" alt="" /></button></div>
+      <small><span>Enter 전송 · Shift+Enter 줄바꿈</span><span>{draft.length} / {MAX_LENGTH}</span></small>
     </form>
   </aside>;
 }

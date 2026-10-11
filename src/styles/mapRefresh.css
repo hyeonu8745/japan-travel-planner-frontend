@@ -1,0 +1,57 @@
+/* Map controls, marker badges and travel-mode legend. */
+.google-itinerary-map { container:map-panel / inline-size; }
+.google-itinerary-map .google-route-legend { top:12px;left:12px;max-width:min(310px,calc(100% - 220px));gap:8px 12px;padding:11px 12px;border:1px solid #dce5ed;border-radius:10px;background:#ffffffed;box-shadow:0 3px 12px #112d4f0b;font-size:11px;line-height:1.5; }
+.google-itinerary-map .google-route-legend>small { font-size:9px;color:#7a8a9c;line-height:1.6; }
+.google-itinerary-map .google-map-overview { top:12px;right:64px;left:auto;bottom:auto;display:flex;align-items:center;gap:6px;min-height:38px;padding:8px 11px;border:1px solid #d9e4ef;border-radius:9px;box-shadow:0 3px 12px #112d4f12;font-size:11px; }
+.google-map-overview::before { content:'';width:16px;height:16px;background:url('/assets/ui-v2/pin.svg') center/contain no-repeat; }
+.google-itinerary-map .google-map-canvas .google-route-panel { bottom:28px;left:12px;right:64px;padding:15px;border:1px solid #b7d8f7;border-radius:12px;box-shadow:0 5px 20px #132f4d16;max-height:42%; }
+.google-route-panel-close { width:30px;height:30px;display:grid;place-items:center;top:8px;right:8px;padding:0;border-radius:7px;background:transparent;color:#62778e; }
+.google-route-panel-close:hover { background:#eef5fc; }
+.google-route-panel .google-route-card { display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px; }
+.google-route-heading { grid-column:1/-1;display:flex;align-items:center;gap:8px;padding-right:26px; }
+.google-route-heading>img { width:18px;height:18px; }
+.google-route-heading>b { font-size:13px; }
+.google-route-order { display:inline-flex;align-items:center;padding:3px 10px;background:#edf6ff;color:#157bcc;border-radius:7px;font-size:12px;font-weight:700;white-space:nowrap; }
+.google-route-panel .google-route-card>.google-route-names { grid-column:1/-1;margin:0;font-size:12px;line-height:1.7;font-weight:600;overflow-wrap:anywhere; }
+.google-route-panel .google-route-card>.google-route-note { margin:0;font-size:10px;color:#8190a2;line-height:1.7;align-self:center; }
+.google-route-panel .google-route-card>.directions-button { align-self:end;justify-self:end;padding:7px 10px;white-space:nowrap;background:#f3f9ff;color:#1375b8;border:1px solid #c5dff4;border-radius:7px;font-size:11px; }
+.google-itinerary-map .google-route-picker>button { border-radius:8px;font-size:11px;line-height:1.6; }
+.google-itinerary-map .google-map-footer { padding:14px 18px;border-top:1px solid #e1e9f1; }
+.google-itinerary-map .google-map-footer>b { display:block;font-size:12px;line-height:1.6; }
+.google-itinerary-map .google-map-legend { gap:12px;margin-top:8px;font-size:10px;color:#6c7e92; }
+.google-itinerary-map .google-map-legend span::before { width:7px;height:7px;border-radius:2px; }
+.google-itinerary-map .google-map-footer p { margin-top:8px;font-size:9px;color:#8998a9;line-height:1.7; }
+.google-itinerary-map .google-trip-pin>span { position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);max-width:150px;border:1px solid #d6e2ed;border-radius:6px;padding:4px 7px;box-shadow:0 2px 8px #112d4f10; }
+.google-itinerary-map .google-trip-pin.is-selected>span[hidden] { display:block; }
+.google-itinerary-map .google-trip-pin::before { content:'';position:absolute;inset:-6px; }
+.google-itinerary-map .google-trip-pin:focus-visible { outline:2px solid #2596da;outline-offset:5px;border-radius:8px; }
+.google-itinerary-map .google-trip-pin:focus::after { display:none; }
+.google-pin-leader { position:absolute;height:1.5px;background:var(--pin-color);opacity:.65;transform-origin:0 50%;pointer-events:none; }
+.google-pin-anchor { position:absolute;width:6px;height:6px;border:1px solid white;border-radius:50%;background:var(--pin-color);transform:translate(-50%,-50%);pointer-events:none; }
+.google-pin-leader[hidden],.google-pin-anchor[hidden] { display:none; }
+@container map-panel (max-width:450px) {
+ .google-itinerary-map .google-route-legend { max-width:calc(100% - 185px);padding:8px;gap:4px;font-size:9px; }
+ .google-itinerary-map .google-route-legend>small { font-size:8px; }
+ .google-itinerary-map .google-map-overview { padding:7px 8px;font-size:10px;gap:4px; }
+ .google-route-panel .google-route-card { grid-template-columns:1fr; }
+ .google-route-panel .google-route-card>.directions-button { justify-self:start; }
+}
+
+.google-itinerary-map .google-trip-pin[hidden] { display:none; }
+.google-pin-cluster { position:absolute;transform:translate(-50%,-50%);min-width:46px;height:38px;padding:0 10px;background:#112d4f;color:white;border:2px solid white;border-radius:11px;font-size:12px;font-weight:700;box-shadow:0 2px 7px #112d4f38;cursor:pointer;z-index:15; }
+.google-pin-cluster:hover { background:#1e4d78; }
+.google-pin-cluster:focus-visible,.google-pin-cluster.is-selected { outline:3px solid #70bafa;outline-offset:2px; }
+
+/* Shapes match the map: solid walking, road centre line, dotted transit. */
+.google-itinerary-map .google-route-legend>span::before {
+ width:28px;height:8px;border:0;border-radius:0;box-sizing:border-box;background:none;
+}
+.google-itinerary-map .google-route-legend>.walk::before {
+ background:linear-gradient(#2563eb,#2563eb) center/100% 4px no-repeat;
+}
+.google-itinerary-map .google-route-legend>.drive::before {
+ border-radius:3px;background:linear-gradient(to bottom,#2563eb 0 3px,#fff 3px 4px,#2563eb 4px 7px) center/100% 7px no-repeat;
+}
+.google-itinerary-map .google-route-legend>.transit::before {
+ background:radial-gradient(circle,#bc4700 2px,transparent 2.5px) left center/8px 8px repeat-x;
+}

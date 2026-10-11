@@ -28,7 +28,7 @@ export default function HomePage() {
       <PublicHeader />
       <main>
         <section className="hero">
-          <img src="/assets/tokyo-hero-clean-v3.png" alt="도쿄 야경과 여행자" />
+          <img src="/assets/heroes/tokyo-hero-clean-v3.png" alt="도쿄 야경과 여행자" />
           <div className="shade" />
           <div className="hero-copy">
             <small>AI JAPAN TRIP DESIGNER · TOKYO BETA</small>
@@ -164,12 +164,12 @@ export default function HomePage() {
           </div>
           <a
             className="home-poster-preview"
-            href="/assets/tokyo-ai-poster-example.png"
+            href="/assets/posters/tokyo-ai-poster-example.png"
             target="_blank"
             rel="noreferrer"
           >
             <img
-              src="/assets/tokyo-ai-poster-example.png"
+              src="/assets/posters/tokyo-ai-poster-example.png"
               alt="도쿄 여행 포스터 스타일 예시"
             />
             <span>포스터 스타일 예시</span>

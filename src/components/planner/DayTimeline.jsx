@@ -1,5 +1,7 @@
 import { Fragment, useRef, useState } from "react";
 import StopReasons from "./StopReasons";
+import PlaceArtwork from "./PlaceArtwork";
+import { dayHeaderArtwork } from "../../utils/placeArtwork";
 import "../../styles/itineraryArt.css";
 import {
   MODE_LABELS,
@@ -13,30 +15,14 @@ import {
 
 import { dayZonesLabel, displayName } from "../../utils/itineraryPresentation";
 
-const ART_ROOT = "/assets/itinerary-v1";
+const ART_ROOT = "/assets/ui-v2";
 const MOVE_ART = { WALK: "walk", TRANSIT: "transit", DRIVE: "drive" };
 
 function ItineraryArt({ name, className = "" }) {
-  return <img className={`itinerary-art-icon ${className}`} src={`${ART_ROOT}/${name}.png`} alt="" aria-hidden="true" />;
+  return <img className={`itinerary-art-icon ${className}`} src={`${ART_ROOT}/${name}.svg`} alt="" aria-hidden="true" />;
 }
 
-function placeArt(stop) {
-  if (stop.type !== "ATTRACTION") return "restaurant";
-  const labels = stop.attraction?.labels ?? [];
-  if (labels.some((label) => /신사|사찰/.test(label))) return "shrine";
-  if (labels.some((label) => /쇼핑|상점/.test(label))) return "shopping";
-  return "attraction";
-}
 
-const REGION_IMAGES = {
-  ASAKUSA_UENO: "region-asakusa-ueno.png",
-  GINZA_TOKYO: "region-ginza-tokyo-station.png",
-  AKIHABARA_KANDA: "region-akihabara-kanda.png",
-  SHINJUKU: "region-shinjuku.png",
-  SHIBUYA_HARAJUKU: "region-shibuya-harajuku.png",
-  ROPPONGI_TOWER: "region-roppongi-tokyo-tower.png",
-  ODAIBA: "region-odaiba.png",
-};
 
 /**
  * 하루 일정 타임라인 (가운데 칸의 기본 상태)
@@ -54,18 +40,18 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
     onReorder?.(ids);
   };
   const addButton = (position) => !readOnly && (
-    <li className="timeline-insert"><button type="button" disabled={busy} onClick={() => onAdd?.(position)}>+ 장소 넣기</button></li>
+    <li className="timeline-insert"><button type="button" disabled={busy} onClick={() => onAdd?.(position)}>+ 장소</button></li>
   );
   const rows = buildRows(day);
   const hasTransit = day.stops.some((stop) => stop.travel.mode === "TRANSIT");
-  const image = REGION_IMAGES[day.zone];
+  const image = dayHeaderArtwork(day);
 
   return (
-    <section className="detail day-timeline planner-redesign itinerary-art">
+    <section className="detail day-timeline planner-redesign itinerary-art premium-timeline">
       <div className="timeline-fixed-head">
       <div className="region-day-cover">
         {image && (
-          <img src={`/assets/${image}`} alt={`${dayZonesLabel(day)} 수채화 풍경`} />
+          <img src={image} alt={`${dayZonesLabel(day)} 지역 풍경`} />
         )}
         <div>
           <h2>DAY {day.dayNumber} · {dayZonesLabel(day)}</h2>
@@ -107,7 +93,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
               <li key={row.key} className="timeline-place timeline-start">
                 <time>{row.time}</time>
                 <div className="timeline-start-content">
-                  <ItineraryArt name="accommodation" />
+                  <ItineraryArt name="hotel" />
                   <div>
                   <h3>숙소 출발</h3>
                   <p>{accommodation?.name || "출발점"}</p>
@@ -141,7 +127,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
                 ) : <span className="directions-unavailable">좌표가 없어 길찾기를 열 수 없어요.</span>}
                 {row.travel.mode === "TRANSIT" && <span className="directions-transit-note">열차·환승 안내는 Google 지도에서</span>}
               </div>
-              {!readOnly && <button className="timeline-add-inline" type="button" disabled={busy} onClick={() => onAdd?.(day.stops.indexOf(row.to))}>+ 장소 넣기</button>}
+              {!readOnly && <button className="timeline-add-inline" type="button" disabled={busy} onClick={() => onAdd?.(day.stops.indexOf(row.to))}>+ 장소</button>}
               </li>
               </Fragment>
             );
@@ -179,9 +165,9 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
               <time>{stop.arrival.slice(0, 5)}</time>
               <div className="timeline-stop-surface">
               <div className="timeline-stop-main">
-                <ItineraryArt name={placeArt(stop)} className="timeline-place-art" />
+                <PlaceArtwork place={{ ...(stop.type === "ATTRACTION" ? stop.attraction : stop.restaurant), name: stop.name, nameKo: stop.nameKo }} type={stop.type} className="timeline-place-art" />
                 <span className="timeline-place-kind">{stop.type === "ATTRACTION" ? "관광지" : stop.type === "LUNCH" ? "점심" : "저녁"}</span>
-                <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{stop.order}</span><span className="timeline-name-stack"><strong>{displayName(stop)}</strong>{stop.nameKo && <small>{stop.name}</small>}</span></button></h3>
+                <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{String(stop.order).padStart(2, "0")}</span><span className="timeline-name-stack"><strong>{displayName(stop)}</strong>{stop.nameKo && <small>{stop.name}</small>}</span></button></h3>
                 <p>{stopSubtitle(stop)}</p>
                 <StopReasons reasons={stop.reasons} />
                 {stop.warnings?.length > 0 && <ul className="timeline-stop-warnings">{stop.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
@@ -211,7 +197,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
           </span>
         </div>
         <div>
-          <ItineraryArt name="visits" />
+          <ItineraryArt name="pin" />
           <span className="timeline-summary-label">
           <span>방문 장소</span>
           <b>{day.stops.length}곳</b>

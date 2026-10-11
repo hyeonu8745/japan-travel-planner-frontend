@@ -1,3 +1,4 @@
+import PanelIcon from "../components/planner/PanelIcon";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { getPreferences } from "../api/chat";
@@ -13,6 +14,7 @@ import Brand from "../components/Brand";
 import TripConditionsForm from "../components/TripConditionsForm";
 import ChatPanel from "../components/planner/ChatPanel";
 import DayTimeline from "../components/planner/DayTimeline";
+import PreferencePanel from "../components/planner/PreferencePanel";
 import GeneratingOverlay from "../components/planner/GeneratingOverlay";
 import ItineraryMap from "../components/planner/ItineraryMap";
 import PlaceDetail from "../components/planner/PlaceDetail";
@@ -23,10 +25,6 @@ import { DELETE_TRIP_MESSAGE, REGENERATE_CONDITIONS_MESSAGE, requiresRegeneratio
 
 import { dayZonesLabel, displayName, retainedSelection } from "../utils/itineraryPresentation";
 
-const CATEGORY_LABELS = {
-  FOOD_PREFER: "좋아하는 음식", FOOD_AVOID: "피할 음식", ATMOSPHERE: "분위기",
-  MOBILITY: "이동", SMOKING: "흡연", SCHEDULE: "일정", ETC: "기타",
-};
 const STATUS_LABELS = {
   CONDITIONS_SET: "조건 입력 완료", PREFERENCE_GATHERING: "취향 대화 중",
   READY_TO_GENERATE: "일정 생성 대기", GENERATED: "일정 완성", EDITING: "일정 수정 중",
@@ -43,7 +41,6 @@ function tripDays(trip) {
   }
   return days;
 }
-const formatTime = (value) => value ? value.slice(0, 5) : "모름";
 
 export default function PlannerPage() {
   const { tripId } = useParams();
@@ -364,7 +361,6 @@ export default function PlannerPage() {
   if (!trip || !preference) return <main style={{ padding: 40 }}><p>불러오는 중...</p></main>;
 
   const days = tripDays(trip);
-  const constraints = preference.constraints ?? [];
   const hasItinerary = itinerary != null;
   const canGenerate = trip.status === "READY_TO_GENERATE" || wantsGeneration;
   const showTimeline = currentDay && panel === "plan";
@@ -400,7 +396,7 @@ export default function PlannerPage() {
         {displayedItinerary ? displayedItinerary.days.map((day) => <button key={day.dayNumber} type="button" disabled={busy} className={day.dayNumber === currentDay?.dayNumber ? "active" : ""} onClick={() => selectDay(day.dayNumber)}>DAY {day.dayNumber}<span>{dayZonesLabel(day)}</span></button>)
           : days.map((label, index) => <button key={label} type="button" disabled>DAY {index + 1}<span>{label}</span></button>)}
       </nav>
-      <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}${selectedStop && !candidates.kind ? " has-place-detail" : ""}`}>
+      <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}${showTimeline && selectedStop && !candidates.kind ? " has-place-detail" : ""}`}>
         <ItineraryMap accommodation={displayedItinerary?.accommodation} day={currentDay} selectedOrder={mapSelectedOrder} onShowAll={() => setTimelineSelection(null)} />
         {history.open ? <ItineraryHistory
           versions={history.versions} loading={history.loading} error={history.error}
@@ -425,19 +421,7 @@ export default function PlannerPage() {
             selectedOrder={mapSelectedOrder} onSelectStop={(stop) => setTimelineSelection({ dayNumber: currentDay.dayNumber, order: stop.order })}
             readOnly={!!previewItinerary || trip.status === "READY_TO_GENERATE"} busy={busy} onReorder={handleReorder} onAdd={(position) => openCandidates("add", position)}
           />
-        ) : <section className="detail">
-          <header><b>지금까지 파악한 취향</b></header>
-          <div className="body">
-            {constraints.length === 0 ? <p>AI와 대화하면 여기에 여행 취향이 정리됩니다.</p> : <div className="tags">{constraints.map((constraint, index) => <span key={index}>{CATEGORY_LABELS[constraint.category] ?? constraint.category} · {constraint.description}</span>)}</div>}
-            <div className="facts">
-              <p><span>첫날 도착</span><b>{formatTime(preference.arrivalTime)}</b></p>
-              <p><span>마지막 날 출발</span><b>{formatTime(preference.departureTime)}</b></p>
-              <p><span>식비 비중</span><b>{Math.round((preference.foodBudgetRatio ?? 0.4) * 100)}%</b></p>
-            </div>
-            {preference.summary && <p>{preference.summary}</p>}
-            <div className="conflict-note"><b>안내</b><span>일정은 대화가 끝난 뒤 실제 식당·관광지 데이터로 만들어집니다.</span></div>
-          </div>
-        </section>}
+        ) : <PreferencePanel preference={preference} onOpenChat={() => setChatOpen(true)} />}
         <div className="planner-chat-dock" hidden={hasItinerary && !chatOpen}>
         {hasItinerary && <button className="planner-chat-close" type="button" aria-label="AI 대화 닫기" onClick={() => setChatOpen(false)}>×</button>}
         <ChatPanel tripId={tripId} refreshVersion={chatRefreshVersion} initialPrompt={initialPrompt} initialReady={trip.status === "READY_TO_GENERATE"}
@@ -447,9 +431,9 @@ export default function PlannerPage() {
         </div>
       </main>
       {conditions && <div className="conditions-backdrop" onClick={(event) => { if (event.target === event.currentTarget && !busy) setConditions(null); }}>
-        <section className="conditions-editor setup-card" role="dialog" aria-modal="true" aria-labelledby="conditions-title">
-          <header><div><small>TRIP PROFILE</small><h2 id="conditions-title">여행 조건 수정</h2></div><button type="button" disabled={busy} onClick={() => setConditions(null)} aria-label="여행 조건 닫기">×</button></header>
-          <TripConditionsForm initialValues={conditions} submitLabel="조건 저장하기" onSubmit={saveConditions} />
+        <section className="conditions-editor setup-card profile-editor" role="dialog" aria-modal="true" aria-labelledby="conditions-title">
+          <header><div><small>TRIP PROFILE</small><h2 id="conditions-title">여행 조건 수정</h2><p>여행의 기본 정보를 조정하세요.</p></div><PanelIcon name="luggage" className="profile-header-art"/><button type="button" disabled={busy} onClick={() => setConditions(null)} aria-label="여행 조건 닫기">×</button></header>
+          <TripConditionsForm initialValues={conditions} submitLabel="조건 저장하기" onSubmit={saveConditions} variant="planner" onCancel={() => setConditions(null)} />
         </section>
       </div>}
       {generation.status !== "idle" && <GeneratingOverlay key={attempt} error={generation.error} onRetry={startGeneration} onClose={() => setGeneration({ status: "idle", error: null })} />}

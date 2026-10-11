@@ -1,4 +1,10 @@
 const paths = {
+  history: <><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6"/><path d="M12 6v6l4 3"/></>,
+  luggage: <><rect x="5" y="6" width="14" height="15" rx="2"/><path d="M9 6V3h6v3M9 10v7m6-7v7M8 21v1m8-1v1"/></>,
+  bed: <><path d="M3 4v17m18-9v9M3 17h18M3 12h18v5M9 12V8h9a3 3 0 0 1 3 3v1"/><circle cx="6" cy="9" r="2"/></>,
+  heart: <path d="M12 21 3.5 12.5a5.7 5.7 0 0 1 8.5-7.6 5.7 5.7 0 0 1 8.5 7.6Z"/>,
+  info: <><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.1"/></>,
+
   sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2"/></>,
   moon: <path d="M20 14A9 9 0 0 1 10 3a9 9 0 1 0 10 11Z"/>,
   leaf: <><path d="M20 3C8 2 2 8 5 16c7 5 15-1 15-13ZM5 20 16 8"/></>,

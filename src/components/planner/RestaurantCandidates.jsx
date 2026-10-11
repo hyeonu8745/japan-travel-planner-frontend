@@ -1,5 +1,6 @@
 import { useState } from "react";
 import RestaurantDetails from "./RestaurantDetails";
+import PlaceArtwork from "./PlaceArtwork";
 import {
   MODE_LABELS,
   holidayLabel,
@@ -52,7 +53,7 @@ export default function RestaurantCandidates({
             <article key={candidate.id}>
               <div>
                 <div>
-                  <h3>{displayName(candidate)}</h3>{candidate.nameKo && <small className="candidate-original-name">{candidate.name}</small>}
+                  <PlaceArtwork place={candidate} type="LUNCH" className="candidate-artwork" /><h3>{displayName(candidate)}</h3>{candidate.nameKo && <small className="candidate-original-name">{candidate.name}</small>}
                   <p>{restaurantGenres(candidate)}</p>
                 </div>
 

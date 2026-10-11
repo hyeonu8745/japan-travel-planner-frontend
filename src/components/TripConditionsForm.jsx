@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PanelIcon from "./planner/PanelIcon";
 import { tripFormValues } from "../utils/tripEditing";
 import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
@@ -27,6 +28,8 @@ export default function TripConditionsForm({
   initialValues,
   submitLabel,
   onSubmit,
+  variant = "default",
+  onCancel,
 }) {
   const [values, setValues] = useState(() => tripFormValues(initialValues));
   const [error, setError] = useState("");
@@ -59,34 +62,34 @@ export default function TripConditionsForm({
     }
   };
 
-  return (
-    <form className="conditions-form setup-form" onSubmit={handleSubmit}>
-      <div className="trip-service-scope"><p>{ATTRACTION_SCOPE}</p><p>{RESTAURANT_SCOPE}</p></div>
-      <fieldset className="conditions-fields" disabled={loading}>
-      <div className="form-grid">
-        <label>
+  const Fields = variant === "planner" ? "div" : "fieldset";
+  const controls = [
+        <label key="field-0">
           여행 시작일
           <input
+            disabled={loading}
             type="date"
             required
             min={initialValues?.startDate && initialValues.startDate < todayString() ? initialValues.startDate : todayString()}
             value={values.startDate}
             onChange={update("startDate")}
           />
-        </label>
-        <label>
+        </label>,
+        <label key="field-1">
           여행 종료일
           <input
+            disabled={loading}
             type="date"
             required
             min={values.startDate || todayString()}
             value={values.endDate}
             onChange={update("endDate")}
           />
-        </label>
-        <label>
+        </label>,
+        <label key="field-2">
           인원
           <input
+            disabled={loading}
             type="number"
             required
             min={1}
@@ -94,10 +97,11 @@ export default function TripConditionsForm({
             value={values.travelers}
             onChange={update("travelers")}
           />
-        </label>
-        <label>
+        </label>,
+        <label key="field-3">
           전체 예산(원)
           <input
+            disabled={loading}
             type="number"
             required
             min={0}
@@ -106,28 +110,29 @@ export default function TripConditionsForm({
             value={values.budget}
             onChange={update("budget")}
           />
-        </label>
-        <label>
+        </label>,
+        <label key="field-4">
           여행 속도
-          <select value={values.travelPace} onChange={update("travelPace")}>
+          <select disabled={loading} value={values.travelPace} onChange={update("travelPace")}>
             <option value="NORMAL">보통 · 하루 4곳</option>
             <option value="RELAXED">여유 · 하루 3곳</option>
             <option value="FULL">알차게 · 하루 5곳</option>
           </select>
-        </label>
-        <label>
+        </label>,
+        <label key="field-5">
           이동수단
-          <select
+          <select disabled={loading}
             value={values.transportMode}
             onChange={update("transportMode")}
           >
             <option value="PUBLIC_TRANSIT">대중교통</option>
             <option value="RENTAL_CAR">렌트카</option>
           </select>
-        </label>
-        <label className="full-span">
+        </label>,
+        <label key="field-6" className="full-span">
           숙소 이름
           <input
+            disabled={loading}
             type="text"
             required
             maxLength={255}
@@ -135,10 +140,11 @@ export default function TripConditionsForm({
             value={values.accommodationName}
             onChange={update("accommodationName")}
           />
-        </label>
-        <label className="full-span">
+        </label>,
+        <label key="field-7" className="full-span">
           숙소 주소
           <input
+            disabled={loading}
             type="text"
             required
             maxLength={500}
@@ -147,14 +153,36 @@ export default function TripConditionsForm({
             onChange={update("accommodationAddress")}
           />
           <small className="accommodation-scope-note">관광지 지원 범위에는 고토(오다이바·도요스)와 스미다(스카이트리 주변)도 포함돼요. 숙소의 정확한 주소를 입력해주세요.</small>
-        </label>
-      </div>
-
+        </label>,
+      <label key="field-8">
+        음식 알레르기·제외 식품
+        <input
+            disabled={loading}
+          type="text"
+          maxLength={500}
+          placeholder="예: 갑각류 제외"
+          value={values.allergies}
+          onChange={update("allergies")}
+        />
+      </label>,
+      <label key="field-9">
+        이동 제약
+        <textarea
+          disabled={loading}
+          maxLength={500}
+          placeholder="예: 하루 도보 12km 이내, 계단 많은 곳 피하기"
+          value={values.mobilityConstraints}
+          onChange={update("mobilityConstraints")}
+        />
+      </label>
+  ];
+  const interests = (
       <fieldset>
         <legend>관심사</legend>
         {INTEREST_OPTIONS.map((option) => (
           <label key={option.value}>
             <input
+            disabled={loading}
               type="checkbox"
               checked={values.interests.includes(option.value)}
               onChange={() => toggleInterest(option.value)}
@@ -164,31 +192,35 @@ export default function TripConditionsForm({
         ))}
       </fieldset>
 
-      <label>
-        음식 알레르기·제외 식품
-        <input
-          type="text"
-          maxLength={500}
-          placeholder="예: 갑각류 제외"
-          value={values.allergies}
-          onChange={update("allergies")}
-        />
-      </label>
-      <label>
-        이동 제약
-        <textarea
-          maxLength={500}
-          placeholder="예: 하루 도보 12km 이내, 계단 많은 곳 피하기"
-          value={values.mobilityConstraints}
-          onChange={update("mobilityConstraints")}
-        />
-      </label>
 
-      {error && <p style={errorStyle}>{error}</p>}
-      <button className="primary setup-submit" type="submit" disabled={loading}>
-        {loading ? "저장 중..." : submitLabel}
-      </button>
-      </fieldset>
+  );
+  return (
+    <form className={'conditions-form setup-form' + (variant === 'planner' ? ' profile-form' : '')} onSubmit={handleSubmit}>
+      <Fields className="conditions-fields" {...(variant === "planner" ? {} : { disabled: loading })}>
+        <div className={variant === "planner" ? "profile-fields-layout" : "conditions-fields-layout"}>
+        {variant === "planner" ? (
+          <div className="profile-form-body">
+            <div className="profile-scope"><PanelIcon name="pin"/><div><p>{ATTRACTION_SCOPE}</p><p>{RESTAURANT_SCOPE}</p></div></div>
+            <section className="profile-form-group"><h3><PanelIcon name="calendar"/>일정과 예산</h3><div className="profile-field-grid">{controls.slice(0, 4)}</div></section>
+            <section className="profile-form-group"><h3><PanelIcon name="TRANSIT"/>여행 방식</h3><div className="profile-field-grid">{controls.slice(4, 6)}</div></section>
+            <section className="profile-form-group"><h3><PanelIcon name="bed"/>숙소</h3><div className="profile-field-grid">{controls.slice(6, 8)}</div></section>
+            <section className="profile-form-group profile-interests"><h3><PanelIcon name="heart"/>관심사와 참고 사항</h3>{interests}<div className="profile-field-grid">{controls.slice(8)}</div></section>
+            {error && <p className="profile-form-error" role="alert">{error}</p>}
+          </div>
+        ) : (
+          <>
+            <div className="trip-service-scope"><p>{ATTRACTION_SCOPE}</p><p>{RESTAURANT_SCOPE}</p></div>
+            <div className="form-grid">{controls.slice(0, 8)}</div>
+            {interests}{controls.slice(8)}
+            {error && <p style={errorStyle} role="alert">{error}</p>}
+          </>
+        )}
+        <div className={variant === "planner" ? "profile-form-footer" : "conditions-submit-row"}>
+          {onCancel && <button type="button" className="profile-cancel" onClick={onCancel} disabled={loading}>취소</button>}
+          <button className="primary setup-submit" type="submit" disabled={loading}>{loading ? "저장 중..." : submitLabel}</button>
+        </div>
+        </div>
+      </Fields>
     </form>
   );
 }
