@@ -1,3 +1,9 @@
+import { confirmItinerary, allowRestaurantAgain } from "../api/itineraryExtras";
+import { HAS_ITINERARY, STATUS_LABELS, statusAfterEdit } from "../utils/tripStatus";
+import useTripExtras from "../hooks/useTripExtras";
+import BudgetPanel from "../components/planner/BudgetPanel";
+import ExcludedRestaurants from "../components/planner/ExcludedRestaurants";
+import "../styles/api1012.css";
 import PanelIcon from "../components/planner/PanelIcon";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -25,11 +31,6 @@ import { DELETE_TRIP_MESSAGE, REGENERATE_CONDITIONS_MESSAGE, requiresRegeneratio
 
 import { dayZonesLabel, displayName, retainedSelection } from "../utils/itineraryPresentation";
 
-const STATUS_LABELS = {
-  CONDITIONS_SET: "조건 입력 완료", PREFERENCE_GATHERING: "취향 대화 중",
-  READY_TO_GENERATE: "일정 생성 대기", GENERATED: "일정 완성", EDITING: "일정 수정 중",
-};
-const HAS_ITINERARY = ["GENERATED", "EDITING"];
 const CLOSED_CANDIDATES = { kind: null, loading: false, data: null, error: "" };
 
 function tripDays(trip) {
@@ -62,6 +63,9 @@ export default function PlannerPage() {
   const [attempt, setAttempt] = useState(0);
   const [wantsGeneration, setWantsGeneration] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [extrasRevision, setExtrasRevision] = useState(0);
+  const [confirming, setConfirming] = useState(false);
+  const [allowingRestaurant, setAllowingRestaurant] = useState(null);
   const mutationRef = useRef(false);
   // Candidate/preview responses must never reopen stale panels after navigation or a mutation.
   const requestEpoch = useRef(0);
@@ -72,6 +76,7 @@ export default function PlannerPage() {
   const [restoringVersion, setRestoringVersion] = useState(null);
   const [conditions, setConditions] = useState(null);
   const [initialPrompt] = useState(() => location.state?.initialPrompt);
+  const extras = useTripExtras(tripId, `${itinerary?.version}:${extrasRevision}`, itinerary != null);
   const displayedItinerary = previewItinerary ?? itinerary;
   const previewVersion = previewItinerary?.version ?? null;
   const currentDay = displayedItinerary?.days.find((day) => day.dayNumber === dayNumber)
@@ -128,7 +133,9 @@ export default function PlannerPage() {
   };
 
   const applyItinerary = (updated) => {
-    setItinerary(updated); // IDs and dropped/warnings belong to the new version as a whole.
+    setItinerary(updated);
+    setExtrasRevision((value) => value + 1); // Refresh computed food and exclusions after every mutation.
+    // IDs and dropped/warnings belong to the new version as a whole.
     setDayNumber((previous) => updated?.days.some((day) => day.dayNumber === previous)
       ? previous : updated?.days[0]?.dayNumber ?? 1);
     setSelectedOrder((previous) => retainedSelection(updated, { dayNumber, order: previous })?.order ?? null);
@@ -143,9 +150,11 @@ export default function PlannerPage() {
       const [latest, latestTrip] = await Promise.all([getItinerary(tripId), getTrip(tripId)]);
       applyItinerary(latest);
       setTrip(latestTrip);
-      setNotice("일정이 바뀌었어요. 최신 일정으로 다시 불러왔습니다. 다시 선택해주세요.");
+      setNotice(err.message);
     } catch (reloadError) {
-      setNotice(`최신 일정을 불러오지 못했어요. 다시 불러온 뒤 수정해주세요. ${reloadError.message}`);
+      setNotice(err.message);
+      // Preserve the original server conflict message.
+      void reloadError;
       // Discard unusable IDs if resynchronization fails.
       setItinerary(null);
     }
@@ -180,7 +189,7 @@ export default function PlannerPage() {
     try {
       applyItinerary(await generateItinerary(tripId));
       setChatRefreshVersion((value) => value + 1);
-      setTrip((previous) => ({ ...previous, status: "GENERATED" }));
+      setTrip((previous) => ({ ...previous, status: "AWAITING_CONFIRMATION" }));
       setPreviewItinerary(null);
       setSelectedOrder(null);
       setPanel("plan");
@@ -223,7 +232,7 @@ export default function PlannerPage() {
       closeCandidates();
       setConditions(null);
       setNotice(update.result === "FAILED"
-        ? `${update.message || "일정을 갱신하지 못했어요."} 조건이 바뀌었어요. 일정을 다시 만들어주세요`
+        ? update.message || "일정을 갱신하지 못했어요. 조건은 저장됐어요."
         : update.message || "여행 조건을 저장했어요.");
     } catch (err) {
       await handleApiError(err);
@@ -273,7 +282,7 @@ export default function PlannerPage() {
     setNotice("");
     try {
       applyItinerary(await request());
-      setTrip((previous) => ({ ...previous, status: "EDITING" }));
+      setTrip((previous) => ({ ...previous, status: statusAfterEdit(previous.status) }));
       if (clearSelection) setSelectedOrder(null);
     } catch (err) {
       if (candidateFailure && err.status === 400) setCandidates((previous) => ({ ...previous, error: err.message }));
@@ -350,11 +359,30 @@ export default function PlannerPage() {
     try {
       applyItinerary(await restoreItineraryVersion(tripId, version));
       setPreviewItinerary(null);
-      setTrip((previous) => ({ ...previous, status: "EDITING" }));
+      setTrip((previous) => ({ ...previous, status: statusAfterEdit(previous.status) }));
       setSelectedOrder(null);
       setHistory((previous) => ({ ...previous, open: false }));
     } catch (err) { await handleApiError(err); }
     finally { setRestoringVersion(null); releaseMutation(); }
+  };
+
+  const handleConfirm = async () => {
+    if (previewItinerary || !acquireMutation()) return;
+    setConfirming(true); setNotice("");
+    try {
+      const response = await confirmItinerary(tripId);
+      applyItinerary(response.itinerary);
+      setTrip((previous) => ({ ...previous, status: response.status }));
+    } catch (err) { await handleApiError(err); }
+    finally { setConfirming(false); releaseMutation(); }
+  };
+
+  const handleAllowRestaurant = async (id) => {
+    if (previewItinerary || !acquireMutation()) return;
+    setAllowingRestaurant(id); setNotice("");
+    try { await allowRestaurantAgain(tripId, id); extras.reload(); }
+    catch (err) { setNotice(err.message); if (err.status === 404) extras.reload(); }
+    finally { setAllowingRestaurant(null); releaseMutation(); }
   };
 
   if (error) return <main style={{ padding: 40 }}><p>{error}</p><Link to="/trips">내 여행으로</Link></main>;
@@ -379,17 +407,21 @@ export default function PlannerPage() {
           <Link to="/trips">내 여행</Link>
           {(hasItinerary || trip.status === "READY_TO_GENERATE") && <button className="planner-generate" type="button" disabled={busy || !!previewItinerary} onClick={handleRegenerate}>일정 다시 만들기</button>}
           {!hasItinerary && trip.status !== "READY_TO_GENERATE" && <button className="finish planner-generate" type="button" disabled={!canGenerate || busy || !!previewItinerary} onClick={startGeneration}>일정 만들기</button>}
+          {hasItinerary && !previewItinerary && <Link to={`/trips/${tripId}/poster`}>포스터 만들기</Link>}
           <i>{user?.nickname?.charAt(0) ?? "?"}</i>
         </div>
       </header>
       <nav className="planner-tools">
         <button type="button" className={panel === "plan" ? "active" : ""} onClick={() => setPanel("plan")}>일정</button>
+        <button type="button" className={panel === "budget" ? "active" : ""} disabled={busy || !hasItinerary || !!previewItinerary} onClick={() => { closeCandidates(); setHistory((previous) => ({ ...previous, open: false })); setPanel("budget"); }}>식비</button>
         <button type="button" className={panel === "taste" ? "active" : ""} onClick={() => setPanel("taste")}>파악한 취향</button>
         <button type="button" aria-expanded={!hasItinerary || chatOpen} disabled={!hasItinerary} onClick={() => setChatOpen((open) => !open)}>AI 대화</button>
         <button type="button" disabled={busy || !!previewItinerary} onClick={openConditions}>여행 조건</button>
         <button type="button" disabled={busy} onClick={openHistory}>변경 이력</button>
+        <button type="button" disabled={busy || !hasItinerary || !!previewItinerary} className={panel === "excluded" ? "active" : ""} onClick={() => { closeCandidates(); setHistory((previous) => ({ ...previous, open: false })); setPanel("excluded"); }}>다시 추천하지 않는 식당{extras.excluded ? ` ${extras.excluded.length}곳` : ""}</button>
         <button type="button" className="danger-action" disabled={busy || !!previewItinerary} onClick={handleDeleteTrip}>여행 삭제</button>
       </nav>
+      {trip.status === "AWAITING_CONFIRMATION" && !previewItinerary && <section className="planner-ready-notice" aria-label="일정 완성 확인"><div><b>일정이 준비됐어요</b><p>먼저 확인하고 마음에 들면 완성을 눌러주세요. 지금도 채팅과 버튼으로 수정할 수 있어요.</p></div><button type="button" disabled={busy || !hasItinerary} onClick={handleConfirm}>{confirming ? "확인 중…" : "완성"}</button></section>}
       {notice && <div className="planner-notice notice-yellow" role="status">{notice}<button type="button" onClick={() => setNotice("")} aria-label="안내 닫기">×</button></div>}
       {previewItinerary && <div className="history-preview-notice planner-preview"><b>v{previewVersion} 과거 버전 · 읽기 전용</b><button type="button" onClick={handleBackToLatest}>최신 일정으로 돌아가기</button></div>}
       <nav className="days">
@@ -398,7 +430,7 @@ export default function PlannerPage() {
       </nav>
       <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}${showTimeline && selectedStop && !candidates.kind ? " has-place-detail" : ""}`}>
         <ItineraryMap accommodation={displayedItinerary?.accommodation} day={currentDay} selectedOrder={mapSelectedOrder} onShowAll={() => setTimelineSelection(null)} />
-        {history.open ? <ItineraryHistory
+        {panel === "budget" && hasItinerary && !history.open ? <BudgetPanel budget={extras.budget} loading={extras.loading} error={extras.budgetError} onRetry={extras.reload} itinerary={itinerary} busy={busy} onOpenMeal={(number, order) => { closeCandidates(); setDayNumber(number); setSelectedOrder(order); setPanel("plan"); }} /> : panel === "excluded" && !history.open ? <ExcludedRestaurants restaurants={extras.excluded} loading={extras.loading} error={extras.excludedError} onRetry={extras.reload} busy={busy} readOnly={!!previewItinerary} removingId={allowingRestaurant} onAllow={handleAllowRestaurant} onClose={() => setPanel("plan")} /> : history.open ? <ItineraryHistory
           versions={history.versions} loading={history.loading} error={history.error}
           currentVersion={itinerary?.version} previewVersion={previewVersion} restoringVersion={restoringVersion}
           onPreview={handlePreviewVersion} onRestore={handleRestoreVersion} onBackToLatest={handleBackToLatest}

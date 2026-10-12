@@ -119,7 +119,7 @@ export default function PlaceDetail({
               onClick={onOpenCandidates}
               disabled={busy}
             >
-              다른 식당 보기 ↗
+              다른 식당으로 바꾸기 ↗
             </button>
 
           </div>

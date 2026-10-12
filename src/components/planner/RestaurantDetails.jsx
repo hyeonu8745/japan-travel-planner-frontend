@@ -9,6 +9,7 @@ async function loadDetails(id, options) {
   const restaurant = await getRestaurantDetails(id, options);
   const matched = restaurant.googleStatus === "MATCHED" && !!restaurant.google;
   return { ...(matched ? restaurant.google : {}), name: restaurant.name, restaurant, hasGoogle: matched,
+    reviewInsights: restaurant.reviewInsights ?? restaurant.google?.reviewInsights,
     attribution: matched ? restaurant.attribution || "Google Maps" : null, reviewNotice: restaurant.reviewNotice };
 }
 
@@ -45,6 +46,7 @@ export default function RestaurantDetails({ restaurantId, fallbackName, nameKo, 
         {!heading && <><h3>{nameKo || data.nameKo || google?.localizedName || data.name || fallbackName}</h3>
         {(nameKo || data.nameKo || (google?.localizedName && google.localizedName !== data.name)) && <p className="google-original-name">{data.name || fallbackName}</p>}
         <p className="google-original-name">{restaurantGenres({ ...data, genreLabels: genreLabels ?? data.genreLabels })}{data.address && ` · ${data.address}`}</p></>}
+        {!readOnly && onReplace && details.reviewInsights?.findings?.some((finding) => finding.caution) && <div className="restaurant-google-warning"><p>주의 경험을 확인하고 다른 식당을 비교할 수 있어요.</p><button type="button" className="tabi-button tabi-button-primary" disabled={busy} onClick={onReplace}>다른 식당으로 바꾸기</button></div>}
         {google?.summary && <p className="google-place-summary">{google.summary}</p>}
         <div className="restaurant-detail-ratings">
           <div><span>타베로그</span><b>★ {tabelog.rating ?? "정보 없음"}</b>{tabelog.reviewCount != null && <small>리뷰 {tabelog.reviewCount.toLocaleString()}개</small>}</div>

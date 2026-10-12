@@ -25,7 +25,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
   const autoSentRef = useRef(false);
   const sendingRef = useRef(false);
   const loadedRef = useRef(false);
-  const editMode = replyState?.mode === "EDIT" || ["GENERATED", "EDITING"].includes(tripStatus);
+  const editMode = replyState?.mode === "EDIT" || ["AWAITING_CONFIRMATION", "GENERATED", "EDITING"].includes(tripStatus);
 
   const send = async (text, generateAfter = false) => {
     const content = text.trim();

@@ -16,7 +16,7 @@ export class ApiError extends Error {
  */
 export async function apiRequest(
   path,
-  { method = "GET", body, auth = true, signal, cache } = {},
+  { method = "GET", body, auth = true, signal, cache, responseType = "json" } = {},
 ) {
   const headers = {};
   if (body !== undefined) {
@@ -46,12 +46,14 @@ export async function apiRequest(
 
   // 로그인이 필요한 요청에서 401 → 토큰 삭제 후 로그인 화면으로
   if (response.status === 401 && auth) {
+    const data = await response.json().catch(() => null);
     clearAuth();
     window.location.href = "/auth";
-    throw new ApiError(401, "로그인이 필요합니다.");
+    throw new ApiError(401, data?.message ?? "로그인이 필요합니다.");
   }
 
   if (response.status === 204) return null;
+  if (response.ok && responseType === "blob") return response.blob();
 
   const text = await response.text();
   let data = null;

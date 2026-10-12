@@ -3,6 +3,8 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getMyTrips, deleteTrip } from "../api/trips";
 import { DELETE_TRIP_MESSAGE } from "../utils/tripEditing";
 import { clearAuth, getUser } from "../auth/token";
+import PosterArchive from "../components/PosterArchive";
+import { HAS_ITINERARY, STATUS_LABELS } from "../utils/tripStatus";
 import Brand from "../components/Brand";
 
 const INTEREST_LABELS = {
@@ -10,14 +12,6 @@ const INTEREST_LABELS = {
   TRADITIONAL: "전통 명소",
   SHOPPING: "쇼핑",
   NIGHT_VIEW: "야경",
-};
-
-const STATUS_LABELS = {
-  CONDITIONS_SET: "조건 입력 완료",
-  PREFERENCE_GATHERING: "취향 대화 중",
-  READY_TO_GENERATE: "일정 생성 대기",
-  GENERATED: "일정 완성",
-  EDITING: "일정 수정 중",
 };
 
 const COMPLETED_STATUSES = ["GENERATED", "EDITING"];
@@ -164,8 +158,8 @@ export default function TripsPage() {
             <span>다가오는 여행</span>
           </div>
           <div>
-            <b>0</b>
-            <span>생성된 포스터</span>
+            <b>{trips.filter((trip) => HAS_ITINERARY.includes(trip.status)).length}</b>
+            <span>포스터를 만들 수 있는 여행</span>
           </div>
         </section>
 
@@ -218,35 +212,7 @@ export default function TripsPage() {
             )}
           </section>
         ) : (
-          <section className="poster-archive tab-pane">
-            <header>
-              <div>
-                <small>AI POSTER ARCHIVE</small>
-                <h2>생성된 포스터</h2>
-                <p>일정이 완성되면 AI 여행 포스터를 만들 수 있어요.</p>
-              </div>
-              <span>총 0개</span>
-            </header>
-            <div className="poster-grid">
-              <article className="poster-tile">
-                <a
-                  href="/assets/posters/sapporo-ai-poster-example.png"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <img
-                    src="/assets/posters/sapporo-ai-poster-example.png"
-                    alt="여행 포스터 스타일 예시"
-                  />
-                </a>
-                <div>
-                  <span className="status example">스타일 예시</span>
-                  <h3>일러스트 포스터 샘플</h3>
-                  <p>포스터 스타일 참고용 · 생성 결과 아님</p>
-                </div>
-              </article>
-            </div>
-          </section>
+          <PosterArchive trips={trips}/>
         )}
       </main>
     </div>
@@ -283,7 +249,7 @@ function TripCard({ trip, onDelete, deletingId }) {
           <Link to={`/trips/${trip.id}/planner`}>
             {completed ? "일정 보기" : "계속 계획하기"}
           </Link>
-          {completed && (
+          {HAS_ITINERARY.includes(trip.status) && (
             <Link to={`/trips/${trip.id}/poster`}>AI 포스터 생성</Link>
           )}
         </footer>
