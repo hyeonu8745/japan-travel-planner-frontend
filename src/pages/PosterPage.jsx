@@ -10,6 +10,7 @@ import { printPosterPages } from '../utils/posterPrint';
 import '../styles/api1012.css';
 import '../styles/posterViewer.css';
 
+const STYLES = [{value:'WATERCOLOR', label:'수채화', hint:'부드러운 여행 그림'}, {value:'RETRO', label:'레트로', hint:'빈티지 여행 포스터'}, {value:'MINIMAL', label:'미니멀', hint:'간결하고 차분하게'}, {value:'STICKER', label:'스티커', hint:'여행의 조각을 모아서'}];
 const STATUS = { GENERATING: '포스터를 그리고 있어요', DONE: '포스터가 준비됐어요', FAILED: '일부 포스터를 만들지 못했어요' };
 
 function PosterImage({ tripId, posterId, page, onReady }) {
@@ -39,6 +40,8 @@ export default function PosterPage() {
   const [error, setError] = useState(''), [retry, setRetry] = useState(0), [images, setImages] = useState({});
   const creatingRef = useRef(false), epoch = useRef(0), zoomDialog = useRef(null);
   const [selected, setSelected] = useState(null);
+  const [style, setStyle] = useState('WATERCOLOR'), [character, setCharacter] = useState('');
+  const optionsDisabled = loading || creating || poster?.status === 'GENERATING';
   const pages = [...(poster?.pages ?? [])].sort((a,b) => a.pageNo - b.pageNo);
   const current = pages.find(page => page.pageNo === selected) || pages[0];
   const currentIndex = pages.indexOf(current);
@@ -54,11 +57,11 @@ export default function PosterPage() {
     const controller = new AbortController(), request = ++epoch.current;
     Promise.resolve().then(async () => {
       if (controller.signal.aborted) return;
-      setLoading(true); setError(''); setPoster(null); setTrip(null);
+      setLoading(true); setError(''); setPoster(null); setTrip(null); setStyle('WATERCOLOR'); setCharacter('');
       const [t, p] = await Promise.allSettled([getTrip(tripId), getLatestPoster(tripId, { signal: controller.signal })]);
       if (controller.signal.aborted || request !== epoch.current) return;
       if (t.status === 'fulfilled') setTrip(t.value); else setError(t.reason.message);
-      if (p.status === 'fulfilled') setPoster(p.value); else if (p.reason.status !== 404) setError(p.reason.message);
+      if (p.status === 'fulfilled') { setPoster(p.value); setStyle(STYLES.some(option => option.value === p.value?.style) ? p.value.style : 'WATERCOLOR'); setCharacter(p.value?.character ?? ''); } else if (p.reason.status !== 404) setError(p.reason.message);
       setLoading(false);
     });
     return () => { controller.abort(); epoch.current += 1; };
@@ -79,8 +82,10 @@ export default function PosterPage() {
   }, [tripId, poster?.id, poster?.status]);
   const generate = async () => {
     if (creatingRef.current || loading || poster?.status === 'GENERATING') return;
+    const description = character.trim();
+    if (description.length > 50) { setError('캐릭터 설명은 50자 이하로 입력해주세요.'); return; }
     creatingRef.current = true; setCreating(true); setError(''); const request = epoch.current;
-    try { const created = await createPoster(tripId); if (request === epoch.current) setPoster(created); }
+    try { const created = await createPoster(tripId, { style, ...(description ? { character: description } : {}) }); if (request === epoch.current) setPoster(created); }
     catch (err) { if (request === epoch.current) setError(err.message); }
     finally { creatingRef.current = false; if (request === epoch.current) setCreating(false); }
   };
@@ -91,12 +96,17 @@ export default function PosterPage() {
   return <div className="poster-studio"><main className="poster-page">
     <div className="poster-studio-brand"><Brand/><Link className="poster-back" to={`/trips/${tripId}/planner`}>← 일정으로 돌아가기</Link></div>
     <header className="poster-studio-heading"><div><small>TRAVEL POSTER STUDIO</small><h1>{trip?.title || '나의 여행'} 포스터</h1><p>여행의 동선과 일정을 한 장씩 담았어요.</p></div><span className="poster-studio-emblem"><PanelIcon name="pin"/></span></header>
+    <div className="poster-customization">
+      <fieldset className="poster-style-picker" disabled={optionsDisabled}><legend>포스터 스타일</legend><div>{STYLES.map(option => <label key={option.value} className={`poster-style-choice${style === option.value ? ' is-selected' : ''}`}><input type="radio" name="poster-style" value={option.value} checked={style === option.value} onChange={() => setStyle(option.value)}/><span><b>{option.label}</b><small>{option.hint}</small></span></label>)}</div></fieldset>
+      <div className="poster-character-field"><label htmlFor="poster-character">캐릭터 <span>(선택)</span></label><div className="poster-character-input"><input id="poster-character" type="text" value={character} maxLength={50} disabled={optionsDisabled} placeholder="예) 안경 쓴 회색 고양이" aria-describedby="poster-character-help" onChange={event => setCharacter(event.target.value)}/><span>{character.length}/50</span></div><p id="poster-character-help">기존 캐릭터 이름 대신 생김새를 설명해주세요. 비워두면 AI가 자유롭게 그려요.</p></div>
+    </div>
     <div className="poster-controls"><div className="poster-primary-controls"><button className="poster-create" type="button" disabled={loading || creating || !HAS_ITINERARY.includes(trip?.status) || poster?.status === 'GENERATING' || poster?.remainingToday === 0} onClick={generate}><PanelIcon name="pin"/>{creating ? '요청 중…' : poster?.status === 'GENERATING' ? '포스터 만드는 중…' : poster ? '포스터 다시 만들기' : '포스터 만들기'}</button><span className="poster-remaining">{poster?.remainingToday != null ? `남은 횟수 ${poster.remainingToday}회 · 24시간에 3회` : '24시간에 3회까지 · 남은 횟수는 생성 후 표시돼요'}</span></div><button type="button" className="poster-print" disabled={!canPrint || printing} onClick={print}><PanelIcon name="card"/>{printing ? '인쇄 준비 중…' : 'PDF로 저장 / 인쇄'}</button></div>
     {!loading && trip && !HAS_ITINERARY.includes(trip.status) && <p>일정을 먼저 만들어주세요.</p>}
 
     {poster?.stale && <p className="poster-notice poster-stale">일정이 바뀌었어요. 포스터를 다시 만들까요?</p>}
     {loading && <p role="status">포스터를 불러오고 있어요…</p>}
     {error && <div className="poster-error" role="alert"><p>{error}</p><button type="button" disabled={creating} onClick={() => setRetry((value) => value + 1)}>상태 다시 확인</button></div>}
+    {poster && <p className="poster-result-options">현재 포스터 · {STYLES.find(option => option.value === poster.style)?.label || (poster.style ? poster.style : '수채화')} · {poster.character || '캐릭터 AI 자유'}</p>}
     {poster && <p className={`poster-generation-status${poster.status === "GENERATING" ? " is-generating" : ""}`} role="status">{STATUS[poster.status] || poster.status}{poster.status === 'GENERATING' && ' · 한 장에 수십 초에서 1분 이상 걸릴 수 있어요.'}</p>}
     {poster?.errorMessage && <p className="poster-error" role="alert">{poster.errorMessage}</p>}
     {poster?.status === 'FAILED' && donePages.length > 0 && <p>완성된 장은 저장하거나 PDF로 출력할 수 있어요.</p>}
