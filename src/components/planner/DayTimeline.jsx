@@ -15,7 +15,15 @@ import {
 
 import { dayZonesLabel, displayName } from "../../utils/itineraryPresentation";
 
+import { dayTransfers } from "../../utils/airportTransfers";
+import PanelIcon from "./PanelIcon";
+import "../../styles/airportTransfers.css";
+
 const ART_ROOT = "/assets/ui-v2";
+function TransferRows({ day, position }) {
+  return dayTransfers(day, position).map((transfer, index) => <li className="timeline-airport-transfer" key={`${position}:${index}`}><time>{transfer.time || ''}</time><span className="timeline-airport-dot" aria-hidden="true"/><div><PanelIcon name={transfer.kind === 'HOTEL_DROP' || transfer.kind === 'HOTEL_PICKUP' ? 'luggage' : transfer.kind === 'CHECKOUT' ? 'bed' : 'clock'}/><span>{transfer.label}</span></div></li>);
+}
+
 const MOVE_ART = { WALK: "walk", TRANSIT: "transit", DRIVE: "drive" };
 
 function ItineraryArt({ name, className = "" }) {
@@ -87,6 +95,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
       )}
 
       <ol className="timeline-list">
+        <TransferRows day={day} position="BEFORE"/>
         {rows.map((row) => {
           if (row.kind === "start") {
             return (
@@ -185,6 +194,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
           );
         })}
         {addButton(day.stops.length)}
+        <TransferRows day={day} position="AFTER"/>
       </ol>
       </div>
 

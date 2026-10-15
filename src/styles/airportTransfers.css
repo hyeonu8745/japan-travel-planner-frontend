@@ -1,0 +1,16 @@
+.conditions-form .trip-flight-section{padding:18px 0;margin:0;border-top:1px solid #e5edf5;border-bottom:1px solid #e5edf5;}
+.conditions-form .trip-flight-section h3{display:flex;align-items:center;gap:8px;font-size:14px;color:#294b6d;margin:0 0 10px;}
+.trip-flight-section h3>span{font-size:10px;font-weight:400;color:#8b9eb1;}
+.trip-flight-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:13px 0;}
+.trip-flight-pair{display:grid;gap:12px;min-width:0;}
+.conditions-form .trip-flight-pair label{display:grid;gap:7px;font-size:11px;color:#56718c;font-weight:600;margin:0;min-width:0;}
+.conditions-form .trip-flight-pair input,.conditions-form .trip-flight-pair select{width:100%;min-width:0;margin:0;border:1px solid #cddaea;border-radius:7px;background:#fff;color:#173651;padding:10px 11px;font:inherit;font-size:12px;min-height:39px;box-sizing:border-box;}
+.conditions-form .trip-flight-note{font-size:10px;color:#8b9db0;line-height:1.8;margin:0;font-weight:400;}
+.trip-flight-pair input:focus-visible,.trip-flight-pair select:focus-visible{outline:2px solid #3288d8;outline-offset:2px;}
+.planner-v2 .premium-timeline .timeline-airport-transfer{position:relative;display:grid;grid-template-columns:68px minmax(0,1fr);gap:16px;align-items:start;padding:10px 17px 10px 0;margin:0;min-height:40px;color:#8b98a9;font-size:11px;}
+.planner-v2 .timeline-airport-transfer>time{position:static;font-size:11px;font-weight:500;color:#8a99ad;text-align:center;line-height:1.8;}
+.planner-v2 .timeline-airport-transfer>div{display:flex;gap:8px;align-items:flex-start;line-height:1.8;min-width:0;font-size:11px;}
+.timeline-airport-transfer>div>svg{width:15px;height:15px;margin-top:2px;flex:none;color:#9baabd;}
+.timeline-airport-transfer>div>span{overflow-wrap:anywhere;}
+.timeline-airport-dot{position:absolute;left:64px;top:17px;width:6px;height:6px;background:#c5d0dd;border:2px solid #fff;border-radius:50%;box-sizing:content-box;}
+@media(max-width:450px){.trip-flight-grid{gap:12px;}.conditions-form .trip-flight-pair input,.conditions-form .trip-flight-pair select{padding:9px 6px;}.planner-v2 .premium-timeline .timeline-airport-transfer{grid-template-columns:48px minmax(0,1fr);gap:12px;}.timeline-airport-dot{left:44px;}}

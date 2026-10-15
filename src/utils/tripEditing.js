@@ -13,6 +13,10 @@ export function tripFormValues(trip = {}) {
     transportMode: trip.transportMode ?? "PUBLIC_TRANSIT",
     accommodationName: trip.accommodationName ?? "",
     accommodationAddress: trip.accommodationAddress ?? "",
+    arrivalAirport: trip.arrivalAirport ?? "",
+    arrivalFlightTime: trip.arrivalFlightTime?.slice(0, 5) ?? "",
+    departureAirport: trip.departureAirport ?? "",
+    departureFlightTime: trip.departureFlightTime?.slice(0, 5) ?? "",
     interests: trip.interests ?? [],
     allergies: trip.allergies ?? "",
     mobilityConstraints: trip.mobilityConstraints ?? "",
@@ -21,7 +25,8 @@ export function tripFormValues(trip = {}) {
 
 export function requiresRegeneration(previous, next) {
   const before = tripFormValues(previous);
-  return ["startDate", "endDate", "travelers", "budget", "travelPace", "allergies"]
-    .some((field) => String(before[field]) !== String(next[field])) ||
+  const after = tripFormValues(next);
+  return ["startDate", "endDate", "travelers", "budget", "travelPace", "allergies", "arrivalAirport", "arrivalFlightTime", "departureAirport", "departureFlightTime"]
+    .some((field) => String(before[field]) !== String(after[field])) ||
     JSON.stringify([...before.interests].sort()) !== JSON.stringify([...next.interests].sort());
 }

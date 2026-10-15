@@ -3,6 +3,9 @@ import PanelIcon from "./planner/PanelIcon";
 import { tripFormValues } from "../utils/tripEditing";
 import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
+import { flightRequestFields } from "../utils/airportTransfers";
+import "../styles/airportTransfers.css";
+
 const errorStyle = { color: "#d64545", fontSize: "0.78rem", margin: "0 0 8px" };
 
 const INTEREST_OPTIONS = [
@@ -52,6 +55,7 @@ export default function TripConditionsForm({
     try {
       await onSubmit({
         ...values,
+        ...flightRequestFields(values),
         travelers: Number(values.travelers),
         budget: Number(values.budget),
       });
@@ -176,6 +180,7 @@ export default function TripConditionsForm({
         />
       </label>
   ];
+  const flights = <section className="trip-flight-section profile-form-group"><h3><PanelIcon name="TRANSIT"/>공항과 비행기 시각 <span>선택</span></h3><p className="trip-flight-note">일본 현지 시각으로 입력해주세요. 비행기 시각을 입력하면 공항 이동과 숙소에 짐을 맡기고 찾는 흐름을 일정에 반영해요.</p><div className="trip-flight-grid">{[{key:'arrival',label:'도착',time:'비행기 도착 시각'},{key:'departure',label:'출발',time:'비행기 출발 시각'}].map(flight => <div className="trip-flight-pair" key={flight.key}><label>{flight.label} 공항<select disabled={loading} value={values[`${flight.key}Airport`]} onChange={update(`${flight.key}Airport`)}><option value="">선택 안 함</option><option value="NRT">나리타 (NRT)</option><option value="HND">하네다 (HND)</option></select></label><label>{flight.time}<input disabled={loading} type="time" step="60" value={values[`${flight.key}FlightTime`]} onChange={update(`${flight.key}FlightTime`)}/></label></div>)}</div><p className="trip-flight-note">공항만 선택하고 시각은 비워둬도 돼요. 이동 시간은 대표값을 사용한 예상치예요.</p></section>;
   const interests = (
       <fieldset>
         <legend>관심사</legend>
@@ -203,6 +208,7 @@ export default function TripConditionsForm({
             <div className="profile-scope"><PanelIcon name="pin"/><div><p>{ATTRACTION_SCOPE}</p><p>{RESTAURANT_SCOPE}</p></div></div>
             <section className="profile-form-group"><h3><PanelIcon name="calendar"/>일정과 예산</h3><div className="profile-field-grid">{controls.slice(0, 4)}</div></section>
             <section className="profile-form-group"><h3><PanelIcon name="TRANSIT"/>여행 방식</h3><div className="profile-field-grid">{controls.slice(4, 6)}</div></section>
+            {flights}
             <section className="profile-form-group"><h3><PanelIcon name="bed"/>숙소</h3><div className="profile-field-grid">{controls.slice(6, 8)}</div></section>
             <section className="profile-form-group profile-interests"><h3><PanelIcon name="heart"/>관심사와 참고 사항</h3>{interests}<div className="profile-field-grid">{controls.slice(8)}</div></section>
             {error && <p className="profile-form-error" role="alert">{error}</p>}
@@ -211,7 +217,7 @@ export default function TripConditionsForm({
           <>
             <div className="trip-service-scope"><p>{ATTRACTION_SCOPE}</p><p>{RESTAURANT_SCOPE}</p></div>
             <div className="form-grid">{controls.slice(0, 8)}</div>
-            {interests}{controls.slice(8)}
+            {flights}{interests}{controls.slice(8)}
             {error && <p style={errorStyle} role="alert">{error}</p>}
           </>
         )}
