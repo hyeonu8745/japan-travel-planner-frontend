@@ -1,0 +1,112 @@
+.planner-v2 .app-head .actions{min-width:0;}
+.planner-v2>.app-head{height:82px;min-height:82px;max-height:82px;flex:0 0 82px;padding-top:6px;padding-bottom:6px;}
+.weather-strip{display:flex;flex-direction:column;gap:3px;min-width:0;min-height:0;max-height:65px;flex-shrink:1;max-width:none;margin-right:10px;color:#6b829b;}
+.weather-chip-list{width:max-content;max-width:100%;display:flex;gap:6px;align-items:flex-start;flex:0 0 50px;height:50px;min-height:0;max-height:50px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding:0 1px;}
+.weather-chip-list::-webkit-scrollbar{display:none;}
+.weather-chip-list>.weather-status{flex:none;max-width:100%;white-space:normal;}
+
+
+
+
+.weather-icon{width:16px;height:16px;flex:none;color:#819bb8;vertical-align:middle;}
+.weather-sunny,.weather-partly_cloudy{color:#d4a45b;}.weather-rain,.weather-drizzle,.weather-thunder{color:#6e9bc6;}
+
+
+
+.weather-status{font-size:10px;line-height:1.7;}
+
+.days .weather-icon{width:15px;height:15px;margin-left:6px;}
+.rain-plan-dialog{width:min(640px,calc(100vw - 28px));max-width:100%;max-height:calc(100dvh - 40px);padding:0;border:1px solid #dbe5f0;border-radius:20px;color:#173653;background:#fff;overflow:hidden;box-shadow:0 18px 60px #10263b26;}
+.rain-plan-dialog[open]{display:flex;flex-direction:column;}
+.rain-plan-dialog::backdrop{background:#10263b80;backdrop-filter:blur(3px);}
+.rain-plan-dialog>header{padding:24px 26px 23px;border-bottom:1px solid #dce7f1;flex:none;background:linear-gradient(115deg,#f5faff,#e8f4fc);}
+.rain-plan-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;}
+.rain-plan-top>small{font-size:10px;letter-spacing:.16em;color:#597b98;font-weight:600;}
+.rain-plan-top>button{background:#ffffffd9;border:1px solid #d2e2ef;border-radius:9px;color:#627c93;font-size:22px;width:30px;height:30px;flex:none;display:grid;place-items:center;line-height:1;}
+.rain-plan-heading{display:flex;align-items:center;gap:14px;}
+.rain-plan-weather{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:#d9ecfa;flex:none;}
+.rain-plan-weather .weather-icon{width:27px;height:27px;color:#3982b0;}
+.rain-plan-dialog h2{font-size:23px;line-height:1.4;margin:0;color:#173653;}
+.rain-plan-heading p{font-size:12px;line-height:1.6;margin:6px 0 0;color:#607d97;}
+.rain-plan-body{flex:1;min-height:0;overflow:auto;padding:20px 26px 12px;font-size:12px;line-height:1.7;scrollbar-width:thin;scrollbar-color:#c5d5e4 transparent;overscroll-behavior:contain;}
+.rain-plan-body h3{font-size:13px;color:#173653;margin:0;font-weight:700;}
+.rain-plan-message{display:flex;gap:9px;align-items:flex-start;padding:12px 13px;border:1px solid #e0edf7;background:#f1f7fc;border-radius:10px;margin:0;white-space:pre-line;color:#456b8b;}
+.rain-plan-message>span:first-child{font-size:16px;line-height:1.3;flex:none;}
+.rain-plan-section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:24px 0 12px;}
+.rain-plan-section-heading>span{font-size:11px;color:#667e97;}
+.rain-plan-swaps ul,.rain-plan-preview ol{list-style:none;margin:0;padding:0;}
+.rain-plan-swaps li{display:grid;grid-template-columns:minmax(0,1fr) 16px minmax(0,1.35fr);gap:12px;align-items:center;padding:14px;margin:8px 0;border:1px solid #dce7f1;border-radius:12px;background:linear-gradient(90deg,#fbfcfe 0%,#fbfcfe 43%,#f3f9fd 100%);}
+.rain-plan-swaps small{display:block;font-size:11px;color:#667e97;}
+.rain-plan-from p{color:#71859a;margin:6px 0 0;font-size:13px;overflow-wrap:anywhere;}
+.rain-plan-arrow{color:#64849e;}
+.rain-plan-to{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.rain-plan-to small{color:#2879a0;}
+.rain-plan-to b{font-size:13px;line-height:1.6;overflow-wrap:anywhere;}
+.rain-plan-to>span{font-size:11px;color:#758da2;overflow-wrap:anywhere;}
+.rain-plan-kept{font-size:11px;color:#8b7654;margin-top:18px;}.rain-plan-kept h3{font-size:12px;color:#8b7654;margin-bottom:6px;}.rain-plan-kept p{margin:0;}
+.rain-plan-warnings{font-size:11px;color:#8b7654;background:#fff9f0;border-radius:9px;padding:12px 14px 12px 29px;}
+.rain-plan-key{display:flex;align-items:center;gap:5px;}.rain-plan-key i{width:7px;height:7px;border-radius:50%;background:#4096ba;}
+.rain-plan-preview li{display:grid;grid-template-columns:43px 12px minmax(0,1fr);gap:10px;align-items:start;position:relative;min-height:80px;}
+.rain-plan-preview time{font-size:11px;line-height:1.5;color:#627b95;text-align:right;padding-top:12px;font-variant-numeric:tabular-nums;}
+.rain-plan-preview time>span{display:block;color:#8297aa;}
+.rain-plan-dot{width:7px;height:7px;border-radius:50%;background:#c1d3e3;margin-top:17px;position:relative;}
+.rain-plan-preview li:not(:last-child)::before{content:'';position:absolute;width:1px;background:#dfe8f1;top:28px;bottom:-12px;left:56px;}
+.rain-plan-preview .rain-plan-stop{display:flex;flex-direction:column;gap:5px;padding:10px 13px 13px;margin-bottom:8px;min-width:0;}
+.rain-plan-preview li.is-swapped .rain-plan-stop{background:#edf7fb;border:1px solid #cbe4f0;border-radius:10px;}
+.rain-plan-preview li.is-swapped .rain-plan-dot{background:#2887ac;box-shadow:0 0 0 4px #e7f3fa;}
+.rain-plan-stop small{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:#667e97;}
+.rain-plan-stop b{font-size:13px;line-height:1.5;overflow-wrap:anywhere;}
+.rain-plan-stop>span{font-size:11px;color:#758da2;overflow-wrap:anywhere;}
+.rain-plan-stop>span.rain-plan-previous{color:#598296;}
+.rain-plan-stop em{font-size:10px;font-weight:700;font-style:normal;background:#d4edf5;color:#297698;padding:2px 6px;border-radius:4px;}
+.rain-plan-dialog>footer{flex:none;padding:15px 26px 19px;border-top:1px solid #dce7f1;background:#fbfdff;}
+.rain-plan-dialog>footer>p{font-size:11px;color:#6c8299;margin:0 0 12px;}
+.rain-plan-dialog>footer>div{display:flex;justify-content:flex-end;gap:8px;}
+.rain-plan-dialog>footer button,.rain-plan-error button{padding:11px 14px;border:1px solid #dce7f1;background:#fff;border-radius:9px;color:#526f8a;font-size:12px;}
+.rain-plan-dialog>footer .rain-plan-apply{background:#1c4869;color:#fff;border-color:#1c4869;font-weight:600;display:flex;gap:12px;align-items:center;}
+.rain-plan-dialog button:disabled{opacity:.5;cursor:default;}.rain-plan-error{color:#b07970;font-size:12px;white-space:pre-line;}
+.rain-plan-dialog button:focus-visible,.weather-strip button:focus-visible{outline:2px solid #3287d8;outline-offset:3px;}
+@media(max-width:600px){.rain-plan-preview li:not(:last-child)::before{left:46px;}.rain-plan-dialog>footer{padding:14px 18px;}.rain-plan-swaps li{gap:8px;padding:11px;}.rain-plan-weather{width:40px;height:40px;}.rain-plan-heading{gap:10px;}}
+
+@media(max-width:1000px){.planner-v2 .app-head{height:auto;min-height:66px;max-height:none;flex:0 0 auto;flex-wrap:wrap;padding-top:10px;padding-bottom:10px;gap:10px;}.planner-v2 .app-head .actions{flex-wrap:wrap;}.weather-strip{max-width:min(530px,60vw);}}
+@media(max-width:600px){.weather-strip{max-width:calc(100vw - 32px);margin-right:0;}.planner-v2 .app-head .actions{width:100%;margin-left:0;}.rain-plan-dialog>header,.rain-plan-body{padding:18px;}.rain-plan-dialog h2{font-size:19px;}.rain-plan-preview li{gap:7px;grid-template-columns:36px 8px minmax(0,1fr);}.rain-plan-preview time{font-size:11px;}}
+
+/* Approved light illustrated weather tiles; footprint remains 48px high inside the 82px header. */
+.weather-chip{flex:0 0 108px;position:relative;display:flex;flex-direction:column;justify-content:space-between;width:108px;height:48px;min-height:0;max-height:48px;border:1px solid #c3dcef;border-radius:7px;overflow:hidden;padding:3px 7px;outline-offset:2px;background-color:#edf6ff;background-size:cover;background-position:center;background-repeat:no-repeat;color:#18375b;}
+.weather-chip-day{position:relative;font-size:8px;line-height:10px;font-weight:600;color:#425e7c;}
+.weather-chip-temperature{position:relative;font-size:11px;line-height:16px;letter-spacing:-.025em;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.weather-chip-temperature>b{font-size:inherit;color:#112e52;font-weight:750;}
+.weather-chip-temperature>span{color:#4c6785;font-weight:500;}
+.weather-chip-meta{position:relative;font-size:8px;line-height:10px;min-height:10px;color:#3d5c7c;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;}
+.weather-chip-sunny{background-color:#fff7e4;border-color:#f1d6a1;background-image:url('/assets/weather-v1/sunny.webp');}
+.weather-chip-partly-cloudy{background-image:url('/assets/weather-v1/partly-cloudy.webp');}
+.weather-chip-cloudy{background-image:url('/assets/weather-v1/cloudy.webp');}
+.weather-chip-fog{background-color:#f0f3f5;border-color:#cbd7e0;background-image:url('/assets/weather-v1/fog.webp');}
+.weather-chip-drizzle{background-image:url('/assets/weather-v1/drizzle.webp');}
+.weather-chip-rain{background-image:url('/assets/weather-v1/rain.webp');}
+.weather-chip-snow{background-image:url('/assets/weather-v1/snow.webp');}
+.weather-chip-thunder{background-color:#f1effc;border-color:#cdc7eb;background-image:url('/assets/weather-v1/thunder.webp');}
+.weather-chip-unknown{background-color:#f0f3f8;border-color:#cbd5e2;background-image:url('/assets/weather-v1/unknown.webp');}
+
+/* Keep the close glyph centered and avoid an automatic outer focus ring on dialog open. */
+.rain-plan-top>button{padding:0;box-sizing:border-box;min-width:30px;min-height:30px;outline:none;box-shadow:none;transform:none;transition:color .15s,background-color .15s;}
+.rain-plan-top>button>svg{display:block;width:16px;height:16px;pointer-events:none;}
+.rain-plan-top>button:hover:not(:disabled),.rain-plan-top>button:active:not(:disabled){background:#eef5fa;border-color:#d2e2ef;color:#476782;box-shadow:none;transform:none;}
+.rain-plan-top>button:focus:not(:focus-visible){outline:none;box-shadow:none;}
+.rain-plan-top>button:focus-visible{outline:2px solid #3287d8;outline-offset:-4px;}
+.rain-plan-dialog #rain-plan-title:focus{outline:none;}
+
+/* Rain alternatives share the cover's date row instead of taking a separate toolbar row. */
+.planner-redesign.itinerary-art.premium-timeline .region-day-cover .day-cover-meta{display:flex;align-items:center;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;margin:8px 0 0;line-height:1.5;}
+.day-cover-meta>span{flex:0 1 auto;}
+.planner-redesign.itinerary-art.premium-timeline .region-day-cover .day-rain-action{display:inline-flex;align-items:center;justify-content:center;flex:none;max-width:100%;padding:5px 9px;min-height:28px;border:1px solid #cbe1f080;border-radius:7px;background:#143751e6;color:#fff;font-size:10px;line-height:1.5;white-space:normal;box-shadow:none;}
+.planner-redesign.itinerary-art.premium-timeline .region-day-cover .day-rain-action:hover:not(:disabled){background:#204e70;border-color:#cbe1f0;}
+.day-rain-action:focus-visible{outline:2px solid #9bd8ff;outline-offset:3px;}
+.day-rain-action:disabled{opacity:.5;cursor:default;}
+
+/* Attribution lives beside the planner tabs, outside the weather tile layout. */
+.planner-v2>.planner-tools{height:auto;min-height:46px;flex-wrap:wrap;gap:0 16px;}
+.planner-tool-tabs{display:flex;align-items:stretch;gap:2px;height:46px;max-width:100%;min-width:0;overflow-x:auto;flex:0 1 auto;}
+.planner-tool-tabs>button{flex:none;}
+.planner-weather-credit{margin-left:auto;padding:8px 0;flex:0 0 auto;max-width:100%;font-size:10px;line-height:1.5;color:#afc1d3;overflow-wrap:anywhere;text-align:right;}
+@media(max-width:1100px){.planner-v2>.planner-tools{overflow:visible;}.planner-tool-tabs{flex:1 1 100%;}.planner-weather-credit{padding:3px 0 6px;}}

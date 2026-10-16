@@ -37,7 +37,7 @@ function ItineraryArt({ name, className = "" }) {
  * - onOpenDetail(stop): "상세 보기"를 눌렀을 때
  * 서버가 계산한 값을 그대로 보여주기만 한다 (시각, 이동, 여유 시간, 빠진 장소, 안내)
  */
-export default function DayTimeline({ day, accommodation, onOpenDetail, selectedOrder = null, onSelectStop, readOnly = false, busy = false, onReorder, onAdd }) {
+export default function DayTimeline({ day, accommodation, onOpenDetail, selectedOrder = null, onSelectStop, readOnly = false, busy = false, onReorder, onAdd, weatherDay, onRainPlan }) {
   const dragIndex = useRef(null);
   const [dragging, setDragging] = useState(null);
   const canEdit = !readOnly && !busy;
@@ -63,9 +63,10 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
         )}
         <div>
           <h2>DAY {day.dayNumber} · {dayZonesLabel(day)}</h2>
-          <p>{formatLongDate(day.date)}</p>
+          <p className="day-cover-meta"><span>{formatLongDate(day.date)}</span>{weatherDay?.suggestRainPlan && <button className="day-rain-action" type="button" disabled={readOnly || busy} onClick={onRainPlan}>☔ 비 오는 날 대안 보기</button>}</p>
         </div>
       </div>
+
 
       {day.description && <header className="timeline-head"><p>{day.description}</p></header>}
       </div>

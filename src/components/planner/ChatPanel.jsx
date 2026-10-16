@@ -5,9 +5,11 @@ import "../../styles/apiAdditions.css";
 import PlaceArtwork from "./PlaceArtwork";
 import { chatOptions, chatMessageTime } from "../../utils/chatPresentation";
 
+import { shouldGenerateFromChat } from "../../utils/chatGeneration";
+
 const MAX_LENGTH = 1000;
 const QUICK_GATHERING = ["음식은 아무거나 괜찮아요", "조용한 곳이 좋아요", "도착·출발 시각은 아직 몰라요"];
-const QUICK_READY = ["네, 일정 만들어주세요", "조금 더 이야기할게요"];
+
 
 export default function ChatPanel({ tripId, initialPrompt, initialReady, tripStatus, disabled = false, readOnly = false,
   isOpen = true, onTurn, onGenerate, onSendStart, onSendEnd, refreshVersion = 0 }) {
@@ -18,7 +20,6 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
   const [historyReady, setHistoryReady] = useState(false);
   const [error, setError] = useState("");
   const [ready, setReady] = useState(initialReady);
-  const [wantsGeneration, setWantsGeneration] = useState(false);
   const [replyState, setReplyState] = useState(null);
   const [retry, setRetry] = useState(0);
   const bottomRef = useRef(null);
@@ -27,7 +28,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
   const loadedRef = useRef(false);
   const editMode = replyState?.mode === "EDIT" || ["AWAITING_CONFIRMATION", "GENERATED", "EDITING"].includes(tripStatus);
 
-  const send = async (text, generateAfter = false) => {
+  const send = async (text) => {
     const content = text.trim();
     if (!content || content.length > MAX_LENGTH || sendingRef.current || disabled || readOnly || !loadedRef.current) return;
     if (onSendStart?.() === false) return;
@@ -42,10 +43,9 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
       const reply = await sendChatMessage(tripId, content);
       setMessages((previous) => [...previous.filter((message) => message.id !== tempId), reply.userMessage, reply.assistantMessage].filter(Boolean));
       setReady(reply.readyToGenerate);
-      setWantsGeneration(reply.userWantsGeneration);
       setReplyState(reply);
       onTurn?.(reply);
-      shouldGenerate = generateAfter && reply.mode !== "EDIT" && reply.userWantsGeneration === true;
+      shouldGenerate = shouldGenerateFromChat(reply, tripStatus);
     } catch (err) {
       setMessages((previous) => previous.filter((message) => message.id !== tempId));
       setDraft(content);
@@ -97,7 +97,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
   const choices = confirmationReplies(replyState);
   const lastAssistant = messages.findLast((message) => message.role === 'ASSISTANT');
   const options = choices.length ? chatOptions(replyState?.assistantMessage?.content) : [];
-  const quickReplies = editMode ? [] : ready ? QUICK_READY : QUICK_GATHERING;
+  const quickReplies = editMode ? [] : QUICK_GATHERING;
   const aiAvatar = <span className="premium-ai-avatar" aria-hidden="true"><img src="/assets/ui-v2/ai-spark.svg" alt="" /></span>;
   return <aside className="chat premium-chat">
     <header>
@@ -130,7 +130,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
         </div></div>;
       })}
       {sending && <div className="ai-msg">{aiAvatar}<div className="premium-ai-content"><div className="chat-author">Tabi AI</div><div className="chat-answer chat-working" role="status"><span className="chat-working-dots" aria-hidden="true"><i /><i /><i /></span><p>{editMode ? '일정을 확인하고 있어요' : '답변을 준비하고 있어요'}</p></div></div></div>}
-      {(wantsGeneration || ready) && !editMode && !readOnly && <div className="ai-msg">{aiAvatar}<div className="premium-ai-content"><div className="chat-author">Tabi AI</div><div className="chat-generation-card"><img src="/assets/ui-v2/generate.svg" alt="" /><b>여행 준비가 끝났어요</b><p>이야기한 취향으로 일정을 만들어볼까요?</p><button type="button" disabled={blocked} onClick={() => send('네, 일정 만들어주세요', true)}>이 취향으로 일정 만들기 <span aria-hidden="true">→</span></button><small>더 이야기하고 싶다면 계속 입력해주세요.</small></div></div></div>}
+      {ready && !editMode && !readOnly && !sending && <div className="premium-chat-note">취향을 더 알려주거나, “일정 만들어줘”라고 말씀해주세요.</div>}
       {readOnly && <div className="premium-chat-note">현재 일정으로 돌아온 뒤 수정 요청을 보내주세요.</div>}
       {error && <div className="premium-chat-note chat-error" role="alert">{error}{!historyReady && <button type="button" onClick={() => setRetry((value) => value + 1)}>다시 불러오기</button>}</div>}
       <div ref={bottomRef} />

@@ -1,0 +1,36 @@
+.budget-cost-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;}
+.budget-cost-cards.has-transport{grid-template-columns:repeat(2,minmax(0,1fr));}
+.planner-v2 .budget-cost-cards.has-transport .budget-overview{padding:17px;min-width:0;}
+.planner-v2 .budget-cost-cards.has-transport .budget-total{font-size:clamp(19px,4cqi,28px);line-height:1.5;}
+.budget-cost-cards.has-transport .budget-overview-top{flex-wrap:wrap;gap:7px;}
+.budget-cost-cards .budget-overview-meta{flex-wrap:wrap;gap:8px 12px;}
+.budget-transport-card .budget-overview-top>svg{width:17px;height:17px;color:#7996b1;}
+.planner-v2 .budget-panel .budget-transport-card{background:#f6f9fd;}
+.budget-rental-note{font-size:10px;color:#9b7d54;line-height:1.8;margin:9px 0 0;}
+.budget-combined{border:1px solid #d3e2f1;border-radius:13px;padding:19px 20px;background:linear-gradient(125deg,#edf5ff,#f8fbff);display:flex;align-items:center;justify-content:space-between;gap:10px 15px;flex-wrap:wrap;}
+.budget-combined h2{font-size:13px;margin:0 0 6px;color:#365b80;}
+.budget-combined>div>span{font-size:10px;color:#8399b1;}
+.planner-v2 .budget-panel .budget-combined>strong{background:none;border:0;padding:0;margin:0;color:#1c466f;font-size:clamp(20px,4.7cqi,30px);letter-spacing:-.04em;line-height:1.6;overflow-wrap:anywhere;}
+.budget-combined>p{flex-basis:100%;font-size:10px;line-height:1.8;color:#8a9eb4;margin:3px 0 0;}
+.budget-transport-details{display:flex;flex-direction:column;gap:11px;}
+.budget-transport-details .budget-section-title{margin-bottom:0;}
+.budget-transport-box{padding:16px;border:1px solid #e1e9f2;border-radius:12px;background:#fff;min-width:0;}
+.budget-transport-box h3,.budget-transport-details>.budget-explanation h3{font-size:12px;color:#3d5e7e;margin:0 0 12px;}
+.budget-transport-box h3>span{font-size:10px;font-weight:400;color:#91a3b6;margin-left:7px;}
+.budget-transport-line{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:9px;font-size:11px;line-height:1.8;}
+.budget-transport-line>span{color:#889bb0;overflow-wrap:anywhere;}
+.budget-transport-line>b{color:#597591;font-size:11px;font-weight:500;flex:none;}
+.budget-transport-line.is-final{border-top:1px solid #ecf1f6;padding-top:11px;margin-top:12px;}
+.budget-transport-line.is-final>b{font-weight:700;color:#375d81;}
+.budget-pass-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;}
+.budget-pass-badges>span{background:#eaf6f1;color:#468976;font-size:10px;line-height:1.8;padding:5px 9px;border-radius:7px;}
+.budget-pass-savings{font-size:10px;color:#468976;line-height:1.8;}
+.budget-airport-leg+.budget-airport-leg{border-top:1px solid #edf1f6;margin-top:12px;padding-top:12px;}
+.budget-airport-leg h4{font-size:11px;margin:0;color:#6682a0;}
+.budget-transport-days>summary{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:12px;color:#4e6f90;}
+.budget-transport-days>summary small{font-size:9px;color:#94a5b7;margin-left:auto;}
+.budget-transport-days>summary>span{color:#91a4b8;}
+.budget-transport-days>ul{list-style:none;padding:0;margin:12px 0 0;}
+.budget-transport-days li{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #edf1f6;padding:12px 0;font-size:11px;color:#5a7896;}
+.budget-transport-days li small{display:block;font-size:9px;color:#96a7b9;margin-top:5px;}
+@container budget-panel (max-width:380px){.budget-cost-cards.has-transport{grid-template-columns:minmax(0,1fr);}.budget-transport-line{flex-wrap:wrap;}.budget-transport-days>summary{flex-wrap:wrap;}}

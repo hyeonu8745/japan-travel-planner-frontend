@@ -1,3 +1,10 @@
+import useTripWeather from "../hooks/useTripWeather";
+import WeatherStrip from "../components/planner/WeatherStrip";
+import WeatherIcon from "../components/planner/WeatherIcon";
+import RainPlanDialog from "../components/planner/RainPlanDialog";
+import { applyRainPlan } from "../api/weather";
+import { weatherForDay } from "../utils/weatherPresentation";
+import "../styles/weatherRain.css";
 import { confirmItinerary, allowRestaurantAgain } from "../api/itineraryExtras";
 import { HAS_ITINERARY, STATUS_LABELS, statusAfterEdit } from "../utils/tripStatus";
 import useTripExtras from "../hooks/useTripExtras";
@@ -61,7 +68,6 @@ export default function PlannerPage() {
   const [timelineSelection, setTimelineSelection] = useState(null);
   const [generation, setGeneration] = useState({ status: "idle", error: null });
   const [attempt, setAttempt] = useState(0);
-  const [wantsGeneration, setWantsGeneration] = useState(false);
   const [busy, setBusy] = useState(false);
   const [extrasRevision, setExtrasRevision] = useState(0);
   const [confirming, setConfirming] = useState(false);
@@ -74,6 +80,8 @@ export default function PlannerPage() {
   const [history, setHistory] = useState({ open: false, loading: false, versions: [], error: "" });
   const [previewItinerary, setPreviewItinerary] = useState(null);
   const [restoringVersion, setRestoringVersion] = useState(null);
+  const [rainDay, setRainDay] = useState(null);
+  const weather = useTripWeather(tripId, `${trip?.startDate}:${trip?.endDate}`, !!trip);
   const [conditions, setConditions] = useState(null);
   const [initialPrompt] = useState(() => location.state?.initialPrompt);
   const extras = useTripExtras(tripId, `${itinerary?.version}:${extrasRevision}`, itinerary != null);
@@ -171,7 +179,6 @@ export default function PlannerPage() {
 
   const handleTurn = (reply) => {
     setTrip((previous) => ({ ...previous, status: reply.tripStatus }));
-    setWantsGeneration(reply.userWantsGeneration);
     if (reply.itinerary != null) {
       applyItinerary(reply.itinerary);
       setPanel("plan");
@@ -385,12 +392,29 @@ export default function PlannerPage() {
     finally { setAllowingRestaurant(null); releaseMutation(); }
   };
 
+  const canOpenRainPlan = number => !busy && !previewItinerary && itinerary?.days.some(day=>day.dayNumber===number);
+  const openRainPlan = number => { if(canOpenRainPlan(number))setRainDay(number); };
+  const handleRainApply = async (number, version) => {
+    if(previewItinerary || !acquireMutation()) throw new Error('다른 작업이 끝난 뒤 다시 시도해주세요.');
+    try {
+      const updated = await applyRainPlan(tripId,number,version);
+      applyItinerary(updated);
+      setTrip(previous=>({...previous,status:statusAfterEdit(previous.status)}));
+      setPanel('plan');setDayNumber(number);setHistory(previous=>({...previous,open:false}));
+      if(number!==dayNumber){setSelectedOrder(null);setTimelineSelection(null);}
+      setNotice('비 오는 날 대안을 일정에 반영했어요.');setRainDay(null);
+    } catch(err) {
+      await handleApiError(err);
+      if(err.status===409)setRainDay(null);
+      throw err;
+    } finally { releaseMutation(); }
+  };
+
   if (error) return <main style={{ padding: 40 }}><p>{error}</p><Link to="/trips">내 여행으로</Link></main>;
   if (!trip || !preference) return <main style={{ padding: 40 }}><p>불러오는 중...</p></main>;
 
   const days = tripDays(trip);
   const hasItinerary = itinerary != null;
-  const canGenerate = trip.status === "READY_TO_GENERATE" || wantsGeneration;
   const showTimeline = currentDay && panel === "plan";
   const openDetail = (order) => {
     if (busy) return;
@@ -404,28 +428,31 @@ export default function PlannerPage() {
         <Brand />
         <div className="trip"><b>{trip.title}</b><span>{days[0]} — {days[days.length - 1]} · {STATUS_LABELS[trip.status]}</span></div>
         <div className="actions">
+          <WeatherStrip weather={weather} onRainPlan={openRainPlan} canOpenRainPlan={canOpenRainPlan}/>
           <Link to="/trips">내 여행</Link>
-          {(hasItinerary || trip.status === "READY_TO_GENERATE") && <button className="planner-generate" type="button" disabled={busy || !!previewItinerary} onClick={handleRegenerate}>일정 다시 만들기</button>}
-          {!hasItinerary && trip.status !== "READY_TO_GENERATE" && <button className="finish planner-generate" type="button" disabled={!canGenerate || busy || !!previewItinerary} onClick={startGeneration}>일정 만들기</button>}
+          {hasItinerary && <button className="planner-generate" type="button" disabled={busy || !!previewItinerary} onClick={handleRegenerate}>일정 다시 만들기</button>}
           {hasItinerary && !previewItinerary && <Link to={`/trips/${tripId}/poster`}>포스터 만들기</Link>}
           <i>{user?.nickname?.charAt(0) ?? "?"}</i>
         </div>
       </header>
       <nav className="planner-tools">
+        <div className="planner-tool-tabs">
         <button type="button" className={panel === "plan" ? "active" : ""} onClick={() => setPanel("plan")}>일정</button>
-        <button type="button" className={panel === "budget" ? "active" : ""} disabled={busy || !hasItinerary || !!previewItinerary} onClick={() => { closeCandidates(); setHistory((previous) => ({ ...previous, open: false })); setPanel("budget"); }}>식비</button>
+        <button type="button" className={panel === "budget" ? "active" : ""} disabled={busy || !hasItinerary || !!previewItinerary} onClick={() => { closeCandidates(); setHistory((previous) => ({ ...previous, open: false })); setPanel("budget"); }}>식비·교통비</button>
         <button type="button" className={panel === "taste" ? "active" : ""} onClick={() => setPanel("taste")}>파악한 취향</button>
         <button type="button" aria-expanded={!hasItinerary || chatOpen} disabled={!hasItinerary} onClick={() => setChatOpen((open) => !open)}>AI 대화</button>
         <button type="button" disabled={busy || !!previewItinerary} onClick={openConditions}>여행 조건</button>
         <button type="button" disabled={busy} onClick={openHistory}>변경 이력</button>
         <button type="button" disabled={busy || !hasItinerary || !!previewItinerary} className={panel === "excluded" ? "active" : ""} onClick={() => { closeCandidates(); setHistory((previous) => ({ ...previous, open: false })); setPanel("excluded"); }}>다시 추천하지 않는 식당{extras.excluded ? ` ${extras.excluded.length}곳` : ""}</button>
         <button type="button" className="danger-action" disabled={busy || !!previewItinerary} onClick={handleDeleteTrip}>여행 삭제</button>
+        </div>
+        {weather.data?.attribution && <small className="planner-weather-credit" title={weather.data.attribution}>{weather.data.attribution}</small>}
       </nav>
       {trip.status === "AWAITING_CONFIRMATION" && !previewItinerary && <section className="planner-ready-notice" aria-label="일정 완성 확인"><div><b>일정이 준비됐어요</b><p>먼저 확인하고 마음에 들면 완성을 눌러주세요. 지금도 채팅과 버튼으로 수정할 수 있어요.</p></div><button type="button" disabled={busy || !hasItinerary} onClick={handleConfirm}>{confirming ? "확인 중…" : "완성"}</button></section>}
       {notice && <div className="planner-notice notice-yellow" role="status">{notice}<button type="button" onClick={() => setNotice("")} aria-label="안내 닫기">×</button></div>}
       {previewItinerary && <div className="history-preview-notice planner-preview"><b>v{previewVersion} 과거 버전 · 읽기 전용</b><button type="button" onClick={handleBackToLatest}>최신 일정으로 돌아가기</button></div>}
       <nav className="days">
-        {displayedItinerary ? displayedItinerary.days.map((day) => <button key={day.dayNumber} type="button" disabled={busy} className={day.dayNumber === currentDay?.dayNumber ? "active" : ""} onClick={() => selectDay(day.dayNumber)}>DAY {day.dayNumber}<span>{dayZonesLabel(day)}</span></button>)
+        {displayedItinerary ? displayedItinerary.days.map((day) => <button key={day.dayNumber} type="button" disabled={busy} className={day.dayNumber === currentDay?.dayNumber ? "active" : ""} onClick={() => selectDay(day.dayNumber)}>DAY {day.dayNumber}<WeatherIcon condition={weatherForDay(weather.data,day)?.condition}/><span>{dayZonesLabel(day)}</span></button>)
           : days.map((label, index) => <button key={label} type="button" disabled>DAY {index + 1}<span>{label}</span></button>)}
       </nav>
       <main className={`workspace planner-map-layout${!hasItinerary || chatOpen ? " has-chat" : ""}${showTimeline && selectedStop && !candidates.kind ? " has-place-detail" : ""}`}>
@@ -449,6 +476,7 @@ export default function PlannerPage() {
             onReplaceAlternative={(id) => handleCandidate(id, true)} replacingId={replacingId}
             onOpenAttractionCandidates={() => openCandidates("attraction")}
           /> : <DayTimeline key={`${currentDay.dayNumber}-${displayedItinerary.version}`} day={currentDay}
+            weatherDay={weatherForDay(weather.data,currentDay)} onRainPlan={()=>openRainPlan(currentDay.dayNumber)}
             accommodation={displayedItinerary.accommodation} onOpenDetail={(stop) => openDetail(stop.order)}
             selectedOrder={mapSelectedOrder} onSelectStop={(stop) => setTimelineSelection({ dayNumber: currentDay.dayNumber, order: stop.order })}
             readOnly={!!previewItinerary || trip.status === "READY_TO_GENERATE"} busy={busy} onReorder={handleReorder} onAdd={(position) => openCandidates("add", position)}
@@ -462,6 +490,7 @@ export default function PlannerPage() {
           onTurn={handleTurn} onGenerate={startGeneration} />
         </div>
       </main>
+      {rainDay != null && <RainPlanDialog key={`${tripId}:${rainDay}:${itinerary?.version}`} tripId={tripId} dayNumber={rainDay} onClose={()=>setRainDay(null)} onApply={handleRainApply}/>}
       {conditions && <div className="conditions-backdrop" onClick={(event) => { if (event.target === event.currentTarget && !busy) setConditions(null); }}>
         <section className="conditions-editor setup-card profile-editor" role="dialog" aria-modal="true" aria-labelledby="conditions-title">
           <header><div><small>TRIP PROFILE</small><h2 id="conditions-title">여행 조건 수정</h2><p>여행의 기본 정보를 조정하세요.</p></div><PanelIcon name="luggage" className="profile-header-art"/><button type="button" disabled={busy} onClick={() => setConditions(null)} aria-label="여행 조건 닫기">×</button></header>
