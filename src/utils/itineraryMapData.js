@@ -2,7 +2,7 @@ import { MODE_LABELS, hhmm, directionsUrl } from "./itineraryFormat";
 
 import { displayName } from "./itineraryPresentation";
 
-export const MAP_COLORS = { HOTEL: "#287365", ATTRACTION: "#07182d", LUNCH: "#27a9dc", DINNER: "#7560a8" };
+export const MAP_COLORS = { HOTEL: "#287365", ATTRACTION: "#07182d", LUNCH: "#27a9dc", DINNER: "#7560a8", CAFE: "#a87848" };
 
 function position(point) {
   if (point?.lat == null || point?.lng == null || point.lat === "" || point.lng === "") return null;

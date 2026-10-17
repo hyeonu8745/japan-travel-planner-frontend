@@ -14,3 +14,13 @@
 .timeline-airport-transfer>div>span{overflow-wrap:anywhere;}
 .timeline-airport-dot{position:absolute;left:64px;top:17px;width:6px;height:6px;background:#c5d0dd;border:2px solid #fff;border-radius:50%;box-sizing:content-box;}
 @media(max-width:450px){.trip-flight-grid{gap:12px;}.conditions-form .trip-flight-pair input,.conditions-form .trip-flight-pair select{padding:9px 6px;}.planner-v2 .premium-timeline .timeline-airport-transfer{grid-template-columns:48px minmax(0,1fr);gap:12px;}.timeline-airport-dot{left:44px;}}
+
+/* Explicit interest layout in both setup and planner forms; avoid nested fieldset defaults. */
+.conditions-form fieldset.trip-interest-options{min-width:0;width:100%;border:0;padding:0;margin:18px 0;display:block;}
+.conditions-form .trip-interest-options>legend{position:static;clip-path:none;width:100%;height:auto;overflow:visible;padding:0;margin:0 0 10px;color:#45617e;font-size:12px;font-weight:600;line-height:1.6;}
+.conditions-form .trip-interest-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.conditions-form .trip-interest-list>label{display:flex;align-items:center;justify-content:center;gap:7px;min-height:39px;margin:0;padding:9px 10px;border:1px solid #d6e2ef;border-radius:8px;background:#fff;color:#5b7390;font-size:12px;line-height:1.5;cursor:pointer;}
+.conditions-form .trip-interest-list>label:has(input:checked){border-color:#9cc6ee;background:#edf5ff;color:#1866b4;}
+.conditions-form .trip-interest-list input[type=checkbox]{appearance:auto;width:14px;height:14px;min-height:0;flex:none;margin:0;padding:0;accent-color:#217ddb;}
+.conditions-form .trip-interest-list input:focus-visible{outline:2px solid #2383de;outline-offset:3px;}
+@media(max-width:480px){.conditions-form .trip-interest-list{grid-template-columns:repeat(2,minmax(0,1fr));}.trip-flight-grid{grid-template-columns:1fr;}.conditions-form .trip-flight-pair input{font-size:16px;}}

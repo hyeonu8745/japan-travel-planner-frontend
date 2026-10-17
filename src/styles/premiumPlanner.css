@@ -125,3 +125,25 @@
 .planner-redesign.itinerary-art.premium-timeline .timeline-stop-actions>button span { display:block;line-height:1;margin:0;font-size:18px; }
 .planner-v2 .premium-chat .chat-answer { width:fit-content;max-width:100%;box-sizing:border-box; }
 .planner-v2 .premium-chat .chat-answer:has(.chat-option-list) { width:100%; }
+
+/* Keep day-level notes available without pushing the itinerary below multiple banners. */
+.premium-timeline .timeline-day-notes{margin:0 0 14px;border:1px solid #eee1c7;border-radius:8px;background:#fffcf5;color:#6e6047;}
+.premium-timeline .timeline-day-notes>summary{display:flex;align-items:center;gap:9px;list-style:none;cursor:pointer;padding:9px 12px;min-height:36px;line-height:1.5;}
+.timeline-day-notes>summary::-webkit-details-marker{display:none;}
+.timeline-day-notes .timeline-notes-title{font-size:11px;font-weight:600;flex:none;color:#725d36;}
+.timeline-day-notes .timeline-notes-count{font-size:10px;color:#8c7c60;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.timeline-day-notes .timeline-notes-toggle{width:6px;height:6px;flex:none;border-right:1.5px solid #8c7c60;border-bottom:1.5px solid #8c7c60;transform:rotate(45deg);margin:0 2px 3px 0;}
+.timeline-day-notes[open] .timeline-notes-toggle{transform:rotate(225deg);margin-top:5px;}
+.timeline-day-notes>summary:focus-visible{outline:2px solid #3287d8;outline-offset:2px;border-radius:7px;}
+.premium-timeline .timeline-notes-content{padding:0 13px 12px;font-size:11px;line-height:1.8;overflow-wrap:anywhere;}
+.premium-timeline .timeline-notes-content>section{padding-top:9px;border-top:1px solid #efe7d7;}
+.premium-timeline .timeline-notes-content h3{font-size:11px;color:#725d36;margin:0 0 4px;}
+.premium-timeline .timeline-notes-content ul{margin:0 0 9px;padding-left:17px;}
+.premium-timeline .timeline-notes-transit{margin:0;padding-top:9px;border-top:1px solid #efe7d7;color:#6e7d8d;}
+
+.premium-timeline .type-cafe .timeline-place-kind{color:#966c3f;}
+.planner-redesign.itinerary-art.premium-timeline .timeline-stop-number.cafe{background:#966c3f;}
+.premium-timeline .type-cafe .stop-reasons li.is-emphasis{color:#906634;background:#fbf1e4;}
+.premium-timeline .timeline-cafe-budget{display:block;color:#8b714f;font-size:10px;margin-top:4px;}
+.detail-place-heading .detail-cafe-budget{color:#8b714f;font-size:12px;margin:8px 0;}
+.google-map-legend .cafe::before{background:#a87848;}

@@ -1,3 +1,4 @@
+import { STOP_KIND_LABELS, cafeBudgetLabel } from '../../utils/stopPresentation';
 import { useState } from "react";
 import { useToast } from "../toastContext";
 import AttractionDetails from "./AttractionDetails";
@@ -13,7 +14,7 @@ import {
 
 import { displayName, restaurantGenres } from "../../utils/itineraryPresentation";
 
-const KIND_LABELS = { ATTRACTION: "관광지", LUNCH: "점심", DINNER: "저녁" };
+const KIND_LABELS = STOP_KIND_LABELS;
 
 /**
  * 장소 상세 (가운데 칸). 타임라인에서 "상세 보기"를 누르면 열린다.
@@ -167,13 +168,14 @@ export default function PlaceDetail({
       {address && <p className="detail-address"><DetailArt name="pin" />{address}</p>}
       <p className="detail-category">{category}</p>
       <StopReasons reasons={stop.reasons} />
+      {stop.type === "CAFE" && <p className="detail-cafe-budget">{cafeBudgetLabel(place)}</p>}
     </div>;
   };
   return (
     <section className="detail place-detail-v3 planner-redesign detail-art">
       <header className="place-detail-navigation">
         <button type="button" className="back-to-day" onClick={onBack}>← 하루 일정으로</button>
-        <div className="place-detail-category"><DetailArt name={isMeal ? "food" : "pin"} /><b>{category}</b>
+        <div className="place-detail-category"><DetailArt name={stop.type === "CAFE" ? "coffee" : isMeal ? "food" : "pin"} /><b>{category}</b>
         <span className="place-kind">{KIND_LABELS[stop.type]} · {hhmm(stop.arrival)} 방문</span>
         </div>
       </header>

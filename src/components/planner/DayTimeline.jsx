@@ -1,4 +1,5 @@
 import { Fragment, useRef, useState } from "react";
+import { stopKindLabel, cafeBudgetLabel } from '../../utils/stopPresentation';
 import StopReasons from "./StopReasons";
 import PlaceArtwork from "./PlaceArtwork";
 import { dayHeaderArtwork } from "../../utils/placeArtwork";
@@ -21,7 +22,7 @@ import "../../styles/airportTransfers.css";
 
 const ART_ROOT = "/assets/ui-v2";
 function TransferRows({ day, position }) {
-  return dayTransfers(day, position).map((transfer, index) => <li className="timeline-airport-transfer" key={`${position}:${index}`}><time>{transfer.time || ''}</time><span className="timeline-airport-dot" aria-hidden="true"/><div><PanelIcon name={transfer.kind === 'HOTEL_DROP' || transfer.kind === 'HOTEL_PICKUP' ? 'luggage' : transfer.kind === 'CHECKOUT' ? 'bed' : 'clock'}/><span>{transfer.label}</span></div></li>);
+  return dayTransfers(day, position).map((transfer, index) => <li className="timeline-airport-transfer" key={`${position}:${index}`}><time>{transfer.time?.slice(0,5) || ''}</time><span className="timeline-airport-dot" aria-hidden="true"/><div><PanelIcon name={transfer.kind === 'HOTEL_DROP' || transfer.kind === 'HOTEL_PICKUP' ? 'luggage' : transfer.kind === 'CHECKOUT' ? 'bed' : 'clock'}/><span>{transfer.label}</span></div></li>);
 }
 
 const MOVE_ART = { WALK: "walk", TRANSIT: "transit", DRIVE: "drive" };
@@ -72,28 +73,14 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
       </div>
 
       <div className="timeline-scroll" role="region" aria-label={`DAY ${day.dayNumber} 일정`} tabIndex={0}>
-      {day.warnings?.length > 0 && <div className="notice-yellow" role="status">
-        <b>⚠ 일정 안내</b>
-        <ul>{day.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>
-      </div>}
-      {day.dropped.length > 0 && (
-        <div className="notice-yellow">
-          <b>시간이 맞지 않아 일정에서 뺀 곳</b>
-          <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
-            {day.dropped.map((d) => (
-              <li key={d.name}>
-                {displayName(d)} · {d.reasonLabel}
-              </li>
-            ))}
-          </ul>
+      {(day.warnings?.length > 0 || day.dropped?.length > 0 || hasTransit) && <details className="timeline-day-notes">
+        <summary><span className="timeline-notes-title">⚠ 일정 참고사항</span><span className="timeline-notes-count">{[day.warnings?.length > 0 && `안내 ${day.warnings.length}건`,day.dropped?.length > 0 && `제외 ${day.dropped.length}곳`,hasTransit && '교통 참고'].filter(Boolean).join(' · ')}</span><span className="timeline-notes-toggle" aria-hidden="true"/></summary>
+        <div className="timeline-notes-content">
+          {day.warnings?.length > 0 && <section><h3>일정 안내</h3><ul>{day.warnings.map((warning,index)=><li key={index}>{warning}</li>)}</ul></section>}
+          {day.dropped?.length > 0 && <section><h3>시간이 맞지 않아 일정에서 뺀 곳</h3><ul>{day.dropped.map((place,index)=><li key={`${place.name}:${index}`}>{displayName(place)} · {place.reasonLabel}</li>)}</ul></section>}
+          {hasTransit && <p className="timeline-notes-transit">대중교통 시간은 예상치예요. 실제 경로는 ‘길찾기’에서 확인하세요.</p>}
         </div>
-      )}
-      {hasTransit && (
-        <div className="notice-gray">
-          대중교통 시간은 예상치예요. 실제 경로는 &lsquo;길찾기&rsquo;에서
-          확인하세요.
-        </div>
-      )}
+      </details>}
 
       <ol className="timeline-list">
         <TransferRows day={day} position="BEFORE"/>
@@ -176,9 +163,9 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
               <div className="timeline-stop-surface">
               <div className="timeline-stop-main">
                 <PlaceArtwork place={{ ...(stop.type === "ATTRACTION" ? stop.attraction : stop.restaurant), name: stop.name, nameKo: stop.nameKo }} type={stop.type} className="timeline-place-art" />
-                <span className="timeline-place-kind">{stop.type === "ATTRACTION" ? "관광지" : stop.type === "LUNCH" ? "점심" : "저녁"}</span>
+                <span className="timeline-place-kind">{stopKindLabel(stop.type)}</span>
                 <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{String(stop.order).padStart(2, "0")}</span><span className="timeline-name-stack"><strong>{displayName(stop)}</strong>{stop.nameKo && <small>{stop.name}</small>}</span></button></h3>
-                <p>{stopSubtitle(stop)}</p>
+                <p>{stopSubtitle(stop)}{stop.type === "CAFE" && <span className="timeline-cafe-budget">{cafeBudgetLabel(stop.restaurant)}</span>}</p>
                 <StopReasons reasons={stop.reasons} />
                 {stop.warnings?.length > 0 && <ul className="timeline-stop-warnings">{stop.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
               </div>

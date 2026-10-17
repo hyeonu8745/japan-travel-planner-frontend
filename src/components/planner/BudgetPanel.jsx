@@ -1,3 +1,4 @@
+import { stopKindLabel } from '../../utils/stopPresentation';
 import { TransportBudgetCard, TransportBudgetDetails } from './TransportBudget';
 import '../../styles/transportBudget.css';
 import PanelIcon from './PanelIcon';
@@ -35,7 +36,7 @@ export default function BudgetPanel({ budget, loading, error, onRetry, itinerary
             <ul>{day.meals?.map((meal,mealIndex) => {
               const stop = mealStop(itinerary,day.dayNumber,meal);
               const price = meal.budgetText && meal.budgetText !== '-' ? meal.budgetText : '예산 정보 없음';
-              return <li className="budget-meal" key={`${meal.type}-${mealIndex}`}><span className="budget-meal-art"><PlaceArtwork type={meal.type} place={{...stop?.restaurant,...meal}}/></span><div className="budget-meal-copy"><small>{meal.type === 'LUNCH' ? '점심' : meal.type === 'DINNER' ? '저녁' : meal.type}</small><b>{meal.nameKo || meal.name}</b>{meal.nameKo && <span>{meal.name}</span>}<p>{price}<em>1인 기준</em></p></div>{stop && <button type="button" disabled={busy} onClick={()=>onOpenMeal(day.dayNumber,stop.order)} aria-label={`${meal.nameKo || meal.name} 상세 보기`}>상세 <span aria-hidden="true">↗</span></button>}</li>;
+              return <li className="budget-meal" key={`${meal.type}-${mealIndex}`}><span className="budget-meal-art"><PlaceArtwork type={meal.type} place={{...stop?.restaurant,...meal}}/></span><div className="budget-meal-copy"><small>{stopKindLabel(meal.type)}</small><b>{meal.nameKo || meal.name}</b>{meal.nameKo && <span>{meal.name}</span>}<p>{price}<em>1인 기준</em></p></div>{stop && <button type="button" disabled={busy} onClick={()=>onOpenMeal(day.dayNumber,stop.order)} aria-label={`${meal.nameKo || meal.name} 상세 보기`}>상세 <span aria-hidden="true">↗</span></button>}</li>;
             })}</ul>
           </details>)}</div>
         </section>

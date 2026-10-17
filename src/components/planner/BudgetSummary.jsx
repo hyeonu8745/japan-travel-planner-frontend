@@ -1,3 +1,4 @@
+import { stopKindLabel } from '../../utils/stopPresentation';
 import { VERDICT_LABELS, exchangeRateText, krwRange } from '../../utils/budgetPresentation';
 
 export default function BudgetSummary({ budget, loading, error, onRetry, itinerary }) {
@@ -15,7 +16,7 @@ export default function BudgetSummary({ budget, loading, error, onRetry, itinera
     {['MAYBE_OVER', 'OVER'].includes(budget.verdict) && <p className="food-budget-unknown">비싼 식당을 바꾸려면 식당을 눌러 [다른 식당으로 바꾸기]를 선택해주세요.</p>}
     <details className="food-budget-days"><summary>날짜별 식비 보기</summary>{budget.days?.map((day) => <details key={day.dayNumber}>
       <summary>DAY {day.dayNumber} · {day.date}<b>{krwRange(day.minKrw, day.maxKrw)} <small>일행 전체</small></b></summary>
-      <ul>{day.meals?.map((meal, index) => <li key={`${meal.type}-${index}`}><span>{meal.type === 'LUNCH' ? '점심' : meal.type === 'DINNER' ? '저녁' : meal.type} · {meal.nameKo || meal.name}</span><b>{meal.budgetText || '정보 없음'} <small>1인 기준</small></b></li>)}</ul>
+      <ul>{day.meals?.map((meal, index) => <li key={`${meal.type}-${index}`}><span>{stopKindLabel(meal.type)} · {meal.nameKo || meal.name}</span><b>{meal.budgetText || '정보 없음'} <small>1인 기준</small></b></li>)}</ul>
     </details>)}</details>
   </section>;
 }

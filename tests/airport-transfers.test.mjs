@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { flightRequestFields, dayTransfers } from '../src/utils/airportTransfers.js';
+import { flightRequestFields, dayTransfers, normalizeFlightTime } from '../src/utils/airportTransfers.js';
 import { tripFormValues, requiresRegeneration } from '../src/utils/tripEditing.js';
 
 test('flight inputs restore server times, allow airport without time, and explicitly clear saved flights', () => {
@@ -29,4 +29,12 @@ test('transfer rows retain server order, exact labels, and both sides on a singl
   const day = {transfers:[...before,...after]};
   assert.deepEqual(dayTransfers(day,'BEFORE'),before);assert.deepEqual(dayTransfers(day,'AFTER'),after);
   assert.deepEqual(dayTransfers({},'BEFORE'),[]);assert.deepEqual(dayTransfers({transfers:[]},'AFTER'),[]);
+});
+
+test('typed flight times normalize without accepting invalid or incomplete times', () => {
+  for (const [typed,expected] of [['0930','09:30'],['930','09:30'],['9:30','09:30'],['00:00','00:00'],['2359','23:59'],['',''],['09:','09:']]) {
+    assert.equal(normalizeFlightTime(typed),expected);
+  }
+  assert.equal(flightRequestFields({arrivalAirport:'HND',arrivalFlightTime:'930'}).arrivalFlightTime,'09:30');
+  for (const invalid of ['09:','24:00','2360','9:3','abcd']) assert.throws(()=>flightRequestFields({arrivalAirport:'HND',arrivalFlightTime:invalid}),/HH:mm/);
 });

@@ -3,7 +3,7 @@ import PanelIcon from "./planner/PanelIcon";
 import { tripFormValues } from "../utils/tripEditing";
 import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
-import { flightRequestFields } from "../utils/airportTransfers";
+import { flightRequestFields, normalizeFlightTime } from "../utils/airportTransfers";
 import "../styles/airportTransfers.css";
 
 const errorStyle = { color: "#d64545", fontSize: "0.78rem", margin: "0 0 8px" };
@@ -39,7 +39,7 @@ export default function TripConditionsForm({
   const [loading, setLoading] = useState(false);
 
   const update = (field) => (e) =>
-    setValues({ ...values, [field]: e.target.value });
+    setValues(previous => ({ ...previous, [field]: e.target.value }));
 
   const toggleInterest = (interest) => {
     const selected = values.interests.includes(interest)
@@ -180,10 +180,11 @@ export default function TripConditionsForm({
         />
       </label>
   ];
-  const flights = <section className="trip-flight-section profile-form-group"><h3><PanelIcon name="TRANSIT"/>공항과 비행기 시각 <span>선택</span></h3><p className="trip-flight-note">일본 현지 시각으로 입력해주세요. 비행기 시각을 입력하면 공항 이동과 숙소에 짐을 맡기고 찾는 흐름을 일정에 반영해요.</p><div className="trip-flight-grid">{[{key:'arrival',label:'도착',time:'비행기 도착 시각'},{key:'departure',label:'출발',time:'비행기 출발 시각'}].map(flight => <div className="trip-flight-pair" key={flight.key}><label>{flight.label} 공항<select disabled={loading} value={values[`${flight.key}Airport`]} onChange={update(`${flight.key}Airport`)}><option value="">선택 안 함</option><option value="NRT">나리타 (NRT)</option><option value="HND">하네다 (HND)</option></select></label><label>{flight.time}<input disabled={loading} type="time" step="60" value={values[`${flight.key}FlightTime`]} onChange={update(`${flight.key}FlightTime`)}/></label></div>)}</div><p className="trip-flight-note">공항만 선택하고 시각은 비워둬도 돼요. 이동 시간은 대표값을 사용한 예상치예요.</p></section>;
+  const flights = <section className="trip-flight-section profile-form-group"><h3><PanelIcon name="TRANSIT"/>공항과 비행기 시각 <span>선택</span></h3><p className="trip-flight-note">일본 현지 시각으로 입력해주세요. 비행기 시각을 입력하면 공항 이동과 숙소에 짐을 맡기고 찾는 흐름을 일정에 반영해요.</p><div className="trip-flight-grid">{[{key:'arrival',label:'도착',time:'비행기 도착 시각'},{key:'departure',label:'출발',time:'비행기 출발 시각'}].map(flight => <div className="trip-flight-pair" key={flight.key}><label>{flight.label} 공항<select disabled={loading} value={values[`${flight.key}Airport`]} onChange={update(`${flight.key}Airport`)}><option value="">선택 안 함</option><option value="NRT">나리타 (NRT)</option><option value="HND">하네다 (HND)</option></select></label><label>{flight.time}<input disabled={loading} type="text" inputMode="numeric" maxLength={5} placeholder="예: 09:30" aria-describedby="flight-time-format" value={values[`${flight.key}FlightTime`]} onChange={update(`${flight.key}FlightTime`)} onBlur={()=>setValues(previous=>({...previous,[`${flight.key}FlightTime`]:normalizeFlightTime(previous[`${flight.key}FlightTime`])}))}/></label></div>)}</div><p className="trip-flight-note">공항만 선택하고 시각은 비워둬도 돼요. 이동 시간은 대표값을 사용한 예상치예요.</p><p className="trip-flight-note" id="flight-time-format">24시간제로 입력해주세요. 예: 09:30 또는 0930</p></section>;
   const interests = (
-      <fieldset>
+      <fieldset className="trip-interest-options">
         <legend>관심사</legend>
+        <div className="trip-interest-list">
         {INTEREST_OPTIONS.map((option) => (
           <label key={option.value}>
             <input
@@ -195,6 +196,7 @@ export default function TripConditionsForm({
             {option.label}
           </label>
         ))}
+        </div>
       </fieldset>
 
 

@@ -429,6 +429,7 @@ export default function PlannerPage() {
         <div className="trip"><b>{trip.title}</b><span>{days[0]} — {days[days.length - 1]} · {STATUS_LABELS[trip.status]}</span></div>
         <div className="actions">
           <WeatherStrip weather={weather} onRainPlan={openRainPlan} canOpenRainPlan={canOpenRainPlan}/>
+          {trip.status === "AWAITING_CONFIRMATION" && !previewItinerary && <div className="planner-ready-compact" aria-label="일정 완성 확인" title="일정이 준비됐어요. 확인한 뒤 완성을 눌러주세요. 지금도 채팅과 버튼으로 수정할 수 있어요."><span>일정 준비됨</span><button type="button" disabled={busy || !hasItinerary} onClick={handleConfirm}>{confirming ? "확인 중…" : "완성"}</button></div>}
           <Link to="/trips">내 여행</Link>
           {hasItinerary && <button className="planner-generate" type="button" disabled={busy || !!previewItinerary} onClick={handleRegenerate}>일정 다시 만들기</button>}
           {hasItinerary && !previewItinerary && <Link to={`/trips/${tripId}/poster`}>포스터 만들기</Link>}
@@ -448,7 +449,7 @@ export default function PlannerPage() {
         </div>
         {weather.data?.attribution && <small className="planner-weather-credit" title={weather.data.attribution}>{weather.data.attribution}</small>}
       </nav>
-      {trip.status === "AWAITING_CONFIRMATION" && !previewItinerary && <section className="planner-ready-notice" aria-label="일정 완성 확인"><div><b>일정이 준비됐어요</b><p>먼저 확인하고 마음에 들면 완성을 눌러주세요. 지금도 채팅과 버튼으로 수정할 수 있어요.</p></div><button type="button" disabled={busy || !hasItinerary} onClick={handleConfirm}>{confirming ? "확인 중…" : "완성"}</button></section>}
+
       {notice && <div className="planner-notice notice-yellow" role="status">{notice}<button type="button" onClick={() => setNotice("")} aria-label="안내 닫기">×</button></div>}
       {previewItinerary && <div className="history-preview-notice planner-preview"><b>v{previewVersion} 과거 버전 · 읽기 전용</b><button type="button" onClick={handleBackToLatest}>최신 일정으로 돌아가기</button></div>}
       <nav className="days">

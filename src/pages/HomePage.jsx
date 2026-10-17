@@ -9,9 +9,7 @@ const SUGGESTIONS = ["부모님과 편안한 도쿄 여행", "우에노·야나�
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [prompt, setPrompt] = useState(
-    "도쿄 3박 4일, 혼자 가는 미식 여행을 짜줘",
-  );
+  const [prompt, setPrompt] = useState("");
 
   const handleStart = (e) => {
     e.preventDefault();
@@ -48,6 +46,7 @@ export default function HomePage() {
                 onChange={(e) => setPrompt(e.target.value)}
                 maxLength={1000}
                 aria-label="여행 요청"
+                placeholder="예: 도쿄 3박 4일, 혼자 가는 미식 여행을 짜줘"
               />
               <button type="submit" className="prompt-start">
                 계획 시작 →

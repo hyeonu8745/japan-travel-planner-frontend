@@ -126,9 +126,9 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
       if (point.type === "HOTEL") badge.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 3l9 8v10h-6v-7H9v7H3Z" fill="currentColor"/></svg>';
       else badge.textContent = String(point.order);
       const label = document.createElement("span"); label.textContent = point.name;
-      if (point.type === "LUNCH" || point.type === "DINNER") {
+      if (point.type === "LUNCH" || point.type === "DINNER" || point.type === "CAFE") {
         const mealIcon = document.createElement("i"); mealIcon.className = "google-pin-meal-icon";
-        mealIcon.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v7m3-7v7M2 2v7c0 3 6 3 6 0M5 12v10m11-20c-4 3-4 9 0 10V2Zm0 10v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+        mealIcon.innerHTML = point.type === 'CAFE' ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Zm12 1h2a3 3 0 0 1 0 6h-2M7 3v2m4-2v2M3 22h15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2v7m3-7v7M2 2v7c0 3 6 3 6 0M5 12v10m11-20c-4 3-4 9 0 10V2Zm0 10v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
         badge.append(mealIcon);
       }
       pin.append(badge, label);
@@ -349,7 +349,7 @@ export default function ItineraryMap({ accommodation, day, selectedOrder = null,
     </div>
     <footer className="google-map-footer">
       <b>{day ? `DAY ${day.dayNumber} · ${dayZonesLabel(day)}` : "여행 지도"}</b>
-      <div className="google-map-legend"><span className="hotel">숙소</span><span className="attraction">관광지</span><span className="lunch">점심</span><span className="dinner">저녁</span></div>
+      <div className="google-map-legend"><span className="hotel">숙소</span><span className="attraction">관광지</span><span className="lunch">점심</span><span className="dinner">저녁</span>{model.points.some(point=>point.type === "CAFE") && <span className="cafe">카페</span>}</div>
       <p>도보·차는 실제 경로, 대중교통은 위치를 잇는 점선 곡선이며 실제 노선이 아니에요. 이동 시간은 일정 기준이며, 자세한 안내는 ‘길찾기’에서 확인하세요.</p>
       {model.missingCount > 0 && <p>좌표가 없는 장소 {model.missingCount}곳은 지도에서 제외했어요.</p>}
     </footer>

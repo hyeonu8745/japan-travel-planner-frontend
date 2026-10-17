@@ -63,6 +63,7 @@ export function attractionArtworkKey(place) {
   }))?.key ?? null;
 }
 export function placeArtwork(place, type = 'ATTRACTION') {
+  if (type === 'CAFE') return '/assets/food-v2/coffee.png';
   const meal = type !== 'ATTRACTION';
   const key = meal ? foodArtworkKey(place) : attractionArtworkKey(place);
   return `/assets/${meal ? 'food-v2' : 'attractions-v2'}/${key ?? (meal ? 'dining' : 'landmark')}.png`;
