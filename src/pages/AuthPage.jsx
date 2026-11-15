@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { login, signup } from "../api/auth";
-import { isLoggedIn, saveAuth } from "../auth/token";
+import { getSession, isLoggedIn, saveAuth } from "../auth/token";
 import Brand from "../components/Brand";
 
 const errorStyle = { color: "#d64545", fontSize: "0.78rem", margin: "4px 0 0" };
@@ -40,6 +40,7 @@ export default function AuthPage() {
         </section>
 
         <section className="auth-card">
+          {getSession().message && <p role="alert" style={errorStyle}>{getSession().message}</p>}
           <div className="auth-tabs">
             <button
               type="button"

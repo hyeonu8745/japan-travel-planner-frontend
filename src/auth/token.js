@@ -1,44 +1,40 @@
-const TOKEN_KEY = "tabimate.accessToken";
-const USER_KEY = "tabimate.user";
+const LEGACY_KEYS = ["tabimate.accessToken", "tabimate.user"];
+let session = { accessToken: null, user: null, message: "", version: 0 };
+const listeners = new Set();
 
-export function saveAuth({ accessToken, userId, nickname, email }) {
-  localStorage.setItem(TOKEN_KEY, accessToken);
-  localStorage.setItem(USER_KEY, JSON.stringify({ userId, nickname, email }));
-}
-
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function getUser() {
-  const raw = localStorage.getItem(USER_KEY);
-  return raw ? JSON.parse(raw) : null;
-}
-
-export function clearAuth() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-}
-
-/** 토큰의 만료 시각(exp)을 읽어서 이미 지났는지 확인 */
-function isTokenExpired(token) {
-  try {
-    const payload = token.split(".")[1];
-    const json = JSON.parse(
-      atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
-    );
-    return json.exp * 1000 <= Date.now();
-  } catch {
-    return true;
+export function removeLegacyAuth() {
+  for (const storage of ["localStorage", "sessionStorage"]) {
+    try {
+      for (const key of LEGACY_KEYS) window[storage].removeItem(key);
+    } catch {
+      // Storage can be unavailable in restricted browser contexts.
+    }
   }
 }
 
-export function isLoggedIn() {
-  const token = getToken();
-  if (!token) return false;
-  if (isTokenExpired(token)) {
-    clearAuth();
-    return false;
-  }
-  return true;
+export const getSession = () => session;
+export const getToken = () => session.accessToken;
+export const getUser = () => session.user;
+export const isLoggedIn = () => Boolean(getToken());
+export function subscribeSession(listener) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function publish(next) {
+  session = next;
+  for (const listener of listeners) listener();
+}
+
+export function saveAuth({ accessToken, userId, nickname, email }, { refreshed = false } = {}) {
+  publish({
+    accessToken,
+    user: { userId, nickname, email },
+    message: "",
+    version: session.version + (refreshed ? 0 : 1),
+  });
+}
+
+export function clearAuth(message = "") {
+  publish({ accessToken: null, user: null, message, version: session.version + 1 });
 }

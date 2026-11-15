@@ -1,8 +1,9 @@
+import { logout } from "../api/auth";
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getMyTrips, deleteTrip } from "../api/trips";
 import { DELETE_TRIP_MESSAGE } from "../utils/tripEditing";
-import { clearAuth, getUser } from "../auth/token";
+import { getUser } from "../auth/token";
 import PosterArchive from "../components/PosterArchive";
 import { HAS_ITINERARY, STATUS_LABELS } from "../utils/tripStatus";
 import Brand from "../components/Brand";
@@ -97,9 +98,9 @@ export default function TripsPage() {
     finally { deletingRef.current = false; setDeletingId(null); }
   };
 
-  const handleLogout = () => {
-    clearAuth();
-    navigate("/");
+  const handleLogout = async () => {
+    await logout();
+    navigate("/auth", { replace: true });
   };
 
   const upcomingCount = trips.filter((trip) => !isPast(trip)).length;

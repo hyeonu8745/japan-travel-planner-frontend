@@ -1,4 +1,4 @@
-import { apiRequest } from "./client";
+import { apiRequest, logoutSession } from "./client";
 
 export function signup({ email, password, nickname }) {
   return apiRequest("/api/auth/signup", {
@@ -15,3 +15,5 @@ export function login({ email, password }) {
     auth: false,
   });
 }
+
+export const logout = logoutSession;

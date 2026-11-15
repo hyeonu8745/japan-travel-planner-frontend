@@ -1,5 +1,6 @@
+import { logout } from "../api/auth";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { clearAuth, getUser, isLoggedIn } from "../auth/token";
+import { getUser, isLoggedIn } from "../auth/token";
 import Brand from "./Brand";
 
 export default function PublicHeader() {
@@ -7,9 +8,9 @@ export default function PublicHeader() {
   const loggedIn = isLoggedIn();
   const user = getUser();
 
-  const handleLogout = () => {
-    clearAuth();
-    navigate("/");
+  const handleLogout = async () => {
+    await logout();
+    navigate("/auth", { replace: true });
   };
 
   return (

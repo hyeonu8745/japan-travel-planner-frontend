@@ -1,4 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import { useSyncExternalStore } from "react";
+import { getSession, subscribeSession } from "./auth/token";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import RequireAuth from "./auth/RequireAuth";
 import AuthPage from "./pages/AuthPage";
 import GuidePage from "./pages/GuidePage";
@@ -10,6 +12,11 @@ import TripSetupPage from "./pages/TripSetupPage";
 import TripsPage from "./pages/TripsPage";
 
 export default function App() {
+  const { message } = useSyncExternalStore(subscribeSession, getSession);
+  const location = useLocation();
+  if (message && location.pathname !== "/auth") {
+    return <Navigate to="/auth" replace state={{ from: location.pathname + location.search }} />;
+  }
   return (
     <Routes>
       {/* 누구나 */}
