@@ -1,0 +1,45 @@
+.account-paper {
+  min-height: 100vh; color: #172e44; background: #fbf4e9 url("/assets/postcards/cream-paper.jpg");
+  font-family: system-ui, "Malgun Gothic", sans-serif; word-break: keep-all;
+}
+.account-entry {
+  display: grid; grid-template-columns: 1fr 1fr; align-items: center;
+  width: min(960px, 92%); margin: clamp(24px, 6vw, 90px) auto;
+  background: #fffaf2; border: 1px solid #dfccb5; border-radius: 20px; overflow: hidden;
+}
+.entry-postcard { padding: clamp(24px, 3vw, 44px); }
+.entry-postcard h1, .journey-shelf .shelf-cover h1 { font: 800 clamp(32px, 4vw, 58px)/1.15 Georgia, Batang, serif; letter-spacing: -.06em; margin: 0; }
+.entry-postcard p, .journey-shelf .shelf-cover p { color: #485c67; line-height: 1.6; }
+.entry-postcard img { display: block; width: 100%; border-radius: 10px; }
+.account-entry .auth-card { padding: clamp(24px, 4vw, 54px); background: #fffdf9; align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+.account-entry .auth-tabs button { min-height: 46px; }
+.account-entry .auth-tabs button.active, .journey-shelf .content-tabs button.active { border-color: #bd571a; color: #8b3910; }
+.account-entry .auth-card label { font-size: .9rem; }
+.account-entry .auth-card input:not([type=checkbox]) { min-width: 0; border-color: #c9b9a6; border-radius: 9px!important; font-size: 1rem; }
+.account-entry .auth-card .check { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+.account-entry .check input { width: 18px; height: 18px; flex: none; }
+.account-entry .primary { display: block; width: 100%; min-height: 46px; background: #ad460a; color: white; border: 0; border-radius: 12px!important; font-weight: 750; }
+.account-entry .primary:disabled { opacity: .65; }
+.account-paper :is(button, input, a):focus-visible { outline: 3px solid #934919; outline-offset: 2px; }
+.account-paper .journey-shelf { width: min(1200px, 92%); padding: 32px 0 60px; margin: auto; }
+.journey-shelf .shelf-cover { position: relative; display: flex; align-items: center; overflow: hidden; background: #fff9ef; border: 1px solid #e1ccb6; border-radius: 16px; }
+.shelf-cover > div { padding: clamp(20px, 4vw, 48px); flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.journey-shelf .shelf-cover small { color: #58636a; font-weight: 500; letter-spacing: normal; }
+.shelf-cover img { width: 35%; height: 178px; object-fit: cover; mask-image: linear-gradient(90deg, transparent, black 22%); }
+.journey-shelf .trip-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 18px 0; gap: 8px; }
+.journey-shelf .trip-stats div { background: #fffaf3; border: 1px solid #e1cdb8; border-radius: 10px!important; padding: 12px clamp(8px, 2vw, 24px); }
+.journey-shelf .trip-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }
+.journey-shelf .trip-card, .journey-shelf .empty-trip { border-color: #d9c5ae; border-radius: 14px!important; background: #fffaf4; }
+.journey-shelf .empty-trip { min-height: 220px; }
+.journey-shelf .trip-content footer { flex-wrap: wrap; }
+.journey-shelf .trip-content footer a { background: #fff7e9; color: #633918; border-color: #d2b697; font-size: .83rem; border-radius: 8px!important; }
+.journey-shelf .trip-content > p { font-size: .86rem; }
+.journey-shelf .filter button.active { background: #75401e; color: white; }
+@media(max-width: 700px) {
+  .account-entry { grid-template-columns: 1fr; }
+  .entry-postcard { position: relative; padding-right: 32%; }
+  .entry-postcard img { position: absolute; right: 0; top: 0; width: 29%; height: 100%; object-fit: cover; mask-image: linear-gradient(90deg, transparent, black 30%); }
+  .entry-postcard p { margin-bottom: 0; }
+  .shelf-cover img { width: 28%; height: 125px; }
+  .journey-shelf .shelf-cover { flex-direction: row; }
+}

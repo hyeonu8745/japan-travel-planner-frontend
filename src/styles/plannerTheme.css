@@ -1,0 +1,199 @@
+/* Shared planner palette. Map routes and status indicators have their own colors. */
+.planner-v2 {
+  --planner-ink: #172e44;
+  --planner-paper: #faf7f0;
+  --planner-sheet: #fffcf7;
+  --planner-edge: #dfd5c7;
+  --planner-accent: #aa4b1b;
+}
+
+.planner-v2 > .planner-tools {
+  background: #f3eadd;
+  border-bottom-color: var(--planner-edge);
+}
+.planner-v2 .planner-tool-tabs > button { color: var(--planner-ink); }
+.planner-v2 .planner-tool-tabs > button:disabled,
+.planner-v2 .planner-weather-credit { color: #665f57; }
+.planner-v2 .planner-tool-tabs > button:is(.active, :enabled:hover) {
+  color: #783714;
+  background: #ffefd8;
+  border-bottom-color: var(--planner-accent);
+}
+.planner-v2 .planner-tool-tabs > button.danger-action { color: #953b32; }
+.planner-v2 .planner-tool-tabs > button:focus-visible { outline-color: var(--planner-accent); }
+.planner-v2 > .days {
+  background-color: var(--planner-sheet);
+  border-color: var(--planner-edge);
+}
+.planner-v2 > .days button.active {
+  background-color: #fff1e1;
+  border-bottom-color: #d26b32;
+  color: var(--planner-accent);
+}
+
+.planner-v2 .workspace > .detail,
+.planner-v2 .premium-timeline .timeline-scroll,
+.planner-v2 .premium-chat .messages,
+.planner-v2 .conditions-editor.profile-editor {
+  background-color: var(--planner-paper);
+}
+.planner-v2 .timeline-head,
+.planner-v2 .timeline-summary,
+.planner-v2 .google-map-footer,
+.planner-v2 .premium-chat > header,
+.planner-v2 .premium-chat .chat-composer,
+.planner-v2 .detail > :is(.budget-heading, .taste-heading, .excluded-heading, .place-detail-navigation),
+.planner-v2 .premium-history > header,
+.planner-v2 .conditions-editor > header {
+  background-color: var(--planner-sheet);
+  border-color: var(--planner-edge);
+  color: var(--planner-ink);
+}
+.planner-v2 .detail :is(.budget-heading, .taste-heading, .excluded-heading) small,
+.planner-v2 .premium-history > header small,
+.planner-v2 .conditions-editor > header small {
+  color: var(--planner-accent);
+}
+.planner-v2 .premium-timeline .timeline-stop-surface {
+  border-color: var(--planner-edge);
+}
+.planner-v2 .premium-timeline .timeline-stop-surface:focus-within {
+  border-color: var(--planner-accent);
+}
+
+.planner-v2 .google-route-legend a {
+  color: #555047;
+  pointer-events: auto;
+  text-decoration: underline;
+}
+.planner-v2 .premium-chat .chat-answer:not(.is-applied),
+.planner-v2 .premium-chat .chat-option-card {
+  background-color: #fffdf8;
+  border-color: var(--planner-edge);
+  color: var(--planner-ink);
+}
+.planner-v2 .premium-chat .premium-user-message .user {
+  background-color: var(--planner-ink);
+  color: white;
+}
+.planner-v2 .premium-chat .chat-mode-label,
+.planner-v2 .premium-chat .chat-option-number {
+  background-color: #ffecd7;
+  color: #863f19;
+}
+.planner-v2 .premium-chat > form { background-color: var(--planner-sheet); border-color: var(--planner-edge); }
+.planner-v2 .premium-chat .chat-composer:focus-within {
+  border-color: var(--planner-accent);
+  box-shadow: 0 0 0 2px #aa4b1b20;
+}
+.planner-v2 .premium-chat .chat-composer button:enabled { background-color: var(--planner-accent); }
+.planner-v2 .day-timeline.premium-timeline .timeline-stop-card .timeline-stop-surface {
+  background-color: var(--planner-sheet);
+  border-color: var(--planner-edge);
+}
+.planner-v2 .day-timeline.premium-timeline .timeline-stop-card:is(:hover, :focus-within, .is-selected) .timeline-stop-surface {
+  background-color: var(--planner-tint);
+  border-color: var(--planner-accent);
+}
+.planner-v2 .day-timeline.premium-timeline .timeline-stop-card::before { background-color: var(--planner-accent); }
+.planner-v2 .premium-timeline .timeline-stop-actions > button:enabled,
+.planner-v2 .premium-timeline .directions-button {
+  background-color: var(--planner-sheet);
+  border-color: var(--planner-edge);
+  color: var(--planner-ink);
+}
+
+/* Carry the paper palette through the cards inside each planner panel. */
+.planner-v2 {
+  --planner-card: #fff8ee;
+  --planner-tint: #f5e7d6;
+}
+.planner-v2 .workspace > :is(.budget-panel, .taste-panel, .excluded-panel, .premium-history),
+.planner-v2 .conditions-editor.profile-editor,
+.planner-v2 .profile-editor .profile-form,
+.planner-v2 .premium-chat > form textarea {
+  background: var(--planner-paper);
+}
+.planner-v2 .budget-panel :is(.budget-day-card, .budget-day-card > summary, .budget-meal, .budget-transport-box, .budget-explanation),
+.planner-v2 .taste-panel :is(.taste-group, .taste-food-grid > li, .taste-stats, .taste-empty),
+.planner-v2 .excluded-panel :is(.excluded-list li, .excluded-empty, .excluded-help),
+.planner-v2 .premium-history :is(.version-entry, .version-empty),
+.planner-v2 .profile-editor :is(.profile-field-grid input, .profile-field-grid select, .profile-field-grid textarea, .profile-interests label, .profile-form-footer),
+.planner-v2 .premium-chat :is(.chat-inline-suggestions button, .chat-keep-action) {
+  background: var(--planner-card);
+  border-color: var(--planner-edge);
+  color: var(--planner-ink);
+}
+.planner-v2 .budget-panel :is(.budget-rate-card, .budget-overview, .budget-transport-card, .budget-combined),
+.planner-v2 .taste-panel .taste-summary,
+.planner-v2 .excluded-panel .excluded-intro,
+.planner-v2 .premium-history :is(.version-current-summary, .version-entry.is-current),
+.planner-v2 .profile-editor :is(.profile-scope, .profile-interests label:has(input:checked)) {
+  background: var(--planner-tint);
+  border-color: var(--planner-edge);
+  color: var(--planner-ink);
+}
+.planner-v2 .budget-panel :is(.budget-rate-icon, .budget-day-number, .budget-heading-icon),
+.planner-v2 .excluded-panel :is(.excluded-count, .excluded-empty-icon),
+.planner-v2 .taste-panel .taste-count {
+  background: #e8e5dd;
+  color: #53584f;
+}
+
+.premium-timeline .transit-journey { position: relative; }
+.premium-timeline .transit-route-select {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+}
+.premium-timeline .transit-route-select::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.premium-timeline .transit-route-select:is(:focus-visible, [aria-pressed="true"])::after {
+  box-shadow: inset 0 0 0 2px var(--planner-accent);
+}
+
+/* Low-chroma reading surfaces for the itinerary and its supporting panels. */
+.planner-v2 :is(.day-timeline, .budget-panel, .taste-panel, .profile-editor, .premium-history, .excluded-panel) {
+  --planner-paper: #f4f3ef;
+  --planner-sheet: #faf9f5;
+  --planner-card: #faf9f5;
+  --planner-tint: #eeede6;
+  --planner-edge: #d9d8d0;
+  --planner-ink: #35434a;
+  --planner-muted: #59635f;
+  --planner-accent: #796146;
+}
+.planner-v2 .day-timeline.premium-timeline .timeline-scroll,
+.planner-v2 .day-timeline .transit-journey {
+  background: var(--planner-paper);
+}
+.planner-v2 .day-timeline.premium-timeline .timeline-fixed-head .timeline-head,
+.planner-v2 .planner-redesign.itinerary-art.premium-timeline .timeline-summary {
+  background: var(--planner-sheet);
+  border-color: var(--planner-edge);
+}
+.planner-v2 .day-timeline .timeline-list::before { background: #c8cbc1; }
+.planner-v2 .day-timeline.premium-timeline .timeline-transfer::before { background: #899185; }
+.planner-v2 .day-timeline .timeline-name-stack strong,
+.planner-v2 .day-timeline .timeline-stop-card time { color: var(--planner-ink); }
+.planner-v2 .day-timeline.premium-timeline :is(.timeline-head p, .timeline-name-stack small, .timeline-stop-main > p, .timeline-airport-transfer time, .timeline-airport-transfer div, .timeline-move-label, .transit-walk, .transit-reference, .transit-stop small) {
+  color: var(--planner-muted);
+}
+.planner-v2 .day-timeline .transit-journey,
+.planner-v2 .day-timeline .transit-journey-header,
+.planner-v2 .day-timeline .transit-reference {
+  border-color: var(--planner-edge);
+}
+.planner-v2 .budget-panel :is(.budget-per-person, .budget-rate-source p, .budget-combined > p, .budget-explanation p),
+.planner-v2 .taste-panel :is(.taste-heading p, .taste-note p, .taste-empty p, .taste-food-descriptions),
+.planner-v2 .profile-editor :is(header p, .profile-scope p, .profile-field-grid small) {
+  color: var(--planner-muted);
+}

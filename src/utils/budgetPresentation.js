@@ -18,7 +18,12 @@ export function exchangeRateText(rate, legacyRate) {
 
 // Only open a current stop when the meal can be identified unambiguously.
 export function mealStop(itinerary, dayNumber, meal) {
+  if (meal.estimated) return null;
   const stops = itinerary?.days?.find((day) => day.dayNumber === dayNumber)?.stops?.filter((stop) => stop.type === meal.type) ?? [];
   const exact = stops.filter((stop) => (meal.name && stop.name === meal.name) || (meal.nameKo && stop.nameKo === meal.nameKo));
   return exact.length === 1 ? exact[0] : stops.length === 1 ? stops[0] : null;
+}
+
+export function exchangeRateAttribution(rate) {
+  return [rate?.sourceLabel, rate?.date && (rate.date + ' 기준')].filter(Boolean).join(' · ');
 }

@@ -1,9 +1,11 @@
 import { logout } from "../api/auth";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { getUser, isLoggedIn } from "../auth/token";
-import Brand from "./Brand";
+import TabiWordmark from "./TabiWordmark";
 
 export default function PublicHeader() {
+  const location = useLocation();
+  const inGuide = location.pathname === "/guide";
   const navigate = useNavigate();
   const loggedIn = isLoggedIn();
   const user = getUser();
@@ -14,31 +16,29 @@ export default function PublicHeader() {
   };
 
   return (
-    <header className="header">
-      <Brand />
+    <header className="tabi-header">
+      <TabiWordmark />
       <nav>
-        <NavLink to="/guide" end>
-          이용 방법
-        </NavLink>
-        <Link to="/guide#criteria">추천 기준</Link>
+        <Link to="/guide" aria-current={inGuide && !location.hash ? "page" : undefined}>이용 방법</Link>
+        <Link to="/guide#criteria" aria-current={inGuide && location.hash === "#criteria" ? "page" : undefined}>추천 기준</Link>
         <NavLink to="/trips">내 여행</NavLink>
       </nav>
       <div>
         {loggedIn ? (
           <>
-            <button type="button" className="login-link" onClick={handleLogout}>
+            <button type="button" className="tabi-login" onClick={handleLogout}>
               {user?.nickname}님 · 로그아웃
             </button>
-            <Link className="btn" to="/trips/new">
+            <Link className="tabi-start" to="/trips/new">
               새 여행 만들기
             </Link>
           </>
         ) : (
           <>
-            <Link className="login-link" to="/auth">
+            <Link className="tabi-login" to="/auth">
               로그인
             </Link>
-            <Link className="btn" to="/auth" state={{ from: "/trips/new" }}>
+            <Link className="tabi-start" to="/auth" state={{ from: "/trips/new" }}>
               무료로 시작하기
             </Link>
           </>

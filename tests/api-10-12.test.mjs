@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { HAS_ITINERARY, statusAfterEdit } from '../src/utils/tripStatus.js';
 import { exchangeRateText, krwRange } from '../src/utils/budgetPresentation.js';
 import { printPosterPages } from '../src/utils/posterPrint.js';
-import { readFile } from 'node:fs/promises';
+import { apiRequest } from '../src/api/client.js';
+import { getSession, saveAuth, clearAuth } from '../src/auth/token.js';
 test('pending confirmation stays editable but does not become confirmed on edit',()=>{
   assert.ok(HAS_ITINERARY.includes('AWAITING_CONFIRMATION'));
   assert.equal(statusAfterEdit('AWAITING_CONFIRMATION'),'AWAITING_CONFIRMATION');
@@ -32,20 +33,34 @@ test('print waits for loaded images, orders pages, uses zero margins and contain
     listeners.afterprint();assert.equal(removed,1);
   }finally{delete globalThis.document;}
 });
-test('authenticated API handles PNG blobs, 204, and original server error messages',async()=>{
-  const text=await readFile(new URL('../src/api/client.js',import.meta.url),'utf8');
-  const code=text.replace('import { clearAuth, getToken } from "../auth/token";','const getToken=()=>"fixture-token"; const clearAuth=()=>{};').replace('import.meta.env.VITE_API_BASE_URL','"https://fixture.invalid"');
-  const {apiRequest}=await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`);
-  const oldFetch=globalThis.fetch;globalThis.window={location:{href:''}};
-  try{
+test('authenticated API handles PNG blobs, 204, and original server error messages', async () => {
+  const previousFetch = globalThis.fetch;
+  const previousSession = getSession();
+  saveAuth({ accessToken: 'fixture-token', userId: 5, nickname: '여행자' });
+  try {
     let options;
-    globalThis.fetch=async(_url,opts)=>{options=opts;return new Response(new Uint8Array([1,2,3]),{headers:{'Content-Type':'image/png'}});};
-    const blob=await apiRequest('/image',{responseType:'blob'});
-    assert.equal(blob.size,3);assert.equal(options.headers.Authorization,'Bearer fixture-token');
-    globalThis.fetch=async()=>new Response(null,{status:204});assert.equal(await apiRequest('/excluded',{method:'DELETE'}),null);
-    for(const status of [401,409,429,503]){
-      const message=`서버 원문 ${status}`;globalThis.fetch=async()=>new Response(JSON.stringify({message}),{status});
-      await assert.rejects(apiRequest('/test'),err=>err.status===status&&err.message===message);
+    globalThis.fetch = async (_url, request) => {
+      options = request;
+      return new Response(new Uint8Array([1, 2, 3]), { headers: { 'Content-Type': 'image/png' } });
+    };
+    const blob = await apiRequest('/image', { responseType: 'blob' });
+    assert.equal(blob.size, 3);
+    assert.equal(options.headers.Authorization, 'Bearer fixture-token');
+
+    globalThis.fetch = async () => new Response(null, { status: 204 });
+    assert.equal(await apiRequest('/excluded', { method: 'DELETE' }), null);
+
+    for (const status of [409, 429, 503]) {
+      const message = '서버 원문 ' + status;
+      globalThis.fetch = async () => Response.json({ message }, { status });
+      await assert.rejects(apiRequest('/test'), (error) => error.status === status && error.message === message);
     }
-  }finally{globalThis.fetch=oldFetch;delete globalThis.window;}
+    globalThis.fetch = async () => Response.json({ message: '서버 원문 401' }, { status: 401 });
+    await assert.rejects(apiRequest('/api/auth/login', { method: 'POST', auth: false }),
+      (error) => error.status === 401 && error.message === '서버 원문 401');
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousSession.accessToken) saveAuth({ ...previousSession.user, accessToken: previousSession.accessToken });
+    else clearAuth();
+  }
 });

@@ -2,7 +2,7 @@
 
 import { stopKindLabel } from './stopPresentation.js';
 
-import { restaurantGenres } from "./itineraryPresentation";
+import { restaurantGenres } from "./itineraryPresentation.js";
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -65,17 +65,6 @@ export function directionsUrl(from, to, mode) {
 /** 장소 이름으로 Google 지도 검색 링크 */
 export function mapsSearchUrl(name) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`;
-}
-
-/** "ラーメン,つけ麺,担々麺" → "ラーメン · つけ麺" (앞의 두 개가 대표 장르) */
-export function genreLabel(genreCsv) {
-  if (!genreCsv) return "";
-  return genreCsv
-    .split(",")
-    .map((g) => g.trim())
-    .filter(Boolean)
-    .slice(0, 2)
-    .join(" · ");
 }
 
 /** 타임라인 장소 아래 한 줄 설명 */

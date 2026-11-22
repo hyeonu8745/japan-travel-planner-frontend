@@ -9,7 +9,7 @@ test('flight inputs restore server times, allow airport without time, and explic
   assert.deepEqual(flightRequestFields({arrivalAirport:'NRT',departureAirport:'HND',departureFlightTime:'19:25'}),{arrivalAirport:'NRT',arrivalFlightTime:null,departureAirport:'HND',departureFlightTime:'19:25'});
   for (const direction of ['arrival','departure']) {
     assert.throws(()=>flightRequestFields({[`${direction}FlightTime`]:'10:30'}),/공항도 함께/);
-    assert.throws(()=>flightRequestFields({[`${direction}Airport`]:'KIX'}),/나리타 또는 하네다/);
+    assert.equal(flightRequestFields({[`${direction}Airport`]:'KIX'})[`${direction}Airport`], 'KIX');
     assert.throws(()=>flightRequestFields({[`${direction}Airport`]:'NRT',[`${direction}FlightTime`]:'25:00'}),/HH:mm/);
   }
 });

@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createTrip } from "../api/trips";
-import Brand from "../components/Brand";
+import TabiWordmark from "../components/TabiWordmark";
+import "../styles/setupPostcards.css";
 import TripConditionsForm from "../components/TripConditionsForm";
 
 export default function TripSetupPage() {
@@ -16,49 +17,26 @@ export default function TripSetupPage() {
   };
 
   return (
-    <div className="setup-page">
-      <header className="setup-head">
-        <Brand />
-        <div className="setup-steps" aria-label="여행 계획 단계">
-          <span className="done">01 로그인</span>
-          <i />
-          <span className="active">02 여행 조건</span>
-          <i />
-          <span>03 AI 일정</span>
-        </div>
+    <div className="setup-postcards">
+      <header className="tabi-header setup-bar">
+        <TabiWordmark />
         <Link to="/trips">내 여행</Link>
       </header>
-
-      <main className="setup-main">
-        <section className="setup-intro">
-          <small>TRIP PROFILE</small>
-          <p className="step-number">02 / 03</p>
-          <h1>
-            어떤 여행을
-            <br />
-            계획할까요?
-          </h1>
-          <p>
-            여행 조건을 먼저 알려주면 AI가 예산과 이동 제약까지 고려해 더
-            현실적인 일정을 만듭니다.
-          </p>
-          <div className="setup-summary">
-            <span>입력 정보 활용</span>
-            <ul>
-              <li>장소와 맛집 후보 필터링</li>
-              <li>날짜별 이동 동선 계산</li>
-              <li>예산 및 일정 충돌 검사</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="setup-card">
-          <header>
-            <small>NEW JOURNEY</small>
-            <h2>여행 조건 입력</h2>
-            <p>나중에 플래너의 ‘여행 조건’ 메뉴에서 다시 수정할 수 있어요.</p>
-          </header>
+      <main className="setup-spread">
+        <div className="setup-cover">
+          <p className="setup-phase">여행 조건 · 2 / 3</p>
+          <h1>여행 조건 입력</h1>
+          <p>머물 도시와 날짜를 고르면 타비가 예산과 이동 시간을 고려해 일정을 짜요.</p>
+          <img src="/assets/postcards/japan-postcards.jpg" alt="" />
+          <nav aria-label="입력 항목 바로가기">
+            <a href="#setup-basics">일정과 예산</a>
+            <a href="#setup-destination">여행지와 숙소</a>
+            <a href="#setup-preferences">여행 취향</a>
+          </nav>
+        </div>
+        <section className="setup-sheet" aria-label="여행 조건 양식">
           <TripConditionsForm
+            initialValues={location.state?.destination}
             submitLabel="조건 저장하고 시작하기 →"
             onSubmit={handleSubmit}
           />

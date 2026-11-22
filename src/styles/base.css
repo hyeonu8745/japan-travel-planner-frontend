@@ -728,7 +728,7 @@ dialog::backdrop {
 }
 
 .og-preview:after {
-  content: "TOKYO"; position: absolute; right: 45px; bottom: 15px; font: 800 8rem Outfit; color: #27a9dc24;
+  content: "JAPAN"; position: absolute; right: 45px; bottom: 15px; font: 800 8rem Outfit; color: #27a9dc24;
 }
 
 .account-shell {

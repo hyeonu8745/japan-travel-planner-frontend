@@ -130,7 +130,7 @@ export default function ChatPanel({ tripId, initialPrompt, initialReady, tripSta
       <div ref={bottomRef} />
     </div>
     <form onSubmit={(event) => { event.preventDefault(); send(draft); }}>
-      <div className="chat-composer"><textarea aria-label="Tabi AI에 메시지 보내기" value={draft} maxLength={MAX_LENGTH} rows={2} placeholder={readOnly ? '과거 일정은 읽기 전용이에요' : editMode ? '예) 2일차 저녁을 스시로 바꿔줘' : '예: 도쿄 3박 4일, 혼자 가는 미식 여행을 짜줘'} disabled={blocked} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(draft); } }} />
+      <div className="chat-composer"><textarea aria-label="Tabi AI에 메시지 보내기" value={draft} maxLength={MAX_LENGTH} rows={2} placeholder={readOnly ? '과거 일정은 읽기 전용이에요' : editMode ? '예) 2일차 저녁을 스시로 바꿔줘' : '예: 3박 4일, 혼자 가는 일본 미식 여행을 짜줘'} disabled={blocked} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); send(draft); } }} />
       <button type="submit" aria-label="메시지 전송" disabled={blocked || !draft.trim()}><img src="/assets/ui-v2/send.svg" alt="" /></button></div>
       <small><span>Enter 전송 · Shift+Enter 줄바꿈</span><span>{draft.length} / {MAX_LENGTH}</span></small>
     </form>

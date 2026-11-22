@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import Footer from "../components/Footer";
 import PublicHeader from "../components/PublicHeader";
 
 export default function NotFoundPage() {
@@ -16,7 +15,6 @@ export default function NotFoundPage() {
           </Link>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

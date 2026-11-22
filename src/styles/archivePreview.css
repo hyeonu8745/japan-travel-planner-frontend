@@ -1,0 +1,11 @@
+.journey-shelf .poster-archive-links { grid-template-columns: repeat(auto-fill,minmax(min(100%,285px),1fr)); }
+.journey-shelf .archive-entry { display: flex; align-items: center; gap: 14px; padding: 14px; border-color: #dbc7b0; background: #fffaf3; overflow-wrap: anywhere; }
+.archive-thumb { width: 80px; flex: none; border: 1px solid #d4bea4; border-radius: 6px; background: #fff; padding: 3px; cursor: zoom-in; }
+.archive-thumb img { width: 100%; display: block; aspect-ratio: 210/297; object-fit: contain; }
+.archive-entry .archive-action { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; min-height: 32px; color: #743b18; background: #fff0de; border: 1px solid #cda67e; border-radius: 16px; font: 650 .84rem/1.3 system-ui,sans-serif; text-decoration: none; }
+.archive-entry .archive-action:hover { background: #ffe4c6; }
+.archive-dialog { margin: auto; padding: 14px; width: min(560px,94vw); max-height: 92vh; border: 1px solid #d4bea4; border-radius: 14px; background: #fffbf5; color: #172e44; }
+.archive-dialog::backdrop { background: #1c2d3caa; }
+.archive-dialog header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.archive-dialog img { display: block; width: 100%; max-height: 75vh; object-fit: contain; }
+@media(pointer: coarse) { .archive-entry .archive-action { min-height: 44px; } }

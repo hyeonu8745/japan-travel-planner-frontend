@@ -1,11 +1,12 @@
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { APIProvider, Map, useMap, useMapsLibrary } from "@vis.gl/react-google-maps";
+import { stationName } from "../../utils/travelPresentation";
 import { transitArc, routeColor, pathMidpoint, pixelPathDistance } from "../../utils/mapAppearance";
 import { createRouteCache } from "../../api/mapRoutes";
 import { buildMapDay, MAP_COLORS, mapPointTitle } from "../../utils/itineraryMapData";
 
 import { layoutMapPins, clusterMapPins, mapClusterLabel } from "../../utils/mapPinLayout";
-import { dayZonesLabel } from "../../utils/itineraryPresentation";
+import { Link } from "react-router-dom";
 
 function MapMessage({ children }) {
   return <div className="google-map-message" role="status">{children}</div>;
@@ -153,9 +154,14 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
     const transitLabels = [];
     const routeLabels = [];
     const outlines = [], casings = [], hitLines = [], routePaths = [], baseIcons = [], centerLines = [];
+    const transitLayers = [], stationMarkers = [];
     const emphasizeSegment = (index) => {
       lines.forEach((line, lineIndex) => {
         const selected = lineIndex === index, transit = model.segments[lineIndex].mode === "TRANSIT";
+        if (model.segments[lineIndex].transitLegs) {
+          transitLayers[lineIndex]?.forEach(({ line: layer, weight, opacity }) => layer.setOptions({ strokeWeight: selected ? weight + 2 : weight, strokeOpacity: index != null && !selected ? opacity * .35 : opacity }));
+          return;
+        }
         const drive = model.segments[lineIndex].mode === "DRIVE";
         const muted = index != null && !selected;
         const zIndex = selected ? 1000 : 10 + lineIndex * 4;
@@ -189,18 +195,18 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
     };
     const lines = model.segments.map((segment, index) => {
       const transit = segment.mode === "TRANSIT";
-      const path = transit ? transitArc(segment.path) : segment.path;
+      const path = segment.transitLegs ? segment.transitLegs.flatMap(leg => leg.points) : transit ? transitArc(segment.path) : segment.path;
       const color = routeColor(segment.mode, index);
       let midpoint = pathMidpoint(path);
       // A repeating double chevron reads as a guidance lane without hiding turns.
       const arrow = { icon: { path: "M -2,2 0,0 2,2 M -2,6 0,4 2,6", fillOpacity: 0, strokeColor: "#fff", strokeOpacity: 1, strokeWeight: 2, scale: 1.5 }, offset: "36px", repeat: "84px" };
       const endpoints = ["0%", "100%"].map((offset, endpoint) => ({ icon: { path: core.SymbolPath.CIRCLE, fillColor: endpoint ? color : "#fff", fillOpacity: 1, strokeColor: "#07182d", strokeWeight: 1.5, strokeOpacity: 1, scale: 4 }, offset }));
       const driveArrow = { ...arrow, icon: { ...arrow.icon, path: "M -3,3 0,0 3,3", strokeWeight: 2.5, scale: 1.8 }, offset: "42px", repeat: "100px" };
-      const icons = transit ? [
+      const icons = segment.transitLegs ? [] : transit ? [
         { icon: { path: core.SymbolPath.CIRCLE, fillColor: color, fillOpacity: 1, strokeColor: color, strokeOpacity: 1, strokeWeight: 1, scale: 2.6 }, offset: "0", repeat: "14px" },
         { icon: { path: "M -3,2 0,-1 3,2 M -3,6 0,3 3,6", fillOpacity: 0, strokeColor: color, strokeOpacity: 1, strokeWeight: 3, scale: 1.8 }, offset: "48px", repeat: "96px" },
       ] : [segment.mode === "DRIVE" ? driveArrow : arrow];
-      icons.push(...endpoints);
+      if (!segment.transitLegs) icons.push(...endpoints);
       routePaths.push(path); baseIcons.push(icons);
       outlines.push(new maps.Polyline({ map, path, geodesic: false, strokeColor: "#07182d", strokeOpacity: 0, strokeWeight: 15, clickable: false, zIndex: 10 + index * 4 }));
       casings.push(new maps.Polyline({ map, path, geodesic: false, strokeColor: "#fff", strokeOpacity: transit ? 0 : .95, strokeWeight: 11, clickable: false, zIndex: 10 + index * 3,
@@ -210,6 +216,47 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
       const line = new maps.Polyline({ map, path, geodesic: false, strokeColor: color,
         strokeOpacity: transit ? 0 : 1, strokeWeight: 7, clickable: false, icons, zIndex: 11 + index * 3 });
       centerLines.push(segment.mode === "DRIVE" ? new maps.Polyline({ map, path, geodesic: false, strokeColor: "#fff", strokeOpacity: 1, strokeWeight: 2, clickable: false, zIndex: 12 + index * 3 }) : null);
+      if (segment.transitLegs) {
+        const layers = [];
+        const add = (options, weight, opacity = 1) => {
+          const layer = new maps.Polyline({ map, geodesic: false, clickable: false, ...options, strokeWeight: weight, strokeOpacity: opacity });
+          layers.push({ line: layer, weight, opacity });
+        };
+        const walk = (from, to) => {
+          if (!from || !to || (from.lat === to.lat && from.lng === to.lng)) return;
+          add({ path: [from, to], strokeColor: "#778897", icons: [{ icon: { path: core.SymbolPath.CIRCLE, fillColor: "#778897", fillOpacity: 1, strokeColor: "#fff", strokeWeight: 1, scale: 2.5 }, offset: "0", repeat: "10px" }], zIndex: 18 + index * 4 }, 0, 0);
+        };
+        const legs = segment.transitLegs;
+        walk(segment.path[0], legs[0].points[0]);
+        walk(legs[legs.length - 1].points.at(-1), segment.path[1]);
+        legs.forEach((leg) => {
+          const weight = leg.mode === "bus" ? 7 : 9;
+          add({ path: leg.points, strokeColor: "#fff", zIndex: 20 + index * 4 }, weight + 4);
+          add({ path: leg.points, strokeColor: leg.color, zIndex: 21 + index * 4 }, weight);
+          add({ path: leg.points, strokeColor: "#fff", zIndex: 22 + index * 4 }, 2);
+        });
+        transitLayers[index] = layers;
+        const stops = [{ point: legs[0].path[0], location: legs[0].points[0], color: legs[0].color }];
+        legs.forEach((leg, legIndex) => stops.push({ point: leg.path.at(-1), location: leg.points.at(-1), color: leg.color, transfer: legIndex < legs.length - 1 }));
+        stops.forEach(({ point, location, color, transfer }) => {
+          const dot = document.createElement("span");
+          dot.className = "google-transit-station";
+          dot.title = stationName(point.name, point.nameKo) || (transfer ? "환승역" : "역");
+          dot.setAttribute("role", "img");
+          dot.setAttribute("aria-label", dot.title);
+          dot.style.borderColor = color;
+          if (transfer) dot.classList.add("is-transfer");
+          const marker = new maps.OverlayView();
+          marker.onAdd = () => marker.getPanes().overlayMouseTarget.append(dot);
+          marker.draw = () => {
+            const pixel = marker.getProjection()?.fromLatLngToDivPixel(new core.LatLng(location));
+            if (pixel) { dot.style.left = pixel.x + "px"; dot.style.top = pixel.y + "px"; }
+          };
+          marker.onRemove = () => dot.remove();
+          marker.setMap(map);
+          stationMarkers.push(marker);
+        });
+      }
       {
         const modeLabel = transit ? "대중교통" : segment.mode === "DRIVE" ? "차량" : "도보";
         const text = segment.minutes != null ? `${modeLabel} 약 ${segment.minutes}분` : `${modeLabel} 이동`;
@@ -223,7 +270,7 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
           const duration = document.createElement("b"); duration.textContent = text;
           title.append(badge, icon, duration);
           const names = document.createElement("p"); names.className = "google-route-names"; names.textContent = `${segment.fromName} → ${segment.toName}`;
-          const note = document.createElement("p"); note.className = "google-route-note"; note.textContent = transit ? "표시된 곡선은 실제 노선이 아니에요. 버스·철도·환승 안내는 Google 지도에서 확인하세요." : "이동 시간은 일정 기준이에요. 자세한 경로는 Google 지도에서 확인하세요.";
+          const note = document.createElement("p"); note.className = "google-route-note"; note.textContent = segment.transitLegs ? "노선은 참고용이에요. 시간표·정확한 경로는 길찾기에서 확인하세요." : transit ? "표시된 곡선은 실제 노선이 아니에요. 버스·철도·환승 안내는 Google 지도에서 확인하세요." : "이동 시간은 일정 기준이에요. 자세한 경로는 Google 지도에서 확인하세요.";
           const link = document.createElement("a"); link.className = "directions-button"; link.textContent = "길찾기 ↗";
           link.href = segment.directionsUrl; link.target = "_blank"; link.rel = "noopener noreferrer";
           content.append(title, names, note, link);
@@ -272,7 +319,7 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
       if (model.points.length === 1 || model.points.every((point) => point.position.lat === model.points[0]?.position.lat && point.position.lng === model.points[0]?.position.lng)) {
         map.setCenter(model.points[0].position); map.setZoom(16);
       } else {
-        const bounds = new core.LatLngBounds(); model.points.forEach((point) => bounds.extend(point.position)); map.fitBounds(bounds, 70);
+        const bounds = new core.LatLngBounds(); model.points.forEach((point) => bounds.extend(point.position)); model.segments.flatMap(segment => segment.transitLegs ?? []).flatMap(leg => leg.points).forEach(point => bounds.extend(point)); map.fitBounds(bounds, 70);
       }
     };
     fit();
@@ -290,7 +337,7 @@ function DayMapGeometry({ model, selectedOrder, routeCache, onRouteFailures, onS
     const blankClickListener = map.addListener("click", () => resetSelection());
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(fit) : null;
     observer?.observe(map.getDiv());
-    return () => { active = false; selectMapStop.current = null; pinElements.current = []; observer?.disconnect(); zoomListener.remove(); clusterButtons.forEach(button => button.remove()); blankClickListener.remove(); overviewButton.remove(); infoWindow.close(); routePanel.remove(); lineListeners.forEach((listener) => listener.remove()); transitLabels.forEach((overlay) => overlay.setMap(null)); overlays.forEach((overlay) => overlay.setMap(null)); [...lines, ...outlines, ...casings, ...hitLines, ...centerLines].filter(Boolean).forEach((line) => line.setMap(null)); };
+    return () => { active = false; selectMapStop.current = null; pinElements.current = []; observer?.disconnect(); zoomListener.remove(); clusterButtons.forEach(button => button.remove()); blankClickListener.remove(); overviewButton.remove(); infoWindow.close(); routePanel.remove(); lineListeners.forEach((listener) => listener.remove()); transitLayers.flat().forEach(({ line }) => line.setMap(null)); stationMarkers.forEach(marker => marker.setMap(null)); transitLabels.forEach((overlay) => overlay.setMap(null)); overlays.forEach((overlay) => overlay.setMap(null)); [...lines, ...outlines, ...casings, ...hitLines, ...centerLines].filter(Boolean).forEach((line) => line.setMap(null)); };
   }, [map, maps, core, model, routeCache, onRouteFailures]);
   useEffect(() => {
     pinElements.current.forEach(({ pin, order }) => {
@@ -336,22 +383,34 @@ function GoogleDayMap({ apiKey, model, selectedOrder, onShowAll }) {
   </>;
 }
 
+function RouteKey({ mode, color, label, approximate = false }) {
+  return <span className="route-key-sample">
+    <svg width="29" height="12" viewBox="0 0 29 12" aria-hidden="true">
+      <path d="M1 6H28" fill="none" stroke={color} strokeWidth={approximate ? 3 : 7} strokeDasharray={approximate ? "2 4" : undefined} />
+      {!approximate && mode !== "WALK" && <path d="M1 6H28" stroke="white" strokeWidth="2" />}
+      {mode === "TRANSIT" && !approximate
+        ? <circle cx="14" cy="6" r="4" fill="white" stroke={color} strokeWidth="2"/>
+        : !approximate && <path d="m12 3 3 3-3 3" fill="none" stroke="white" strokeWidth="1.6"/>}
+    </svg>{label}
+  </span>;
+}
+
 export default function ItineraryMap({ accommodation, day, selectedOrder = null, onShowAll }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
   const model = useMemo(() => buildMapDay(accommodation, day), [accommodation, day]);
+  const sampleColor = mode => routeColor(mode, Math.max(0, model.segments.findIndex(s => s.mode === mode)));
+  const transitColor = model.segments.find(s => s.transitLegs?.length)?.transitLegs[0].color;
+  const approximate = model.segments.some(s => s.mode === "TRANSIT" && !s.transitLegs?.length);
   return <section className="map itinerary-map google-itinerary-map" aria-label="오늘의 일정 지도">
     <div className="google-map-canvas">
       {!day ? <MapMessage>일정을 만들면 선택한 날짜의 지도가 표시돼요.</MapMessage>
         : !apiKey ? <MapMessage>Google 지도 키가 아직 설정되지 않았어요. 지도 설정 후 개발 서버를 다시 실행해주세요.</MapMessage>
           : !model.points.length ? <MapMessage>이 날짜에는 지도에 표시할 좌표가 없어요.</MapMessage>
             : <GoogleDayMap apiKey={apiKey} model={model} selectedOrder={selectedOrder} onShowAll={onShowAll} />}
-      {day && <div className="google-route-legend" aria-label="이동수단 범례"><span className="walk">도보</span><span className="drive">차량</span><span className="transit">대중교통</span><small>대중교통 실제 노선은 길찾기에서 확인</small></div>}
+      {day && <div className="google-route-legend" aria-label="이동수단 범례"><RouteKey mode="WALK" label="도보" color={sampleColor("WALK")} />
+        <RouteKey mode="DRIVE" label="차량" color={sampleColor("DRIVE")} />
+        {(transitColor || !approximate) && <RouteKey mode="TRANSIT" label="대중교통" color={transitColor || "#788695"} />}
+        {approximate && <RouteKey mode="TRANSIT" label="대중교통 (추정)" color={sampleColor("TRANSIT")} approximate />}<small><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a> · <Link to="/data-sources">데이터 출처</Link></small>{model.missingCount > 0 && <small>좌표가 없는 장소 {model.missingCount}곳은 지도에서 제외했어요.</small>}</div>}
     </div>
-    <footer className="google-map-footer">
-      <b>{day ? `DAY ${day.dayNumber} · ${dayZonesLabel(day)}` : "여행 지도"}</b>
-      <div className="google-map-legend"><span className="hotel">숙소</span><span className="attraction">관광지</span><span className="lunch">점심</span><span className="dinner">저녁</span>{model.points.some(point=>point.type === "CAFE") && <span className="cafe">카페</span>}</div>
-      <p>도보·차는 실제 경로, 대중교통은 위치를 잇는 점선 곡선이며 실제 노선이 아니에요. 이동 시간은 일정 기준이며, 자세한 안내는 ‘길찾기’에서 확인하세요.</p>
-      {model.missingCount > 0 && <p>좌표가 없는 장소 {model.missingCount}곳은 지도에서 제외했어요.</p>}
-    </footer>
   </section>;
 }

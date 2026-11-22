@@ -55,3 +55,6 @@
 .google-itinerary-map .google-route-legend>.transit::before {
  background:radial-gradient(circle,#bc4700 2px,transparent 2.5px) left center/8px 8px repeat-x;
 }
+
+.google-route-legend .route-key-sample { display: inline-flex; align-items: center; gap: 4px; }
+.google-route-legend .route-key-sample::before { content: none; }

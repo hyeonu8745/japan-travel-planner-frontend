@@ -57,7 +57,7 @@ export default function RestaurantCandidates({
                   <p>{restaurantGenres(candidate)}</p>
                 </div>
 
-                <span>★ {candidate.rating ?? "-"}</span>
+                {candidate.rating != null && <span>타베로그 평점 {candidate.rating}</span>}
               </div>
 
               <div className="candidate-badges">
@@ -76,8 +76,8 @@ export default function RestaurantCandidates({
                   <dd>
                     {candidate.reviewCount?.toLocaleString?.() ??
                       candidate.reviewCount ??
-                      "-"}
-                    개
+                      "정보 없음"}
+                    {candidate.reviewCount != null ? "개" : ""}
                   </dd>
                 </div>
 

@@ -1,6 +1,8 @@
 import { STOP_KIND_LABELS, cafeBudgetLabel } from '../../utils/stopPresentation';
 import { useState } from "react";
 import { useToast } from "../toastContext";
+import { travelMapsUrl } from "../../utils/travelPresentation";
+import TransitRoute from "./TransitRoute";
 import AttractionDetails from "./AttractionDetails";
 import RestaurantDetails from "./RestaurantDetails";
 import StopReasons from "./StopReasons";
@@ -90,6 +92,11 @@ export default function PlaceDetail({
           </div>
         )}
 
+        {nextStop && <>
+          <TransitRoute travel={nextStop.travel} />
+          {travelMapsUrl(nextStop.travel, stop, nextStop) && <a className="directions-button" href={travelMapsUrl(nextStop.travel, stop, nextStop)} target="_blank" rel="noopener noreferrer">다음 장소 길찾기 ↗</a>}
+        </>}
+
         {/* 식당 정기 휴일 안내 */}
         {isMeal && (place.holiday || place.closedOnVisitDay) && (
           <div className="data-notice">
@@ -167,6 +174,8 @@ export default function PlaceDetail({
       {(stop.nameKo || originalName !== title) && <p className="detail-japanese-name">{originalName}</p>}
       {address && <p className="detail-address"><DetailArt name="pin" />{address}</p>}
       <p className="detail-category">{category}</p>
+      {place.mustSee && !stop.reasons?.some(reason => reason.code === "MUST_SEE") && <span className="must-see-badge">대표 명소</span>}
+      {place.historyNote && <p className="attraction-history-note">ⓘ {place.historyNote}</p>}
       <StopReasons reasons={stop.reasons} />
       {stop.type === "CAFE" && <p className="detail-cafe-budget">{cafeBudgetLabel(place)}</p>}
     </div>;
@@ -185,7 +194,7 @@ export default function PlaceDetail({
         {isMeal ? <RestaurantDetails key={stop.id} restaurantId={place.id} fallbackName={stop.name} visitDate={visitDate} heading={heading} onReplace={onOpenCandidates} readOnly={readOnly} busy={busy}>
           {scheduleInfo}
         </RestaurantDetails> : (
-          <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} visitDate={visitDate} heading={heading}>
+          <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} localPhoto={place.photo} visitDate={visitDate} heading={heading}>
             {scheduleInfo}
           </AttractionDetails>
         )}

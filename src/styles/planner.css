@@ -199,8 +199,22 @@
   background: var(--n); color: #fff; max-width: 620px; font-size: .85rem; line-height: 1.7; border-radius: 2px!important; padding: 14px 18px;
 }
 
-.app-head .brand {
+.planner-v2 > .app-head {
+  background-color: #faf7f0;
+  border-top-color: #f18b43;
+}
+
+.app-head .planner-brand {
   height: 38px;
+  display: grid;
+  place-items: center;
+  background: none;
+}
+
+.planner-brand .tabi-wordmark {
+  font-family: system-ui, "Malgun Gothic", sans-serif;
+  color: #172e44;
+  text-decoration: none;
 }
 
 .planner-v2 .workspace {

@@ -1,5 +1,9 @@
 import { Fragment, useRef, useState } from "react";
 import { stopKindLabel, cafeBudgetLabel } from '../../utils/stopPresentation';
+import TransitRoute from "./TransitRoute";
+
+import { travelMapsUrl } from "../../utils/travelPresentation";
+import { isDayTrip } from "../../utils/regionSelection";
 import StopReasons from "./StopReasons";
 import PlaceArtwork from "./PlaceArtwork";
 import { dayHeaderArtwork } from "../../utils/placeArtwork";
@@ -7,7 +11,6 @@ import "../../styles/itineraryArt.css";
 import {
   MODE_LABELS,
   buildRows,
-  directionsUrl,
   formatLongDate,
   formatMinutes,
   stopSubtitle,
@@ -22,7 +25,7 @@ import "../../styles/airportTransfers.css";
 
 const ART_ROOT = "/assets/ui-v2";
 function TransferRows({ day, position }) {
-  return dayTransfers(day, position).map((transfer, index) => <li className="timeline-airport-transfer" key={`${position}:${index}`}><time>{transfer.time?.slice(0,5) || ''}</time><span className="timeline-airport-dot" aria-hidden="true"/><div><PanelIcon name={transfer.kind === 'HOTEL_DROP' || transfer.kind === 'HOTEL_PICKUP' ? 'luggage' : transfer.kind === 'CHECKOUT' ? 'bed' : 'clock'}/><span>{transfer.label}</span></div></li>);
+  return dayTransfers(day, position).map((transfer, index) => <li className="timeline-airport-transfer" key={`${position}:${index}`}><time>{transfer.time?.slice(0,5) || ''}</time><span className="timeline-airport-dot" aria-hidden="true"/><div><PanelIcon name={transfer.kind === 'DAY_TRIP_GO' || transfer.kind === 'DAY_TRIP_BACK' ? 'TRANSIT' : transfer.kind === 'HOTEL_DROP' || transfer.kind === 'HOTEL_PICKUP' ? 'luggage' : transfer.kind === 'CHECKOUT' ? 'bed' : 'clock'}/><span>{transfer.label}</span></div></li>);
 }
 
 const MOVE_ART = { WALK: "walk", TRANSIT: "transit", DRIVE: "drive" };
@@ -38,7 +41,7 @@ function ItineraryArt({ name, className = "" }) {
  * - onOpenDetail(stop): "상세 보기"를 눌렀을 때
  * 서버가 계산한 값을 그대로 보여주기만 한다 (시각, 이동, 여유 시간, 빠진 장소, 안내)
  */
-export default function DayTimeline({ day, accommodation, onOpenDetail, selectedOrder = null, onSelectStop, readOnly = false, busy = false, onReorder, onAdd, weatherDay, onRainPlan }) {
+export default function DayTimeline({ day, trip, accommodation, onOpenDetail, selectedOrder = null, onSelectStop, readOnly = false, busy = false, onReorder, onAdd, weatherDay, onRainPlan }) {
   const dragIndex = useRef(null);
   const [dragging, setDragging] = useState(null);
   const canEdit = !readOnly && !busy;
@@ -53,7 +56,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
   );
   const rows = buildRows(day);
   const hasTransit = day.stops.some((stop) => stop.travel.mode === "TRANSIT");
-  const image = dayHeaderArtwork(day);
+  const image = dayHeaderArtwork(day, trip);
 
   return (
     <section className="detail day-timeline planner-redesign itinerary-art premium-timeline">
@@ -92,8 +95,8 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
                 <div className="timeline-start-content">
                   <ItineraryArt name="hotel" />
                   <div>
-                  <h3>숙소 출발</h3>
-                  <p>{accommodation?.name || "출발점"}</p>
+                  <h3>{isDayTrip(day) ? "당일치기 일정 시작" : "숙소 출발"}</h3>
+                  <p>{isDayTrip(day) ? "도착역에서 관광을 시작해요" : accommodation?.name || "출발점"}</p>
                   </div>
                 </div>
               </li>
@@ -101,7 +104,7 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
           }
           if (row.kind === "move") {
             const routeFrom = row.from ?? accommodation;
-            const routeUrl = directionsUrl(routeFrom, row.to, row.travel.mode);
+            const routeUrl = travelMapsUrl(row.travel, routeFrom, row.to);
 
             return (
               <Fragment key={row.key}>
@@ -122,8 +125,10 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
                     길찾기 <span aria-hidden="true">↗</span>
                   </a>
                 ) : <span className="directions-unavailable">좌표가 없어 길찾기를 열 수 없어요.</span>}
-                {row.travel.mode === "TRANSIT" && <span className="directions-transit-note">열차·환승 안내는 Google 지도에서</span>}
+                {row.travel.mode === "TRANSIT" && !row.travel.route && <span className="directions-transit-note">열차·환승 안내는 Google 지도에서</span>}
               </div>
+              <TransitRoute travel={row.travel} selected={selectedOrder === row.to.order}
+                destination={displayName(row.to)} onSelect={() => onSelectStop?.(row.to)} />
               {!readOnly && <button className="timeline-add-inline" type="button" disabled={busy} onClick={() => onAdd?.(day.stops.indexOf(row.to))}>+ 장소</button>}
               </li>
               </Fragment>
@@ -166,6 +171,9 @@ export default function DayTimeline({ day, accommodation, onOpenDetail, selected
                 <span className="timeline-place-kind">{stopKindLabel(stop.type)}</span>
                 <h3><button type="button" className="timeline-stop-select" aria-pressed={selectedOrder === stop.order} onClick={() => onSelectStop?.(stop)}><span className={`timeline-stop-number ${stop.type.toLowerCase()}`}>{String(stop.order).padStart(2, "0")}</span><span className="timeline-name-stack"><strong>{displayName(stop)}</strong>{stop.nameKo && <small>{stop.name}</small>}</span></button></h3>
                 <p>{stopSubtitle(stop)}{stop.type === "CAFE" && <span className="timeline-cafe-budget">{cafeBudgetLabel(stop.restaurant)}</span>}</p>
+
+                {stop.attraction?.mustSee && !stop.reasons?.some(reason => reason.code === "MUST_SEE") && <span className="must-see-badge">대표 명소</span>}
+                {stop.attraction?.historyNote && <p className="attraction-history-note">ⓘ {stop.attraction.historyNote}</p>}
                 <StopReasons reasons={stop.reasons} />
                 {stop.warnings?.length > 0 && <ul className="timeline-stop-warnings">{stop.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
               </div>

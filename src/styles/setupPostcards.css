@@ -1,0 +1,35 @@
+.setup-postcards { background: #faf3e7 url("/assets/postcards/cream-paper.jpg"); color: #172e44; min-height: 100vh; word-break: keep-all; }
+.setup-bar { justify-content: space-between; }
+.setup-bar > a:last-child { font-size: .94rem; font-weight: 650; }
+.setup-spread { width: min(1120px, 92%); margin: auto; padding: 40px 0 64px; display: grid; grid-template-columns: minmax(220px, .82fr) minmax(0, 1.85fr); gap: clamp(16px, 3vw, 44px); align-items: start; }
+.setup-cover, .setup-sheet { background: #fffaf2; border: 1px solid #ddc9ae; border-radius: 18px; min-width: 0; }
+.setup-cover { position: sticky; top: 18px; padding: clamp(18px, 2vw, 32px); }
+.setup-cover h1 { margin: 8px 0; font: 800 clamp(30px, 3vw, 46px)/1.16 Georgia, Batang, serif; letter-spacing: -.06em; }
+.setup-cover p { line-height: 1.6; color: #465967; }
+.setup-cover .setup-phase { margin: 0; color: #93451b; font-weight: 750; font-size: .85rem; }
+.setup-cover img { display: block; width: 100%; border-radius: 10px; }
+.setup-cover nav { display: flex; flex-direction: column; margin-top: 14px; }
+.setup-cover nav a { color: #65432d; padding: 10px 0; border-bottom: 1px solid #e7d8c5; text-decoration: none; font-weight: 650; }
+.setup-cover nav a:hover { text-decoration: underline; }
+.setup-sheet { padding: clamp(18px, 3vw, 40px); background: #fffdfa; }
+.setup-group { scroll-margin-top: 20px; padding-bottom: 22px; }
+.setup-group + .setup-group { padding-top: 22px; border-top: 1px solid #dfcdb6; }
+.setup-group h2 { margin: 0 0 18px; font-size: clamp(20px, 2vw, 25px); }
+.setup-sheet .form-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.setup-sheet .form-grid label, .setup-group > label { display: grid; min-width: 0; gap: 6px; color: #364b58; font-size: .9rem; }
+.setup-sheet .conditions-form :is(input:not([type=checkbox]),select,textarea) { width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px; border: 1px solid #cbbba8; border-radius: 9px!important; background: white; color: #183148; font-size: 1rem; box-sizing: border-box; }
+.setup-sheet .conditions-form :disabled:not(fieldset) { opacity: .68; }
+.setup-sheet label:has(input:checked):is(.is-selected,.trip-interest-list > label) { background: #fff1df; border-color: #b97038; color: #683713; }
+.setup-sheet input[type=checkbox] { accent-color: #a94c12; }
+.setup-sheet .setup-submit { background: #ad470a; color: white; border: 0; min-height: 46px; border-radius: 12px!important; width: 100%; font-weight: 750; }
+.setup-edit-note { color: #59636a; font-size: .88rem; }
+.setup-postcards :is(a,button,input,select,textarea):focus-visible { outline: 3px solid #934919; outline-offset: 2px; }
+@media(max-width: 760px) {
+  .setup-spread { grid-template-columns: minmax(0,1fr); padding-top: 18px; }
+  .setup-cover { position: static; }
+  .setup-cover img { display: none; }
+  .setup-cover nav { flex-direction: row; flex-wrap: wrap; gap: 12px; }
+}
+@media(max-width: 520px) {
+  .setup-sheet .form-grid, .setup-sheet .trip-flight-grid { grid-template-columns: minmax(0,1fr); }
+}

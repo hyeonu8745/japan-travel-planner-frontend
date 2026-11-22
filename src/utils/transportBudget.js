@@ -6,5 +6,5 @@ export function yenRange(min, max) {
 }
 export function passRecommendation(pass, savingsYen) {
   const days = pass.fromDay === pass.toDay ? `${pass.fromDay}일차` : `${pass.fromDay}~${pass.toDay}일차`;
-  return `${days} ${pass.hours}시간권 추천${Number.isFinite(savingsYen) && savingsYen > 0 ? ` · ${yenAmount(savingsYen)} 절약` : ''}`;
+  return `${days} ${pass.name ? `${pass.name} · ${pass.hours === 24 ? "1일" : `${pass.hours}시간`}` : `${pass.hours}시간권`} 추천${Number.isFinite(savingsYen) && savingsYen > 0 ? ` · ${yenAmount(savingsYen)} 절약` : ''}`;
 }

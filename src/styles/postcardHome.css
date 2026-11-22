@@ -1,0 +1,103 @@
+.tabi-public.postcard-home {
+  background: #fff5e8 url("/assets/postcards/cream-paper.jpg") repeat;
+  padding-top: clamp(20px, 2.8vw, 48px);
+}
+.postcard-home .tabi-intro { grid-template-columns: 1fr 1.05fr; gap: 2%; }
+.postcard-kicker { color: #ac4b09; font-weight: 800; letter-spacing: .16em; }
+.postcard-home h1 { margin: 14px 0 22px; color: #102d42; font-weight: 900; }
+.postcard-home h1 em { font-style: normal; text-decoration: underline #ef831d; text-underline-offset: .13em; text-decoration-thickness: .065em; }
+.postcard-cities { display: flex; flex-wrap: wrap; gap: 7px; margin: 20px 0; }
+.postcard-cities button, .postcard-cities select, .postcard-request input {
+  border: 1px solid #d7c4ae; background: #fffaf3; color: #1b3448; border-radius: 9px; padding: 11px 14px; font: inherit;
+}
+.postcard-cities button[aria-pressed="true"] { border-color: #ce650f; background: #ffe8cc; }
+.postcard-start { border: 0; border-radius: 32px; padding: 14px 25px; background: #c65004; color: white; font: inherit; font-weight: 750; }
+.postcard-request { margin-top: 12px; font-size: .86rem; color: #5d534b; }
+.postcard-request summary { cursor: pointer; width: fit-content; }
+.postcard-request input { margin-top: 10px; width: min(100%, 420px); }
+.postcard-art { margin: 0; text-align: right; min-width: 0; }
+.postcard-art img { display: block; width: 100%; mask-image: linear-gradient(90deg, transparent, black 7%, black 98%, transparent), linear-gradient(transparent, black 5%, black 94%, transparent); mask-composite: intersect; }
+.postcard-art button, .all-city-scenes summary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 44px; padding: 9px 17px; box-sizing: border-box;
+  border: 1px solid #b89472; border-radius: 12px;
+  background: #fffcf6; color: #263a48; font: inherit; font-size: 1rem;
+  font-weight: 700; line-height: 1.4; cursor: pointer;
+}
+.postcard-art button:hover, .all-city-scenes summary:hover { background: #fff0dc; border-color: #995523; }
+.postcard-art button:focus-visible, .all-city-scenes summary:focus-visible { outline: 3px solid #854519; outline-offset: 3px; }
+.postcard-art button span { color: #9a4e18; }
+
+.postcard-steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #e0ccb6; border-radius: 16px; background: #fffbf5e6; padding: 16px 10px; margin: 24px 0; }
+.postcard-steps li { display: flex; gap: 12px; align-items: center; padding: 6px 14px; }
+.postcard-steps li + li { border-left: 1px solid #e8d8c6; }
+.postcard-steps img { width: clamp(30px, 3.4vw, 48px); }
+.postcard-steps p { font-size: .85rem; line-height: 1.5; margin: 5px 0 0; }
+.postcard-home .destination-explorer { margin-top: 32px; }
+@media (max-width: 800px) {
+  .postcard-steps { grid-template-columns: 1fr 1fr; gap: 12px 0; }
+  .postcard-steps li:nth-child(3) { border-left: 0; }
+}
+@media (max-width: 740px) {
+  .postcard-home .tabi-intro { grid-template-columns: 1fr; gap: 16px; }
+  .postcard-art { width: min(100%, 480px); justify-self: center; }
+}
+@media (max-width: 460px) {
+  .postcard-steps { grid-template-columns: 1fr; }
+  .postcard-steps li + li { border-left: 0; }
+}
+
+.postcard-cities .postcard-city {
+  display: inline-flex; align-items: center; gap: 7px; text-align: left;
+  padding: 6px 10px; min-height: 52px; box-shadow: 0 2px 5px #7656350d;
+}
+.postcard-city img { width: 34px; height: 36px; object-fit: contain; mix-blend-mode: multiply; }
+.postcard-city strong, .postcard-city small { display: block; line-height: 1.22; }
+.postcard-city small { margin-top: 2px; font-size: .75rem; color: #566272; }
+.postcard-cities .postcard-city:hover { border-color: #c98750; }
+
+.postcard-home .destination-city-list button {
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  column-gap: 12px;
+  background: #fcf7ef;
+}
+.postcard-home .destination-city-list button:hover,
+.postcard-home .destination-city-list button:focus-visible { background: #fff0da; }
+.postcard-home .destination-city-list img {
+  grid-area: 1 / 1 / 3 / 2;
+  align-self: center;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.postcard-home .destination-city-list b,
+.postcard-home .destination-city-list span { grid-column: 2; }
+.postcard-home .destination-city-list i { grid-column: 3; }
+
+.postcard-home .destination-explorer > header { margin-bottom: 14px; }
+.postcard-home .destination-explorer > header > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; }
+.postcard-home .destination-explorer header h2 { margin: 0; font-size: clamp(20px, 2vw, 28px); }
+.postcard-home .destination-explorer header p { margin: 0; }
+.city-scenes { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+.city-scene { position: relative; isolation: isolate; overflow: hidden; aspect-ratio: 2.85; border: 1px solid #dfcbb1; border-radius: 12px; background: #fff7ea; padding: 14px 5%; text-align: left; color: #102e43; }
+.city-scene img, .city-scene::before { position: absolute; inset: 0; width: 100%; height: 100%; }
+.city-scene img { inset: 0 0 0 auto; width: auto; max-width: 76%; object-fit: contain; object-position: right center; z-index: -2; mask-image: linear-gradient(90deg, transparent, black 25%); }
+.city-scene::before { content: ""; background: linear-gradient(90deg,#fff8ed 2%,#fff8edf0 15%,#fff8ed88 42%,transparent 67%); z-index: -1; }
+.city-scene strong, .city-scene small { display: block; }
+.city-scene strong { font-size: clamp(18px,1.6vw,25px); }
+.postcard-home .city-scene small { margin-top: 3px; color: #283f50; }
+.city-scene i { position: absolute; right: 9px; bottom: 7px; background: #fffcf5; border-radius: 50%; width: 26px; height: 26px; display: grid; place-items: center; font-style: normal; }
+.city-scene:hover, .city-scene:focus-visible { border-color: #c77631; }
+.all-city-scenes { margin-top: 12px; }
+.all-city-scenes summary { list-style: none; }
+.all-city-scenes summary::-webkit-details-marker { display: none; }
+.all-city-scenes summary::after {
+  content: ""; width: 8px; height: 8px; border: solid #91491d;
+  border-width: 0 2px 2px 0; transform: translateY(-2px) rotate(45deg);
+}
+.all-city-scenes[open] summary::after { transform: translateY(2px) rotate(225deg); }
+.all-city-scenes:not([open]) .when-open, .all-city-scenes[open] .when-closed { display: none; }
+.all-city-scenes[open] summary { margin-bottom: 10px; }
+@media (max-width: 640px) {
+  .city-scenes { grid-template-columns: 1fr; }
+  .city-scene { aspect-ratio: auto; min-height: 104px; }
+}

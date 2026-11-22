@@ -67,7 +67,7 @@ export default function AttractionCandidates({
                   <p>{(candidate.labels ?? []).join(" · ") || "관광지"}</p>
                 </div>
 
-                <span>★ {candidate.rating ?? "-"}</span>
+                {candidate.rating != null && <span>Google 평점 {candidate.rating}</span>}
               </div>
 
               <div className="candidate-badges">

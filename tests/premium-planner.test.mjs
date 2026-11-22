@@ -50,7 +50,7 @@ test('구체적인 관광지 종류를 우선하고 신사와 사찰은 서로 �
 test('기존 지역 enum으로 헤더를 골라 두 지역의 라벨 자체는 변경하지 않는다', () => {
   assert.equal(dayHeaderArtwork({ zone:'ASAKUSA_UENO',zones:['ASAKUSA_UENO','AKIHABARA_KANDA'] }), '/assets/regions-v2/asakusa-ueno.png');
   assert.equal(dayHeaderArtwork({ zone:'UNKNOWN',zones:['ODAIBA'] }), '/assets/regions-v2/odaiba.png');
-  assert.equal(dayHeaderArtwork({ zone:'UNKNOWN' }), null);
+  assert.equal(dayHeaderArtwork({ zone:'UNKNOWN' }), '/assets/heroes/japan-journey.png');
 });
 test('서버 선택지의 예산·휴일 경고를 카드에 그대로 남긴다', () => {
   const content="후보예요.\n1. 스시 이시카와 (스시 · 타베로그 3.72 · 걸어서 4분 · 예산 조금 넘음)\n2. 라멘집 (라멘 · 이 날 정기 휴일)\n번호로 골라 주세요.";
@@ -66,4 +66,13 @@ test('정형 정보가 없는 선택지와 여러 줄 대화를 훼손하지 않
   assert.deepEqual(chatOptions('DAY2 항목을 바꿨어요.'), []);
   assert.equal(chatMessageTime('2026-10-11T13:45:00'), '13:45');
   assert.equal(chatMessageTime(null), '');
+});
+
+test('도시와 당일치기 목적지에 맞는 일정 배너를 선택한다', () => {
+  assert.equal(dayHeaderArtwork({}, {baseCity:'OSAKA'}), '/assets/city-headers/osaka.jpg');
+  assert.equal(dayHeaderArtwork({city:'NAHA'}), '/assets/city-headers/naha.jpg');
+  const day = {transfers:[{kind:'DAY_TRIP_GO',label:'숙소 → 오사카역 → 교토역'}]};
+  const trip = {baseCity:'OSAKA',dayTripCities:[{city:'KYOTO',toStation:'교토역'}]};
+  assert.equal(dayHeaderArtwork(day, trip), '/assets/city-headers/kyoto.jpg');
+  assert.equal(dayHeaderArtwork(day, {baseCity:'OSAKA'}), '/assets/heroes/japan-journey.png');
 });

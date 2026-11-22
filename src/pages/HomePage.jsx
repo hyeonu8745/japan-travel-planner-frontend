@@ -1,181 +1,152 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { isLoggedIn } from "../auth/token";
-import Footer from "../components/Footer";
+import useRegions from "../hooks/useRegions";
 import PublicHeader from "../components/PublicHeader";
-import { ATTRACTION_SCOPE, RESTAURANT_SCOPE } from "../utils/serviceScope";
 
-const SUGGESTIONS = ["부모님과 편안한 도쿄 여행", "우에노·야나카 골목 위주로"];
+import "../styles/postcardHome.css";
+
+const steps = [
+  ["hotel", "여행 조건 입력", "도시와 날짜, 인원, 예산을 정해요."],
+  ["ai-spark", "취향과 스타일 선택", "좋아하는 음식과 걷고 싶은 동네를 알려주세요."],
+  ["generate", "일정 자동 구성", "취향과 동선에 맞춰 하루 일정을 짜요."],
+  ["confirm", "수정하고 완성하기", "장소를 바꾸고 여행 포스터로 간직해요."],
+];
+const landmarkNames = new Map([
+  ["도쿄", "Tokyo"], ["오사카", "Osaka"], ["교토", "Kyoto"], ["후쿠오카", "Fukuoka"],
+]);
+
+const cityIllustrations = new Map([
+  ["요코하마", "waterfront"], ["가마쿠라", "temple"], ["하코네", "onsen"],
+  ["가와구치코", "lake"], ["고베", "cruise"], ["나라", "park"],
+  ["나고야", "castle"], ["가나자와", "garden"], ["다카야마", "historic-town"],
+  ["히로시마", "memorial"], ["벳푸", "onsen"], ["유후인", "ryokan"],
+  ["삿포로", "tower"], ["오타루", "river"], ["나하", "island"],
+]);
+
+function cityImage(label) {
+  const landmark = landmarkNames.get(label);
+  if (landmark) return `/assets/postcards/${landmark.toLowerCase()}.jpg`;
+  const illustration = cityIllustrations.get(label) ?? "landmark";
+  return `/assets/attractions-v2/${illustration}.png`;
+}
+
+const SUGGESTIONS = ["부모님과 편안한 일본 여행", "골목 산책과 로컬 맛집 위주로"];
 
 export default function HomePage() {
+  const posterDialog = useRef(null);
   const navigate = useNavigate();
+  const loggedIn = isLoggedIn();
+  const catalogue = useRegions(loggedIn);
+  const cityCount = catalogue.regions.reduce((sum, region) => sum + region.cities.length, 0);
   const [prompt, setPrompt] = useState("");
 
-  const handleStart = (e) => {
-    e.preventDefault();
-    const request = prompt.trim() || undefined;
-    if (isLoggedIn()) {
-      navigate("/trips/new", { state: { prompt: request } });
-    } else {
-      navigate("/auth", { state: { from: "/trips/new", prompt: request } });
-    }
+  const startJourney = (destination) => {
+    const state = { prompt: prompt.trim() || undefined, destination };
+    if (loggedIn) navigate("/trips/new", { state });
+    else navigate("/auth", { state: { ...state, from: "/trips/new" } });
+  };
+  const [cityCode, setCityCode] = useState("");
+  const cities = catalogue.regions.flatMap(region =>
+    region.cities.map(city => ({ ...city, region: region.code }))
+  );
+  const featured = [...landmarkNames.keys()].map(label => cities.find(city => city.label === label)).filter(Boolean);
+  const quickCities = [...featured, ...cities.filter(city => !featured.includes(city))].slice(0, 4);
+  const otherCities = cities.filter(city => !quickCities.includes(city));
+  const explorerCities = quickCities.slice(0, 3);
+  const handleStart = event => {
+    event.preventDefault();
+    const city = cities.find(item => item.code === cityCode);
+    startJourney(city && { region: city.region, baseCity: city.code });
   };
 
   return (
     <>
       <PublicHeader />
-      <main>
-        <section className="hero">
-          <img src="/assets/heroes/tokyo-hero-clean-v3.png" alt="도쿄 야경과 여행자" />
-          <div className="shade" />
-          <div className="hero-copy">
-            <small>AI JAPAN TRIP DESIGNER · TOKYO BETA</small>
-            <h1>
-              도쿄 여행,
-              <br />
-              <em>검색 말고 대화로.</em>
-            </h1>
-            <p>
-              도쿄 중심 8개 구의 관광지를 지원합니다. 가고 싶은 곳과 취향을 말하면 평점,
-              날씨, 이동 시간을 함께 검토해 현실적인 일정을 만듭니다.
-            </p>
-            <form className="prompt" onSubmit={handleStart}>
-              <span>✦</span>
-              <input
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                maxLength={1000}
-                aria-label="여행 요청"
-                placeholder="예: 도쿄 3박 4일, 혼자 가는 미식 여행을 짜줘"
-              />
-              <button type="submit" className="prompt-start">
-                계획 시작 →
-              </button>
+      <main className="tabi-public postcard-home">
+        <section className="tabi-intro">
+          <div>
+            <small className="postcard-kicker">JAPAN TRIP PLANNER</small>
+            <h1>이번 여행은<br /><em>어느 도시로?</em></h1>
+            <p>타비와 함께라면, 일본 여행 준비가 더 쉽고 즐거워요.<br />도시 선택부터 일정, 비용, 포스터까지 한 번에 계획해보세요.</p>
+            <form onSubmit={handleStart}>
+              {cities.length > 0 && <div className="postcard-cities">
+                {quickCities.map(city => {
+                  const englishName = landmarkNames.get(city.label);
+                  return <button className="postcard-city" key={city.code} type="button" aria-pressed={city.code === cityCode} onClick={() => setCityCode(city.code)}>
+                    <img src={cityImage(city.label)} alt="" />
+                    <span><strong>{city.label}</strong>{englishName && <small lang="en">{englishName}</small>}</span>
+                  </button>;
+                })}
+                {otherCities.length > 0 && <select aria-label="다른 도시 선택" value={otherCities.some(city => city.code === cityCode) ? cityCode : ""} onChange={event => setCityCode(event.target.value)}>
+                  <option value="">다른 도시</option>
+                  {otherCities.map(city => <option key={city.code} value={city.code}>{city.label}</option>)}
+                </select>}
+              </div>}
+              <button className="postcard-start">일본 여행 계획 세우기　→</button>
+              <details className="postcard-request"><summary>여행 요청 미리 적기</summary>
+                <input aria-label="여행 요청" value={prompt} onChange={event => setPrompt(event.target.value)} maxLength={1000} placeholder="예: 골목 산책과 로컬 맛집 위주로" />
+                <div className="tabi-examples">{SUGGESTIONS.map(text => <button key={text} type="button" onClick={() => setPrompt(text)}>{text}</button>)}</div>
+              </details>
             </form>
-            <div className="suggest">
-              <span>이렇게 말해보세요</span>
-              {SUGGESTIONS.map((text) => (
-                <button
-                  key={text}
-                  type="button"
-                  onClick={() => setPrompt(text)}
-                >
-                  {text}
-                </button>
-              ))}
-            </div>
-            <p className="service-scope">
-              관광지 8개 구 · 식당 6개 구(고토·스미다 제외) · 도쿄 베타
-            </p>
           </div>
-          <aside className="route-card">
-            <header>
-              <span>도쿄 · 예시 동선</span>
-              <b>이동 최적화</b>
+          <figure className="postcard-art">
+            <img src="/assets/postcards/japan-postcards.jpg" alt="후지산과 벚꽃 앞에 펼쳐 놓은 도쿄와 교토 여행 엽서" />
+            <button type="button" aria-haspopup="dialog" onClick={() => posterDialog.current.showModal()}>실제 여행 포스터 보기 <span aria-hidden="true">↗</span></button>
+          </figure>
+          <dialog ref={posterDialog} className="tabi-poster-dialog" aria-labelledby="poster-heading">
+            <header><h2 id="poster-heading">오사카 4박 5일 · 여행 포스터 예시</h2>
+              <form method="dialog"><button>닫기</button></form>
             </header>
-            <ol>
-              <li>
-                <b>아사쿠사 센소지</b>
-                <small>09:30 · 오전 방문</small>
-              </li>
-              <li>
-                <b>우에노 공원</b>
-                <small>11:30 · 점심 전 산책</small>
-              </li>
-              <li>
-                <b>도쿄 타워</b>
-                <small>18:20 · 저녁 식사 후 야경</small>
-              </li>
-            </ol>
-            <footer>
-              숙소 출발 기준 <b>최단 순서</b>
-            </footer>
-          </aside>
+            <img loading="lazy" src="/assets/posters/osaka-map.jpg" alt="오사카 여행 지도 · 1~2일차" />
+            <img loading="lazy" src="/assets/posters/osaka-day2.jpg" alt="2일차 교토 당일치기 상세 일정표 · 방문 시각, 이동 경로와 1인 비용 요약" />
+          </dialog>
         </section>
-
-        <section className="trust" id="trust">
-          <div>
-            <b>9,399</b>
-            <span>타베로그 식당</span>
-          </div>
-          <div>
-            <b>119</b>
-            <span>관광 명소</span>
-          </div>
-          <div>
-            <b>8</b>
-            <span>관광지 지원 구</span>
-          </div>
-          <p>
-            {ATTRACTION_SCOPE}<br />{RESTAURANT_SCOPE}<br />
-            평점 3.4 이상 식당과 Google 관광 명소 데이터 안에서만 추천해,
-            존재하지 않는 장소를 만들어내지 않습니다.
-          </p>
+        <ol className="postcard-steps" aria-label="여행 계획 과정">
+          {steps.map(([icon, heading, detail], index) => <li key={icon}>
+            <img src={`/assets/ui-v2/${icon}.svg`} alt="" />
+            <div><strong>{index + 1}. {heading}</strong><p>{detail}</p></div>
+          </li>)}
+        </ol>
+        <section className="destination-explorer" aria-labelledby="destination-title">
+          <header><div><h2 id="destination-title">도시 탐색하기</h2><p>일본의 매력적인 도시들을 만나보세요.</p></div>
+            {catalogue.data && <span>{catalogue.regions.length}개 권역 · {cityCount}개 도시</span>}
+          </header>
+          {!loggedIn ? <div className="destination-signin"><p>로그인하면 여행할 권역과 도시, 당일치기 후보를 볼 수 있어요.</p><button type="button" onClick={() => navigate('/auth', { state: { from: '/', prompt } })}>로그인하고 도시 둘러보기 →</button></div> : catalogue.loading ? <p role="status">여행할 도시를 불러오고 있어요…</p> : catalogue.error ? <div role="alert"><p>{catalogue.error}</p><button type="button" onClick={catalogue.reload}>도시 다시 불러오기</button></div> : <>
+            <div className="city-scenes">{explorerCities.map(city => {
+              const english = landmarkNames.get(city.label);
+              const scene = ["Tokyo", "Osaka", "Kyoto"].includes(english)
+                ? `/assets/postcards/${english.toLowerCase()}-scene.jpg`
+                : cityImage(city.label);
+              return <button type="button" className="city-scene" key={city.code}
+                onClick={() => startJourney({ region: city.region, baseCity: city.code })}>
+                <img src={scene} alt="" />
+                <span><strong>{city.label}</strong>{english && <small lang="en">{english}</small>}</span>
+                <i aria-hidden="true">→</i>
+              </button>;
+            })}</div>
+            <details className="all-city-scenes"><summary>
+              <span className="when-closed">모든 도시 보기</span>
+              <span className="when-open">도시 목록 접기</span>
+            </summary>
+            <div className="destination-grid">{catalogue.regions.map(region => <article className="destination-card" key={region.code}>
+            <div className="destination-card-top"><span aria-hidden="true">✦</span><h3>{region.label}</h3><small>{region.cities.length}개 도시</small></div>
+            <div className="destination-city-list">{region.cities.map(city => (
+              <button key={city.code} type="button" onClick={() => startJourney({ region: region.code, baseCity: city.code })}>
+                <img src={cityImage(city.label)} alt="" width="42" height="42" loading="lazy" />
+                <b>{city.label}</b>
+                <span>{city.dayTrips?.length ? '당일치기도 함께' : '이 도시에서 머물기'}</span>
+                <i aria-hidden="true">↗</i>
+              </button>
+            ))}</div>
+            <p>{region.airports.map(airport => airport.label).join(' · ')}</p>
+          </article>)}</div></details></>}
         </section>
-
-        <section className="how" id="how">
-          <div>
-            <small>ONE CONVERSATION</small>
-            <h2>
-              대화로 짜고,
-              <br />한 장으로 가져가세요.
-            </h2>
-            <p>
-              AI와 대화하며 일정을 수정하고 지도 위 경로를 확인한 뒤, 완성된
-              여행을 포스터로 받아보세요.
-            </p>
-            <Link to="/guide">전체 이용 방법 보기 →</Link>
-          </div>
-          <section>
-            <article>
-              <b>01</b>
-              <h3>취향을 말하기</h3>
-              <p>기간, 동행, 음식, 여행 속도를 자연스럽게 이야기합니다.</p>
-            </article>
-            <article>
-              <b>02</b>
-              <h3>동선까지 함께 수정</h3>
-              <p>이동 시간과 날씨를 반영한 경로가 지도에 표시됩니다.</p>
-            </article>
-            <article>
-              <b>03</b>
-              <h3>AI 포스터 생성</h3>
-              <p>확정한 일정으로 여행 포스터를 만들고 PDF로 저장합니다.</p>
-            </article>
-          </section>
-        </section>
-
-        <section className="poster-tease">
-          <div>
-            <small>GENERATED BY AI</small>
-            <h2>
-              계획만 완성하면
-              <br />
-              포스터는 AI가 만듭니다.
-            </h2>
-            <p>
-              날짜, 이동 경로, 핵심 장소와 여행 분위기를 한 장의 이미지로 만들어
-              드립니다. PDF로 저장해 휴대하거나 공유하세요.
-            </p>
-            <Link className="btn-light" to="/guide">
-              이용 방법 보기
-            </Link>
-          </div>
-          <a
-            className="home-poster-preview"
-            href="/assets/posters/tokyo-ai-poster-example.png"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <img
-              src="/assets/posters/tokyo-ai-poster-example.png"
-              alt="도쿄 여행 포스터 스타일 예시"
-            />
-            <span>포스터 스타일 예시</span>
-          </a>
-        </section>
+        <div className="tabi-links">
+          <Link to="/guide"><strong>이용 방법 ↗</strong><span>취향 대화부터 여행 포스터까지</span></Link>
+          <Link to="/guide#criteria"><strong>추천 기준 ↗</strong><span>내 일정에 이 장소가 담긴 이유</span></Link>
+        </div>
       </main>
-      <Footer />
     </>
   );
 }

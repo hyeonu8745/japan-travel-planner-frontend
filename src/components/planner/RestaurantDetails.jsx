@@ -49,8 +49,8 @@ export default function RestaurantDetails({ restaurantId, fallbackName, nameKo, 
         {!readOnly && onReplace && details.reviewInsights?.findings?.some((finding) => finding.caution) && <div className="restaurant-google-warning"><p>주의 경험을 확인하고 다른 식당을 비교할 수 있어요.</p><button type="button" className="tabi-button tabi-button-primary" disabled={busy} onClick={onReplace}>다른 식당으로 바꾸기</button></div>}
         {google?.summary && <p className="google-place-summary">{google.summary}</p>}
         <div className="restaurant-detail-ratings">
-          <div><span>타베로그</span><b>★ {tabelog.rating ?? "정보 없음"}</b>{tabelog.reviewCount != null && <small>리뷰 {tabelog.reviewCount.toLocaleString()}개</small>}</div>
-          {google && <div><span>Google Maps</span><b>★ {google.rating ?? "정보 없음"}</b>{google.userRatingCount != null && <small>리뷰 {google.userRatingCount.toLocaleString()}개</small>}</div>}
+          {tabelog.rating != null && <div><span>타베로그</span><b>★ {tabelog.rating}</b>{tabelog.reviewCount != null && <small>리뷰 {tabelog.reviewCount.toLocaleString()}개</small>}</div>}
+          {google?.rating != null && <div><span>Google 평점</span><b>★ {google.rating}</b>{google.userRatingCount != null && <small>리뷰 {google.userRatingCount.toLocaleString()}개</small>}</div>}
         </div>
         {google && <p className="data-notice">두 서비스의 평점 기준은 달라 숫자를 직접 비교하기 어려워요. 타베로그는 3.5 이상이면 높은 편이에요.</p>}
         {features?.labels?.length > 0 && <section className="restaurant-features" aria-label="식당 특성">

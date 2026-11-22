@@ -1,0 +1,26 @@
+.postcard-studio.poster-studio { background: #fbf3e8 url("/assets/postcards/cream-paper.jpg"); color: #172e44; min-height: 100vh; }
+.postcard-studio .poster-nav { justify-content: space-between; }
+.postcard-studio .poster-page { width: min(1160px,94%); margin: auto; padding: clamp(16px,3vw,36px) 0 48px; }
+.postcard-studio .poster-page > .poster-studio-heading { background: #fff9ef; border-color: #ddc8af; padding: 0; overflow: hidden; flex-wrap: nowrap; gap: 0; }
+.postcard-studio .poster-studio-heading > div { min-width: 0; padding: clamp(18px,3vw,36px); overflow-wrap: anywhere; }
+.postcard-studio .poster-studio-heading h1 { font: 700 clamp(25px,3vw,39px)/1.3 "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; letter-spacing: -.025em; word-break: keep-all; margin: 0 0 10px; }
+.postcard-studio .poster-studio-heading p { font-size: .94rem; color: #475c68; }
+.studio-scenery { width: 26%; height: 135px; object-fit: cover; mask-image: linear-gradient(90deg, transparent, black 20%); }
+.studio-settings { margin-top: 16px; background: #fffbf4; border: 1px solid #deccb5; border-radius: 12px; }
+.studio-settings summary { cursor: pointer; padding: 13px 17px; color: #633d24; font-weight: 700; }
+.postcard-studio .poster-customization { border: 0; margin: 0; padding: 6px 17px 17px; background: transparent; }
+.postcard-studio .poster-style-choice.is-selected { border-color: #ac622b; background: #fff0da; }
+.postcard-studio .poster-primary-controls .poster-create,.postcard-studio .poster-controls .poster-print { background: #fff9f1; color: #743c18; border: 1px solid #c4a180; border-radius: 20px; padding: 9px 16px; font-size: .88rem; font-weight: 700; }
+.postcard-studio .poster-controls .poster-print:not(:disabled),.postcard-studio .poster-create:only-of-type:not(:disabled):has(+ .poster-remaining):not(:focus):hover { background: #ac490e; color: white; }
+.postcard-studio .poster-remaining,.postcard-studio .poster-generation-status,.postcard-studio .poster-result-options { color: #5e6060; font-size: .82rem; }
+.postcard-studio .poster-active-view,.postcard-studio .poster-collection,.postcard-studio .poster-empty { border-color: #dcc7ae; background: #fffaf2; }
+.postcard-studio .poster-active-view-paper { background: #efe5d6; }
+.postcard-studio .poster-sheet-label>span,.postcard-studio .poster-thumbnail.is-selected { background: #fff0dc; color: #773f19; border-color: #b57745; }
+.postcard-studio .poster-thumbnail-copy b,.postcard-studio .poster-sheet-label b { font-size: .93rem; }
+.postcard-studio .poster-viewer-footer button { color: #623c25; border-color: #d9c3a9; border-radius: 16px; }
+.postcard-studio :is(button,a,input,summary):focus-visible { outline: 3px solid #955022; outline-offset: 2px; }
+@media(max-width: 740px) {
+  .postcard-studio .poster-nav nav { width: auto; }
+  .studio-scenery { width: 24%; height: 102px; }
+  .postcard-studio .poster-page { width: 94%; padding: 16px 0 40px; }
+}

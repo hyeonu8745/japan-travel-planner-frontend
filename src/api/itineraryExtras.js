@@ -1,4 +1,4 @@
-import { apiRequest } from './client';
+import { apiRequest } from './client.js';
 
 export const confirmItinerary = (tripId) => apiRequest(`/api/trips/${tripId}/itinerary/confirm`, { method: 'POST' });
 export const getItineraryBudget = (tripId, options) => apiRequest(`/api/trips/${tripId}/itinerary/budget`, options);

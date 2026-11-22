@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { login, signup } from "../api/auth";
 import { getSession, isLoggedIn, saveAuth } from "../auth/token";
-import Brand from "../components/Brand";
+import TabiWordmark from "../components/TabiWordmark";
+import "../styles/accountPostcards.css";
 
 const errorStyle = { color: "#d64545", fontSize: "0.78rem", margin: "4px 0 0" };
 
@@ -21,29 +22,20 @@ export default function AuthPage() {
   const carriedPrompt = location.state?.prompt; // ← 추가: 메인에서 들고 온 요청
 
   return (
-    <div className="auth-page">
-      <Brand className="auth-brand" />
-      <main className="auth-shell">
-        <section className="auth-art">
-          <small>WELCOME BACK</small>
-          <h1>
-            다음 여행도
-            <br />
-            대화로 가볍게.
-          </h1>
-          <p>저장한 일정과 포스터를 언제든 다시 열어보세요.</p>
-          <div className="passport">
-            <span>TOKYO BETA JOURNEY</span>
-            <b>旅</b>
-            <small>YOUR NEXT STORY STARTS HERE</small>
-          </div>
+    <div className="account-paper">
+      <header className="tabi-header"><TabiWordmark /></header>
+      <main className="account-entry">
+        <section className="entry-postcard">
+          <h1>나의 일본 여행</h1>
+          <p>저장한 일정과 포스터를 다시 펼쳐보세요.</p>
+          <img src="/assets/postcards/japan-postcards.jpg" alt="" />
         </section>
-
         <section className="auth-card">
           {getSession().message && <p role="alert" style={errorStyle}>{getSession().message}</p>}
           <div className="auth-tabs">
             <button
               type="button"
+              aria-pressed={mode === "login"}
               className={mode === "login" ? "active" : ""}
               onClick={() => setMode("login")}
             >
@@ -51,6 +43,7 @@ export default function AuthPage() {
             </button>
             <button
               type="button"
+              aria-pressed={mode === "signup"}
               className={mode === "signup" ? "active" : ""}
               onClick={() => setMode("signup")}
             >
@@ -63,7 +56,7 @@ export default function AuthPage() {
               onSuccess={() =>
                 navigate(redirectTo, {
                   replace: true,
-                  state: { prompt: carriedPrompt },
+                  state: { prompt: carriedPrompt, destination: location.state?.destination },
                 })
               }
             />
@@ -72,15 +65,12 @@ export default function AuthPage() {
               onSuccess={() =>
                 navigate("/trips/new", {
                   replace: true,
-                  state: { prompt: carriedPrompt },
+                  state: { prompt: carriedPrompt, destination: location.state?.destination },
                 })
               }
             />
           )}
 
-          <p className="auth-note">
-            현재 이메일 로그인으로 도쿄 베타 서비스를 이용할 수 있습니다.
-          </p>
         </section>
       </main>
     </div>
@@ -133,7 +123,7 @@ function LoginForm({ onSuccess }) {
             onChange={(e) => setPassword(e.target.value)}
           />
         </label>
-        {error && <p style={errorStyle}>{error}</p>}
+        {error && <p role="alert" style={errorStyle}>{error}</p>}
         <button className="primary" type="submit" disabled={loading}>
           {loading ? "로그인 중..." : "로그인"}
         </button>
@@ -219,7 +209,7 @@ function SignupForm({ onSuccess }) {
           />
           이용약관과 개인정보 처리방침에 동의합니다.
         </label>
-        {error && <p style={errorStyle}>{error}</p>}
+        {error && <p role="alert" style={errorStyle}>{error}</p>}
         <button className="primary" type="submit" disabled={loading}>
           {loading ? "가입 중..." : "무료로 시작하기"}
         </button>

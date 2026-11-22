@@ -1,12 +1,12 @@
-import { logout } from "../api/auth";
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getMyTrips, deleteTrip } from "../api/trips";
 import { DELETE_TRIP_MESSAGE } from "../utils/tripEditing";
 import { getUser } from "../auth/token";
 import PosterArchive from "../components/PosterArchive";
 import { HAS_ITINERARY, STATUS_LABELS } from "../utils/tripStatus";
-import Brand from "../components/Brand";
+import PublicHeader from "../components/PublicHeader";
+import "../styles/accountPostcards.css";
 
 const INTEREST_LABELS = {
   FOOD: "현지 음식",
@@ -98,55 +98,20 @@ export default function TripsPage() {
     finally { deletingRef.current = false; setDeletingId(null); }
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/auth", { replace: true });
-  };
-
   const upcomingCount = trips.filter((trip) => !isPast(trip)).length;
   const visibleTrips = trips.filter((trip) => matchesFilter(trip, filter));
 
   return (
-    <div className="dashboard">
-      <aside className="side">
-        <Brand />
-        <nav>
-          <NavLink to="/trips" end>
-            ▦ 내 여행
-          </NavLink>
-          <Link to="/trips/new">✦ 새 여행 만들기</Link>
-          <a
-            href="#posters"
-            onClick={(e) => {
-              e.preventDefault();
-              setTab("posters");
-            }}
-          >
-            ▤ 생성된 포스터
-          </a>
-        </nav>
-        <div className="profile">
-          <i>{user?.nickname?.charAt(0) ?? "?"}</i>
-          <p>
-            <b>{user?.nickname} 님</b>
-            <span>{user?.email}</span>
-          </p>
-          <button type="button" onClick={handleLogout} title="로그아웃">
-            ⎋
-          </button>
-        </div>
-      </aside>
-
-      <main className="trip-main">
-        <header>
+    <div className="account-paper">
+      <PublicHeader />
+      <main className="trip-main journey-shelf">
+        <header className="shelf-cover">
           <div>
-            <small>MY JOURNEYS</small>
             <h1>내 여행</h1>
-            <p>계획 중인 일정과 AI가 만든 여행 포스터를 한곳에서 관리하세요.</p>
+            <p>{user?.nickname ? user.nickname + "님의 " : ""}여행 일정과 포스터를 모아봤어요.</p>
+            {user?.email && <small>{user.email}</small>}
           </div>
-          <Link className="new-trip" to="/trips/new">
-            ＋ 새 여행 만들기
-          </Link>
+          <img src="/assets/postcards/japan-postcards.jpg" alt="" />
         </header>
 
         <section className="trip-stats">
@@ -167,6 +132,7 @@ export default function TripsPage() {
         <nav className="content-tabs">
           <button
             type="button"
+            aria-pressed={tab === "journeys"}
             className={tab === "journeys" ? "active" : ""}
             onClick={() => setTab("journeys")}
           >
@@ -174,6 +140,7 @@ export default function TripsPage() {
           </button>
           <button
             type="button"
+            aria-pressed={tab === "posters"}
             className={tab === "posters" ? "active" : ""}
             onClick={() => setTab("posters")}
           >
@@ -188,6 +155,7 @@ export default function TripsPage() {
                 <button
                   key={f.key}
                   type="button"
+                  aria-pressed={filter === f.key}
                   className={filter === f.key ? "active" : ""}
                   onClick={() => setFilter(f.key)}
                 >
@@ -206,8 +174,8 @@ export default function TripsPage() {
                 ))}
                 <Link className="empty-trip" to="/trips/new">
                   <b>＋</b>
-                  <h3>새로운 도쿄 여행</h3>
-                  <p>도쿄에서 가고 싶은 지역을 AI에게 말해보세요.</p>
+                  <h3>새로운 일본 여행</h3>
+                  <p>여행할 도시와 가고 싶은 곳을 골라보세요.</p>
                 </Link>
               </section>
             )}
@@ -229,10 +197,10 @@ function TripCard({ trip, onDelete, deletingId }) {
 
   return (
     <article className="trip-card">
-      <div className="trip-cover tokyo">
+      <div className="trip-cover japan">
         <span>{dDayLabel(trip)}</span>
-        <h2>TOKYO</h2>
-        <p>{interests || "도쿄 여행"}</p>
+        <h2>{trip.baseCityLabel || trip.regionLabel || "JAPAN"}</h2>
+        <p>{interests || "일본 여행"}</p>
       </div>
       <div className="trip-content">
         <div>
@@ -241,6 +209,7 @@ function TripCard({ trip, onDelete, deletingId }) {
           </span>
         </div>
         <h3>{trip.title}</h3>
+        {trip.baseCityLabel && <p>기준 도시: {trip.baseCityLabel}</p>}
         <p>
           {formatRange(trip)} ·{" "}
           {trip.travelers === 1 ? "혼자" : `${trip.travelers}명`}

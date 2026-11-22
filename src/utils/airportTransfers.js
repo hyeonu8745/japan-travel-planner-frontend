@@ -12,7 +12,6 @@ export function flightRequestFields(values) {
   for (const direction of ['arrival', 'departure']) {
     const airport = values[`${direction}Airport`] || null;
     const time = normalizeFlightTime(values[`${direction}FlightTime`]) || null;
-    if (airport && !['NRT', 'HND'].includes(airport)) throw new Error('공항은 나리타 또는 하네다를 선택해주세요.');
     if (time && !airport) throw new Error(`${direction === 'arrival' ? '도착' : '출발'} 공항도 함께 선택해주세요.`);
     if (time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) throw new Error('비행기 시각은 HH:mm 형식으로 입력해주세요.');
     result[`${direction}Airport`] = airport;

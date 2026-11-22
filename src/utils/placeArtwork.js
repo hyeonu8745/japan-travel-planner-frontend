@@ -73,7 +73,27 @@ export const DAY_HEADERS = {
   ASAKUSA_UENO: 'asakusa-ueno', GINZA_TOKYO: 'ginza-tokyo', AKIHABARA_KANDA: 'akihabara-kanda',
   SHINJUKU: 'shinjuku', SHIBUYA_HARAJUKU: 'shibuya-harajuku', ROPPONGI_TOWER: 'roppongi-tower', ODAIBA: 'odaiba',
 };
-export function dayHeaderArtwork(day) {
+const CITY_HEADERS = Object.fromEntries([
+  ["TOKYO", "도쿄"], ["YOKOHAMA", "요코하마"], ["KAMAKURA", "가마쿠라"],
+  ["HAKONE", "하코네"], ["KAWAGUCHIKO", "가와구치코"], ["OSAKA", "오사카"],
+  ["KYOTO", "교토"], ["KOBE", "고베"], ["NARA", "나라"], ["NAGOYA", "나고야"],
+  ["KANAZAWA", "가나자와"], ["TAKAYAMA", "다카야마"], ["HIROSHIMA", "히로시마"],
+  ["FUKUOKA", "후쿠오카"], ["BEPPU", "벳푸"], ["YUFUIN", "유후인"],
+  ["SAPPORO", "삿포로"], ["OTARU", "오타루"], ["NAHA", "나하"],
+].flatMap(([code, label]) => [[code, code.toLowerCase()], [label, code.toLowerCase()]]));
+
+export function dayHeaderArtwork(day, trip) {
+  const outbound = day?.transfers?.find(transfer => transfer.kind === "DAY_TRIP_GO");
+  if (outbound) {
+    const matches = (trip?.dayTripCities ?? []).filter(city =>
+      city.toStation && outbound.label?.includes(city.toStation));
+    const destination = day.city ?? day.cityLabel ?? (matches.length === 1 ? matches[0].city ?? matches[0].label : undefined);
+    const city = CITY_HEADERS[destination];
+    if (city) return `/assets/city-headers/${city}.jpg`;
+    return "/assets/heroes/japan-journey.png";
+  }
   const key = DAY_HEADERS[day?.zone] ?? (day?.zones ?? []).map((zone) => DAY_HEADERS[zone]).find(Boolean);
-  return key ? `/assets/regions-v2/${key}.png` : null;
+  if (key) return `/assets/regions-v2/${key}.png`;
+  const city = CITY_HEADERS[day?.city ?? day?.cityLabel ?? trip?.baseCity ?? trip?.baseCityLabel];
+  return city ? `/assets/city-headers/${city}.jpg` : "/assets/heroes/japan-journey.png";
 }

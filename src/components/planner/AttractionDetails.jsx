@@ -1,28 +1,12 @@
+import GoogleAuthor from "./GoogleAuthor";
+import AttractionPhoto from "./AttractionPhoto";
+import { externalUrl } from "../../utils/travelPresentation";
 import DetailArt from "./DetailArt";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getAttractionDetails, getAttractionPhoto } from "../../api/attractions";
 import ReviewInsights, { ReviewFindings } from "./ReviewInsights";
 
 const WEEKDAYS = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-
-function externalUrl(value) {
-  if (!value) return undefined;
-  try {
-    const url = new URL(value);
-    return ["http:", "https:"].includes(url.protocol) ? url.href : undefined;
-  } catch { return undefined; }
-}
-
-function Author({ author }) {
-  if (!author) return null;
-  const content = <>
-    {externalUrl(author.photoUri) && <img className="google-author-avatar" src={author.photoUri} alt="" loading="lazy" referrerPolicy="no-referrer" />}
-    <span>{author.name}</span>
-  </>;
-  return externalUrl(author.uri)
-    ? <a className="google-author" href={author.uri} target="_blank" rel="noopener noreferrer">{content}</a>
-    : <span className="google-author">{content}</span>;
-}
 
 function CurrentPhoto({ attractionId, photo, onExpired, onReload, loadPhoto, photoAlt, navigation }) {
   const [state, setState] = useState({ loading: true, uri: null, error: "" });
@@ -67,13 +51,15 @@ function CurrentPhoto({ attractionId, photo, onExpired, onReload, loadPhoto, pho
     {state.uri && <figcaption>
       <span className="google-attribution">Google Maps</span>
       {photo.authors?.length > 0 && <><span>사진 작성자</span>
-      {photo.authors.map((author, index) => <Author key={index} author={author} />)}</>}
+      {photo.authors.map((author, index) => <GoogleAuthor key={index} author={author} />)}</>}
     </figcaption>}
   </figure>;
 }
 
-export default function AttractionDetails({ attractionId, fallbackName, visitDate, children, heading, loadDetails = getAttractionDetails, loadPhoto = getAttractionPhoto, detailTitle = "관광지 상세 정보", photoAlt = "관광지 사진", loadingText = "장소 정보를 불러오고 있어요...", renderIntro, renderFacts }) {
+export default function AttractionDetails({ attractionId, fallbackName, visitDate, children, heading, loadDetails = getAttractionDetails, loadPhoto = getAttractionPhoto, detailTitle = "관광지 상세 정보", photoAlt = "관광지 사진", loadingText = "장소 정보를 불러오고 있어요...", renderIntro, renderFacts, localPhoto }) {
   const [state, setState] = useState({ loading: true, data: null, error: "" });
+  const [localPhotoFailed, setLocalPhotoFailed] = useState(false);
+  const showLocalPhoto = !!externalUrl(localPhoto?.url) && !localPhotoFailed;
   const [attempt, setAttempt] = useState(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const refreshedExpiredPhoto = useRef(false);
@@ -123,11 +109,12 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
 
   return <section className="google-attraction-details" aria-label={detailTitle} aria-busy={state.loading}>
     <header><h2>{detailTitle}</h2>{(hasGoogle || !renderIntro) && <span className="google-attribution">{details?.attribution ?? "Google Maps"}</span>}</header>
+    {(state.loading || state.error) && showLocalPhoto && <AttractionPhoto photo={localPhoto} name={fallbackName} onError={() => setLocalPhotoFailed(true)} />}
     {state.loading && <p className="google-detail-state" role="status">{loadingText}</p>}
     {state.error && <div className="google-detail-state" role="status"><p>{state.error}</p><button type="button" onClick={reload}>다시 불러오기</button></div>}
     {details && <>
-      <div className={`detail-hero${photo ? " has-photo" : ""}`}>
-      {photo && <div className="google-photo-gallery">
+      <div className={`detail-hero${photo || showLocalPhoto ? " has-photo" : ""}`}>
+      {showLocalPhoto ? <AttractionPhoto photo={localPhoto} name={fallbackName} onError={() => setLocalPhotoFailed(true)} /> : photo && <div className="google-photo-gallery">
         <CurrentPhoto key={`${attempt}-${index}-${photo.name}`} attractionId={attractionId} photo={photo} onExpired={handleExpiredPhoto} onReload={reload} loadPhoto={loadPhoto} photoAlt={photoAlt}
           navigation={photos.length > 1 && <div className="photo-overlay-controls"><button className="tabi-button-primary" type="button" aria-label="이전 사진으로" disabled={index === 0} onClick={() => setPhotoIndex(index - 1)}>‹</button><button className="tabi-button-primary" type="button" aria-label="다음 사진으로" disabled={index === photos.length - 1} onClick={() => setPhotoIndex(index + 1)}>›</button></div>} />
         {photos.length > 1 && <nav aria-label="장소 사진 넘기기">
@@ -140,7 +127,7 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
       {Intro ? <Intro details={details} onReload={reload} /> : <>{!heading && <><h3>{details.localizedName || details.name || fallbackName}</h3>
       {details.localizedName && details.name !== details.localizedName && <p className="google-original-name">{details.name}</p>}</>}
       {(details.rating != null || details.userRatingCount != null) && <p className="google-place-rating">
-        {details.rating != null && <b>★ {details.rating}</b>}
+        {details.rating != null && <b>Google 평점 {details.rating}</b>}
         {details.userRatingCount != null && <span>리뷰 {details.userRatingCount.toLocaleString()}개</span>}
       </p>}
       {details.summary && <p className="google-place-summary">{details.summary}</p>}</>}
@@ -164,12 +151,12 @@ export default function AttractionDetails({ attractionId, fallbackName, visitDat
         {details.reviewNotice && <p className="google-review-notice">{details.reviewNotice}</p>}
         {!details.reviews?.length && <p>표시할 리뷰가 없어요.</p>}
         <div className="google-review-grid">{details.reviews?.map((review, reviewIndex) => <article key={reviewIndex} id={`google-review-${attractionId}-${reviewIndex}`}>
-          <header><Author author={review.author} /><div>{review.rating != null && <b>★ {review.rating}</b>}{review.relativeTime && <span>{review.relativeTime}</span>}</div></header>
-          {review.translated && <span className="google-translated">번역됨</span>}
+          <header><GoogleAuthor author={review.author} /><span className="google-review-source">Google 리뷰</span><div>{review.rating != null && <b>Google 평점 {review.rating}</b>}{review.relativeTime && <span>{review.relativeTime}</span>}</div></header>
           {review.text && <p>{review.text}</p>}
           {!review.translated && details.reviewInsights?.analyzedReviewCount > 0 && <ReviewFindings findings={details.reviewInsights.findings?.filter((finding) => finding.reviewIndex === reviewIndex)} />}
-          {review.translated && review.originalText && <details><summary>원문 보기</summary><p lang={review.originalLanguage || undefined}>{review.originalText}</p></details>}
-          {externalUrl(review.googleMapsUri) && <a href={review.googleMapsUri} target="_blank" rel="noopener noreferrer">리뷰 원문 보기 ↗</a>}
+          {review.translated && review.originalText && <details className="google-review-original"><summary>번역됨 · 원문 보기</summary><p lang={review.originalLanguage || undefined}>{review.originalText}</p></details>}
+          {review.translated && !review.originalText && !externalUrl(review.googleMapsUri) && <span className="google-translated">번역됨 · 원문 정보 없음</span>}
+          {externalUrl(review.googleMapsUri) && <a href={review.googleMapsUri} target="_blank" rel="noopener noreferrer">{review.translated && !review.originalText ? "번역됨 · 원문 보기 ↗" : "Google에서 리뷰 보기 ↗"}</a>}
         </article>)}</div>
       </section>
       <footer><span className="google-attribution">{details.attribution}</span>{externalUrl(details.googleMapsUri) && <a href={details.googleMapsUri} target="_blank" rel="noopener noreferrer">Google 지도에서 보기 ↗</a>}</footer>

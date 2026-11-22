@@ -3,11 +3,12 @@ import { TransportBudgetCard, TransportBudgetDetails } from './TransportBudget';
 import '../../styles/transportBudget.css';
 import PanelIcon from './PanelIcon';
 import PlaceArtwork from './PlaceArtwork';
-import { VERDICT_LABELS, krwRange, mealStop } from '../../utils/budgetPresentation';
+import { VERDICT_LABELS, krwRange, mealStop, exchangeRateAttribution } from '../../utils/budgetPresentation';
 import '../../styles/budgetPosterDesign.css';
 
 export default function BudgetPanel({ budget, loading, error, onRetry, itinerary, busy, onOpenMeal }) {
-  const rate = itinerary?.exchangeRate ?? { krwPerYen: budget?.krwPerYen, date: budget?.exchangeRateDate, sourceLabel: budget?.exchangeRateSourceLabel };
+  const rate = budget?.exchangeRate ?? itinerary?.exchangeRate ?? { krwPerYen: budget?.krwPerYen, date: budget?.exchangeRateDate, sourceLabel: budget?.exchangeRateSourceLabel };
+  const rateSource = exchangeRateAttribution(rate);
   const rateValue = rate?.krwPerYen ?? itinerary?.krwPerYen;
   const hasRate = Number.isFinite(rateValue) && rateValue > 0;
   const unknown = budget?.verdict === 'UNKNOWN';
@@ -17,7 +18,8 @@ export default function BudgetPanel({ budget, loading, error, onRetry, itinerary
       {loading && <div className="budget-state" role="status"><PanelIcon name="clock"/><p>최신 일정의 예산을 계산하고 있어요…</p></div>}
       {error && <div className="budget-state" role="alert"><p>{error}</p><button type="button" onClick={onRetry}>다시 불러오기</button></div>}
       {!loading && !error && budget && <>
-        {hasRate && <section className="budget-exchange budget-rate-card" aria-label="기준 환율"><span className="budget-rate-icon"><PanelIcon name="card"/></span><div className="budget-rate-amount"><small>기준 환율</small><b>100엔 = {Math.round(rateValue * 100).toLocaleString('ko-KR')}원</b></div><div className="budget-rate-source"><b>{[rate?.date?.replaceAll('-', '.'), rate?.sourceLabel || '고정 환율'].filter(Boolean).join(' · ')}</b><p>실제 환전에는 수수료가 붙을 수 있어요.</p></div></section>}
+        {hasRate && <section className="budget-exchange budget-rate-card" aria-label="기준 환율"><span className="budget-rate-icon"><PanelIcon name="card"/></span><div className="budget-rate-amount"><small>기준 환율</small><b>100엔 = {Math.round(rateValue * 100).toLocaleString('ko-KR')}원</b></div><div className="budget-rate-source"><b>{rateSource || '고정 환율'}</b><p>실제 환전에는 수수료가 붙을 수 있어요.</p></div></section>}
+        {!hasRate && rateSource && <p className="budget-rate-attribution">{rateSource}</p>}
         <div className={budget.transport ? "budget-cost-cards has-transport" : "budget-cost-cards"}>
         <section className="budget-overview" aria-label="예상 식비"><div className="budget-overview-top"><span>예상 식비</span><b className={`food-verdict verdict-${budget.verdict?.toLowerCase()}`}>{VERDICT_LABELS[budget.verdict] || VERDICT_LABELS.UNKNOWN}</b></div>
           <strong className="budget-total">{unknown ? '확인 어려움' : krwRange(budget.food?.minKrw, budget.food?.maxKrw)}</strong>
@@ -36,7 +38,7 @@ export default function BudgetPanel({ budget, loading, error, onRetry, itinerary
             <ul>{day.meals?.map((meal,mealIndex) => {
               const stop = mealStop(itinerary,day.dayNumber,meal);
               const price = meal.budgetText && meal.budgetText !== '-' ? meal.budgetText : '예산 정보 없음';
-              return <li className="budget-meal" key={`${meal.type}-${mealIndex}`}><span className="budget-meal-art"><PlaceArtwork type={meal.type} place={{...stop?.restaurant,...meal}}/></span><div className="budget-meal-copy"><small>{stopKindLabel(meal.type)}</small><b>{meal.nameKo || meal.name}</b>{meal.nameKo && <span>{meal.name}</span>}<p>{price}<em>1인 기준</em></p></div>{stop && <button type="button" disabled={busy} onClick={()=>onOpenMeal(day.dayNumber,stop.order)} aria-label={`${meal.nameKo || meal.name} 상세 보기`}>상세 <span aria-hidden="true">↗</span></button>}</li>;
+              return <li className={meal.estimated ? "budget-meal is-estimated" : "budget-meal"} key={`${meal.type}-${mealIndex}`}>{!meal.estimated && <span className="budget-meal-art"><PlaceArtwork type={meal.type} place={{...stop?.restaurant,...meal}}/></span>}<div className="budget-meal-copy"><small>{stopKindLabel(meal.type)}</small><b>{meal.nameKo || meal.name}{meal.estimated && <em className="estimated-meal-badge">예상</em>}</b>{meal.nameKo && <span>{meal.name}</span>}<p>{price}<em>1인 기준</em></p></div>{stop && <button type="button" disabled={busy} onClick={()=>onOpenMeal(day.dayNumber,stop.order)} aria-label={`${meal.nameKo || meal.name} 상세 보기`}>상세 <span aria-hidden="true">↗</span></button>}</li>;
             })}</ul>
           </details>)}</div>
         </section>

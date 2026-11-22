@@ -24,3 +24,4 @@
 .conditions-form .trip-interest-list input[type=checkbox]{appearance:auto;width:14px;height:14px;min-height:0;flex:none;margin:0;padding:0;accent-color:#217ddb;}
 .conditions-form .trip-interest-list input:focus-visible{outline:2px solid #2383de;outline-offset:3px;}
 @media(max-width:480px){.conditions-form .trip-interest-list{grid-template-columns:repeat(2,minmax(0,1fr));}.trip-flight-grid{grid-template-columns:1fr;}.conditions-form .trip-flight-pair input{font-size:16px;}}
+.conditions-form .travel-method-fields { align-items: start; }

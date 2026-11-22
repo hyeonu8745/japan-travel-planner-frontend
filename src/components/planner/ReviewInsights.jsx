@@ -1,3 +1,4 @@
+import GoogleAuthor from "./GoogleAuthor";
 import DetailArt from "./DetailArt";
 export function ReviewFindings({ findings }) {
   if (!findings?.length) return null;
@@ -17,7 +18,7 @@ export default function ReviewInsights({ insights, reviews = [], idPrefix }) {
       {hasFindings && insights.counts?.length > 0 && <ul className="review-insight-counts">{insights.counts.map((count, index) => <li key={index} className={count.caution ? "is-caution" : "is-positive"}>{count.label} · {count.count}개 리뷰</li>)}</ul>}
       {findings.length > 0 && <ul className="review-insight-evidence">{findings.map((finding, index) => <li key={index} className={finding.caution ? "is-caution" : "is-positive"}>
         <a href={`#${idPrefix}-${finding.reviewIndex}`}>리뷰 {finding.reviewIndex + 1}에 적힌 {finding.label}</a>
-        {finding.evidence && <blockquote>{finding.evidence}</blockquote>}
+        {finding.evidence && <><blockquote>{finding.evidence}</blockquote><div className="review-evidence-credit"><GoogleAuthor author={reviews[finding.reviewIndex].author} showPhoto={false} /><span>Google 리뷰</span></div></>}
       </li>)}</ul>}
     </>}
     <p className="google-review-notice">{insights.notice}</p>
