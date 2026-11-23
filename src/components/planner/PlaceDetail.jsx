@@ -54,6 +54,26 @@ export default function PlaceDetail({
     ? `${KIND_LABELS[stop.type]} · ${restaurantGenres(place) || "식당"}`
     : `관광지 · ${(place.labels ?? []).slice(0, 2).join(", ") || "명소"}`;
 
+  const previous = stop.alternatives?.[0];
+  const editActions = !readOnly && (
+    <div className="detail-edit-toolbar">
+      <div className="restaurant-edit-actions">
+        <button type="button" className="primary-action" disabled={busy}
+          onClick={isMeal ? onOpenCandidates : onOpenAttractionCandidates}>
+          {isMeal ? "다른 식당으로 바꾸기" : "다른 관광지 보기 ↗"}
+        </button>
+      </div>
+      {isMeal && previous && <button className="detail-restore" type="button"
+        disabled={busy || replacingId != null} onClick={() => onReplaceAlternative(previous.id)}>
+        ↩ {displayName(previous)}으로 되돌리기
+      </button>}
+      <div className="restaurant-edit-actions">
+        <button type="button" className="danger-action" disabled={busy || !canDelete} onClick={onDelete}>일정에서 삭제</button>
+        {!canDelete && <small>하루의 마지막 1개 항목은 삭제할 수 없어요.</small>}
+      </div>
+    </div>
+  );
+
   const scheduleInfo = (
     <section className="detail-schedule-info" aria-label="방문 일정">
         <h3><DetailArt name="calendar" />방문 일정</h3>
@@ -117,42 +137,7 @@ export default function PlaceDetail({
           </div>
         )}
 
-        {/* 식당 변경 / 되돌리기 */}
-        <div className="detail-edit-toolbar">
-        {isMeal && !readOnly && (
-          <div className="restaurant-edit-actions">
-            <button
-              type="button"
-              className="primary-action"
-              onClick={onOpenCandidates}
-              disabled={busy}
-            >
-              다른 식당으로 바꾸기 ↗
-            </button>
-
-          </div>
-        )}
-
-        {!isMeal && !readOnly && (
-          <div className="restaurant-edit-actions">
-            <button
-              type="button"
-              className="primary-action"
-              onClick={onOpenAttractionCandidates}
-              disabled={busy}
-            >
-              다른 관광지 보기 ↗
-            </button>
-          </div>
-        )}
-
-        {!readOnly && <div className="restaurant-edit-actions">
-          <button type="button" className="danger-action" disabled={busy || !canDelete} onClick={onDelete}>일정에서 삭제</button>
-          {!canDelete && <small>하루의 마지막 1개 항목은 삭제할 수 없어요.</small>}
-        </div>}
-        </div>
-        {isMeal && !readOnly && stop.alternatives?.[0] && <button className="detail-restore" type="button" disabled={busy || replacingId != null} onClick={() => onReplaceAlternative(stop.alternatives[0].id)}>↩ {displayName(stop.alternatives[0])}으로 되돌리기</button>}
-        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h4>이전 식당 후보</h4>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}><DetailArt name="food" /><span>{displayName(candidate)}{candidate.nameKo && <small>{candidate.name}</small>}<small>{restaurantGenres(candidate)} · 상세 보기</small></span><b aria-hidden="true">›</b></button>)}</section>}
+        {!isMeal && editActions}
     </section>
   );
 
@@ -193,6 +178,11 @@ export default function PlaceDetail({
       <div className="body">
         {isMeal ? <RestaurantDetails key={stop.id} restaurantId={place.id} fallbackName={stop.name} visitDate={visitDate} heading={heading} onReplace={onOpenCandidates} readOnly={readOnly} busy={busy}>
           {scheduleInfo}
+          {(!readOnly || previous) && <section className="restaurant-edit-panel" aria-label="식당 선택">
+            <h3>식당 선택</h3>
+            {editActions}
+        {isMeal && stop.alternatives?.length > 0 && <section className="restaurant-alternative-details"><h4>이전 식당 후보</h4>{stop.alternatives.map((candidate) => <button type="button" key={candidate.id} onClick={() => setAlternativeDetail({ stopId: stop.id, candidate })}><DetailArt name="food" /><span>{displayName(candidate)}{candidate.nameKo && <small>{candidate.name}</small>}<small>{restaurantGenres(candidate)} · 상세 보기</small></span><b aria-hidden="true">›</b></button>)}</section>}
+          </section>}
         </RestaurantDetails> : (
           <AttractionDetails key={stop.id} attractionId={place.id} fallbackName={stop.name} localPhoto={place.photo} visitDate={visitDate} heading={heading}>
             {scheduleInfo}

@@ -42,11 +42,16 @@ export default function RestaurantDetails({ restaurantId, fallbackName, nameKo, 
     renderIntro={({ details, onReload: reload }) => {
       const data = details.restaurant, tabelog = data.tabelog ?? {}, google = details.hasGoogle ? data.google : null;
       const features = google?.features;
+      const cautions = details.reviewInsights?.findings?.filter(finding => finding.caution) ?? [];
+      const labels = [...new Set(cautions.map(finding => finding.label).filter(Boolean))];
       return <>
         {!heading && <><h3>{nameKo || data.nameKo || google?.localizedName || data.name || fallbackName}</h3>
         {(nameKo || data.nameKo || (google?.localizedName && google.localizedName !== data.name)) && <p className="google-original-name">{data.name || fallbackName}</p>}
         <p className="google-original-name">{restaurantGenres({ ...data, genreLabels: genreLabels ?? data.genreLabels })}{data.address && ` · ${data.address}`}</p></>}
-        {!readOnly && onReplace && details.reviewInsights?.findings?.some((finding) => finding.caution) && <div className="restaurant-google-warning"><p>주의 경험을 확인하고 다른 식당을 비교할 수 있어요.</p><button type="button" className="tabi-button tabi-button-primary" disabled={busy} onClick={onReplace}>다른 식당으로 바꾸기</button></div>}
+        {!readOnly && onReplace && cautions.length > 0 && <div className="restaurant-review-note">
+          <span>리뷰 참고{labels.length > 0 && <> · {labels.join(" · ")}</>}</span>
+          <button type="button" disabled={busy} onClick={onReplace}>다른 식당 보기 ↗</button>
+        </div>}
         {google?.summary && <p className="google-place-summary">{google.summary}</p>}
         <div className="restaurant-detail-ratings">
           {tabelog.rating != null && <div><span>타베로그</span><b>★ {tabelog.rating}</b>{tabelog.reviewCount != null && <small>리뷰 {tabelog.reviewCount.toLocaleString()}개</small>}</div>}

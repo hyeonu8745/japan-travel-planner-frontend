@@ -197,3 +197,33 @@
 .planner-v2 .profile-editor :is(header p, .profile-scope p, .profile-field-grid small) {
   color: var(--planner-muted);
 }
+
+.restaurant-review-note {
+  display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 12px;
+  margin:5px 0; font-size:12px; line-height:1.5; color:#77502d;
+}
+.restaurant-review-note > button {
+  border:0; background:transparent; color:#60492f; font:inherit;
+  padding:3px 0; text-decoration:underline; text-underline-offset:3px; cursor:pointer;
+}
+.restaurant-review-note > button:disabled { opacity:.55; cursor:default; }
+
+.place-detail-v3 .restaurant-edit-panel {
+  grid-column:1 / -1; min-width:0; margin:0;
+  padding:16px; border:1px solid #ded9ce; border-radius:12px; background:#faf9f5;
+}
+.place-detail-v3 .restaurant-edit-panel h3 { margin:0 0 10px; color:#35434a; font-size:15px; }
+.place-detail-v3 .restaurant-edit-panel .detail-edit-toolbar { flex-wrap:wrap; align-items:center; margin:0; padding:0; border:0; gap:8px; }
+.place-detail-v3 .restaurant-edit-panel .restaurant-edit-actions:first-child { flex:0 1 auto; }
+.place-detail-v3 .restaurant-edit-panel .restaurant-edit-actions { flex-wrap:wrap; }
+.place-detail-v3 .restaurant-edit-panel .detail-edit-toolbar button {
+  max-width:100%; padding:7px 11px; border-radius:7px; margin:0; font-size:12px; line-height:1.5;
+}
+.place-detail-v3 .restaurant-edit-panel .detail-edit-toolbar .primary-action { background:#314952; border-color:#314952; color:white; }
+.place-detail-v3 .restaurant-edit-panel .detail-restore { background:#fffdf8; color:#554b40; border:1px solid #d8cebf; }
+.place-detail-v3 .restaurant-edit-panel .restaurant-alternative-details {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr)); gap:8px;
+  padding-top:12px; border-top:1px solid #dfdbd2; margin:12px 0 0;
+}
+.place-detail-v3 .restaurant-edit-panel .restaurant-alternative-details h4 { grid-column:1/-1; margin:0; }
+.place-detail-v3 .restaurant-edit-panel .restaurant-alternative-details button { margin:0; background:#fffdf8; border-color:#ded9ce; }
